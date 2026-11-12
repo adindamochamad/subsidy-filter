@@ -1,0 +1,21 @@
+# Secrets — never commit
+.env
+*.json-key
+service-account*.json
+gcloud-key*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# IMPORTANT: data/raw/*.csv IS COMMITTED ON PURPOSE.
+# The judges' machine screeners have no BigQuery credentials, so `make all`
+# must rebuild every chart from these committed extracts, fully offline.
+# Do not add data/ or *.csv to this file.

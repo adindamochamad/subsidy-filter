@@ -1,0 +1,2638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subsidy Filter — NEAR active accounts, Nov 2025–Nov 2026</title>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=instrument-serif@400,400i,600,700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
+<style>
+  :root {
+    --cream: #FBF8F3;
+    --charcoal: #1A1A1A;
+    --rust: #B5431F;
+    --grey: #7C7872;
+    --muted: #6F6B66;
+    --rule: #D9D3C9;
+    --ink: #201819;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: var(--cream);
+    color: var(--charcoal);
+    margin: 0;
+  }
+  body {
+    font-family: "Instrument Serif", "Times New Roman", Times, serif;
+    font-size: 1.25rem;
+    line-height: 1.45;
+    font-weight: 400;
+  }
+  .page {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 2.4rem 1.4rem 6rem;
+  }
+  .hero-band {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 4.5rem 1.4rem 3.4rem;
+  }
+  .hero-inner {
+    max-width: 40rem;
+    margin: 0 auto;
+  }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream);
+    margin: 0;
+  }
+  .hero-band h1 {
+    font-weight: 400;
+    font-size: 3.05rem;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0.7rem 0 0.85rem;
+    color: var(--cream);
+  }
+  .standfirst {
+    font-style: italic;
+    font-size: 1.28rem;
+    color: var(--cream);
+    margin: 0;
+    max-width: 36rem;
+  }
+  h1 {
+    font-weight: 400;
+    font-size: 3.35rem;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0.55rem 0 0.6rem;
+  }
+  h2 {
+    font-weight: 400;
+    font-size: 1.55rem;
+    margin: 3.2rem 0 0.7rem;
+  }
+  p { margin: 0 0 1.05rem; }
+  a { color: var(--charcoal); }
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.86em;
+    font-style: normal;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  figure {
+    margin: 3.1rem 0;
+  }
+  figcaption {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 0.65rem;
+  }
+  figure .chart {
+    margin: 0 -0.2rem 0.85rem;
+  }
+  figure .chart svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .take {
+    font-size: 1.05rem;
+    margin: 0 0 0.55rem;
+  }
+  details {
+    margin: 0.35rem 0 0;
+  }
+  details summary {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    list-style: none;
+  }
+  details summary::-webkit-details-marker { display: none; }
+  details pre {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.68rem;
+    line-height: 1.45;
+    background: var(--cream);
+    border-top: 1px solid var(--rule);
+    padding: 0.85rem 0 0;
+    overflow-x: auto;
+    color: var(--charcoal);
+    margin: 0.55rem 0 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    font-variant-numeric: tabular-nums;
+    margin: 0.6rem 0 1.4rem;
+  }
+  th, td {
+    border-bottom: 1px solid var(--rule);
+    padding: 0.45rem 0.35rem;
+    vertical-align: bottom;
+  }
+  th {
+    text-align: left;
+    font-weight: 500;
+    color: var(--muted);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  th.num, td.num {
+    text-align: right;
+  }
+  td {
+    overflow-wrap: anywhere;
+  }
+  td.rust { color: var(--rust); }
+  .note {
+    font-size: 1.05rem;
+    color: var(--charcoal);
+  }
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--rule);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+</style>
+</head>
+<body>
+<header class="hero-band">
+  <div class="hero-inner">
+    <p class="kicker">Subsidy Filter · NEAR public transactions · 2025-11-01 to 2026-11-11</p>
+    <h1>Most of NEAR’s active accounts are one Telegram game.</h1>
+    <p class="standfirst">After removing HOT and flagging quota-shaped bursts, quiet-month Net Demand is a fraction of the headline. 2026-11 is a partial month (1–11 Nov), equal to max(block_date) in data/raw/daily_activity.csv.</p>
+  </div>
+</header>
+<article class="page">
+  <figure>
+    <figcaption>Figure 1 · Reported active accounts and Net Demand</figcaption>
+    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="689.795847pt" height="314.300703pt" viewBox="0 0 689.795847 314.300703" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-12T16:23:05.930112</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 314.300703 
+L 689.795847 314.300703 
+L 689.795847 0 
+L 0 0 
+z
+" style="fill: #fbf8f3"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 51.01625 288 
+L 620.17625 288 
+L 620.17625 10.8 
+L 51.01625 10.8 
+z
+" style="fill: #fbf8f3"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m3b8358351b" d="M 0 0 
+L 0 3 
+" style="stroke: #6f6b66; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m3b8358351b" x="111.085907" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="111.085907" y="301.337891" transform="rotate(-0 111.085907 301.337891)">Dec 25</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m3b8358351b" x="204.193875" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="204.193875" y="301.338594" transform="rotate(-0 204.193875 301.338594)">Feb 26</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m3b8358351b" x="292.796619" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="292.796619" y="301.337891" transform="rotate(-0 292.796619 301.337891)">Apr 26</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m3b8358351b" x="384.402846" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="384.402846" y="301.337891" transform="rotate(-0 384.402846 301.337891)">Jun 26</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m3b8358351b" x="476.009073" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="476.009073" y="301.337891" transform="rotate(-0 476.009073 301.337891)">Aug 26</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m3b8358351b" x="567.6153" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="567.6153" y="301.337891" transform="rotate(-0 567.6153 301.337891)">Oct 26</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_7">
+      <path d="M 51.01625 282.409769 
+L 620.17625 282.409769 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8">
+      <defs>
+       <path id="mb5e62c482c" d="M 0 0 
+L -3 0 
+" style="stroke: #6f6b66; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#mb5e62c482c" x="51.01625" y="282.409769" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="285.829066" transform="rotate(-0 44.51625 285.829066)">50k</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_9">
+      <path d="M 51.01625 241.736421 
+L 620.17625 241.736421 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#mb5e62c482c" x="51.01625" y="241.736421" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="245.155718" transform="rotate(-0 44.51625 245.155718)">100k</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_11">
+      <path d="M 51.01625 201.063073 
+L 620.17625 201.063073 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#mb5e62c482c" x="51.01625" y="201.063073" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="204.48237" transform="rotate(-0 44.51625 204.48237)">200k</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_13">
+      <path d="M 51.01625 147.295832 
+L 620.17625 147.295832 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14">
+      <g>
+       <use xlink:href="#mb5e62c482c" x="51.01625" y="147.295832" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="150.715129" transform="rotate(-0 44.51625 150.715129)">500k</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_15">
+      <path d="M 51.01625 106.622484 
+L 620.17625 106.622484 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16">
+      <g>
+       <use xlink:href="#mb5e62c482c" x="51.01625" y="106.622484" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="110.041429" transform="rotate(-0 44.51625 110.041429)">1M</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_17">
+      <path d="M 51.01625 65.949136 
+L 620.17625 65.949136 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#mb5e62c482c" x="51.01625" y="65.949136" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="69.368081" transform="rotate(-0 44.51625 69.368081)">2M</text>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_19">
+      <path d="M 51.01625 25.275788 
+L 620.17625 25.275788 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_20">
+      <g>
+       <use xlink:href="#mb5e62c482c" x="51.01625" y="25.275788" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="28.694734" transform="rotate(-0 44.51625 28.694734)">4M</text>
+     </g>
+    </g>
+    <g id="text_14">
+     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="16.92125" y="149.4" transform="rotate(-90 16.92125 149.4)">Monthly distinct signers, log scale</text>
+    </g>
+   </g>
+   <g id="line2d_21">
+    <path d="M 66.033664 140.987965 
+L 111.085907 111.791055 
+L 157.639891 144.255416 
+L 204.193875 28.409909 
+L 246.242635 163.173788 
+L 292.796619 170.656636 
+L 337.848862 166.710748 
+L 384.402846 176.771503 
+L 429.455089 187.365087 
+L 476.009073 196.653374 
+L 522.563057 176.827967 
+L 567.6153 117.789929 
+L 614.169284 185.699569 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #7c7872; stroke-width: 1.8; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 66.033664 201.893065 
+L 111.085907 138.111064 
+L 157.639891 195.421821 
+L 204.193875 32.750403 
+L 246.242635 224.720649 
+L 292.796619 235.433191 
+L 337.848862 220.663887 
+L 384.402846 238.609152 
+L 429.455089 262.150885 
+L 476.009073 268.723632 
+L 522.563057 213.999112 
+L 567.6153 125.691478 
+L 614.169284 222.771361 
+" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #b5431f; stroke-width: 1.8; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 450.479469 262.150885 
+L 450.479469 187.365087 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.8; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 438.465538 187.365087 
+L 450.479469 187.365087 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.8; stroke-linecap: square"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 438.465538 262.150885 
+L 450.479469 262.150885 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.8; stroke-linecap: square"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 51.01625 288 
+L 51.01625 10.8 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 51.01625 288 
+L 620.17625 288 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m05a4906269" d="M 0 1.732051 
+C 0.459345 1.732051 0.899939 1.549551 1.224745 1.224745 
+C 1.549551 0.899939 1.732051 0.459345 1.732051 0 
+C 1.732051 -0.459345 1.549551 -0.899939 1.224745 -1.224745 
+C 0.899939 -1.549551 0.459345 -1.732051 0 -1.732051 
+C -0.459345 -1.732051 -0.899939 -1.549551 -1.224745 -1.224745 
+C -1.549551 -0.899939 -1.732051 -0.459345 -1.732051 0 
+C -1.732051 0.459345 -1.549551 0.899939 -1.224745 1.224745 
+C -0.899939 1.549551 -0.459345 1.732051 0 1.732051 
+z
+" style="stroke: #7c7872"/>
+    </defs>
+    <g clip-path="url(#pc35b0916f3)">
+     <use xlink:href="#m05a4906269" x="614.169284" y="185.699569" style="fill: #7c7872; stroke: #7c7872"/>
+    </g>
+   </g>
+   <g id="PathCollection_2">
+    <defs>
+     <path id="m3d9de6b201" d="M 0 1.732051 
+C 0.459345 1.732051 0.899939 1.549551 1.224745 1.224745 
+C 1.549551 0.899939 1.732051 0.459345 1.732051 0 
+C 1.732051 -0.459345 1.549551 -0.899939 1.224745 -1.224745 
+C 0.899939 -1.549551 0.459345 -1.732051 0 -1.732051 
+C -0.459345 -1.732051 -0.899939 -1.549551 -1.224745 -1.224745 
+C -1.549551 -0.899939 -1.732051 -0.459345 -1.732051 0 
+C -1.732051 0.459345 -1.549551 0.899939 -1.224745 1.224745 
+C -0.899939 1.549551 -0.459345 1.732051 0 1.732051 
+z
+" style="stroke: #b5431f"/>
+    </defs>
+    <g clip-path="url(#pc35b0916f3)">
+     <use xlink:href="#m3d9de6b201" x="614.169284" y="222.771361" style="fill: #b5431f; stroke: #b5431f"/>
+    </g>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 9px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #7c7872" x="622.169284" y="177.53746" transform="rotate(-0 622.169284 177.53746)">Reported</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 9px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #b5431f" x="622.169284" y="235.609954" transform="rotate(-0 622.169284 235.609954)">Net Demand</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 8px; font-family: 'IBM Plex Mono'; text-anchor: middle; fill: #7c7872" x="204.193875" y="20.409909" transform="rotate(-0 204.193875 20.409909)">3,791,961</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 8px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #1a1a1a" x="459.489918" y="226.836111" transform="rotate(-0 459.489918 226.836111)">72.0%</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pc35b0916f3">
+   <rect x="51.01625" y="10.8" width="569.16" height="277.2"/>
+  </clipPath>
+ </defs>
+</svg>
+</div>
+    <p class="take">Reported monthly signers ran from 215,609 (2026-08) to 3,791,961 (2026-02); Net Demand was below 40% of the headline in 7 of 13 months. 2026-11 is a partial month (1–11 Nov), equal to max(block_date) in data/raw/daily_activity.csv.</p>
+    <details>
+      <summary>SQL</summary>
+      <pre>-- Monthly headline signers vs Net Demand.
+-- Net Demand = distinct signers who transacted with at least one receiver
+-- whose account id does NOT contain &#x27;hot.tg&#x27; (the HOT Telegram game,
+-- including game.hot.tg). A signer who used both HOT and something else
+-- still counts in net_demand; a HOT-only signer does not.
+-- Columns read: block_date, signer_account_id, receiver_account_id.
+-- Partition filter: block_date BETWEEN DATE &#x27;2025-11-01&#x27; AND
+--   DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY).
+-- End bound is the last fully-closed UTC day. Never include today.
+
+SELECT
+  FORMAT_DATE(&#x27;%Y-%m&#x27;, block_date) AS mo,
+  COUNT(DISTINCT signer_account_id) AS all_signers,
+  COUNT(DISTINCT IF(receiver_account_id NOT LIKE &#x27;%hot.tg&#x27;,
+                    signer_account_id, NULL)) AS net_demand
+FROM `bigquery-public-data.crypto_near_mainnet_us.transactions`
+WHERE block_date BETWEEN DATE &#x27;2025-11-01&#x27;
+  AND DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY)
+GROUP BY 1
+ORDER BY 1;</pre>
+    </details>
+  </figure>
+
+  <p>NEAR’s reported active accounts are a count of distinct <span class="mono">signer_account_id</span> values. This note splits that count into signers who did something other than transact with a <span class="mono">hot.tg</span> receiver, and flags days where headcount spikes while transactions-per-signer collapse. Thresholds live in <span class="mono">classify/config.py</span>. The argument, including what cuts against it, is in <a href="../THESIS.md">THESIS.md</a>.</p>
+
+  <figure>
+    <figcaption>Figure 2 · Daily distinct signers. Open circles are burst days.</figcaption>
+    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="730.571975pt" height="315.766406pt" viewBox="0 0 730.571975 315.766406" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-12T16:23:05.973021</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 315.766406 
+L 730.571975 315.766406 
+L 730.571975 0 
+L 0 0 
+z
+" style="fill: #fbf8f3"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 51.01625 289.417891 
+L 719.771975 289.417891 
+L 719.771975 10.8 
+L 51.01625 10.8 
+z
+" style="fill: #fbf8f3"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m8e3b6c82f2" d="M 0 0 
+L 0 3 
+" style="stroke: #6f6b66; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m8e3b6c82f2" x="51.01625" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="51.01625" y="302.755781" transform="rotate(-0 51.01625 302.755781)">Nov 25</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m8e3b6c82f2" x="159.800515" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="159.800515" y="302.755781" transform="rotate(-0 159.800515 302.755781)">Jan 26</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m8e3b6c82f2" x="265.018082" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="265.018082" y="302.755781" transform="rotate(-0 265.018082 302.755781)">Mar 26</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m8e3b6c82f2" x="373.802347" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="373.802347" y="302.755781" transform="rotate(-0 373.802347 302.755781)">May 26</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m8e3b6c82f2" x="482.586611" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="482.586611" y="302.804297" transform="rotate(-0 482.586611 302.804297)">Jul 26</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m8e3b6c82f2" x="593.154224" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="593.154224" y="302.755781" transform="rotate(-0 593.154224 302.755781)">Sep 26</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#m8e3b6c82f2" x="701.938489" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="701.938489" y="302.755781" transform="rotate(-0 701.938489 302.755781)">Nov 26</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_8">
+      <path d="M 51.01625 289.417891 
+L 719.771975 289.417891 
+" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_9">
+      <defs>
+       <path id="made75220f9" d="M 0 0 
+L -3 0 
+" style="stroke: #6f6b66; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#made75220f9" x="51.01625" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="292.836836" transform="rotate(-0 44.51625 292.836836)">0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_10">
+      <path d="M 51.01625 245.858663 
+L 719.771975 245.858663 
+" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#made75220f9" x="51.01625" y="245.858663" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="249.277959" transform="rotate(-0 44.51625 249.277959)">100k</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_12">
+      <path d="M 51.01625 202.299434 
+L 719.771975 202.299434 
+" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#made75220f9" x="51.01625" y="202.299434" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="205.718731" transform="rotate(-0 44.51625 205.718731)">200k</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_14">
+      <path d="M 51.01625 158.740206 
+L 719.771975 158.740206 
+" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#made75220f9" x="51.01625" y="158.740206" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="162.159503" transform="rotate(-0 44.51625 162.159503)">300k</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_16">
+      <path d="M 51.01625 115.180978 
+L 719.771975 115.180978 
+" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#made75220f9" x="51.01625" y="115.180978" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="118.600275" transform="rotate(-0 44.51625 118.600275)">400k</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_18">
+      <path d="M 51.01625 71.62175 
+L 719.771975 71.62175 
+" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#made75220f9" x="51.01625" y="71.62175" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="75.041047" transform="rotate(-0 44.51625 75.041047)">500k</text>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_20">
+      <path d="M 51.01625 28.062522 
+L 719.771975 28.062522 
+" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_21">
+      <g>
+       <use xlink:href="#made75220f9" x="51.01625" y="28.062522" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="31.481819" transform="rotate(-0 44.51625 31.481819)">600k</text>
+     </g>
+    </g>
+    <g id="text_15">
+     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="16.92125" y="150.108945" transform="rotate(-90 16.92125 150.108945)">Daily distinct signers</text>
+    </g>
+   </g>
+   <g id="line2d_22">
+    <path d="M 51.01625 180.418763 
+L 52.799599 180.57122 
+L 54.582947 178.090522 
+L 56.366296 180.347326 
+L 58.149644 180.363443 
+L 59.932993 180.082921 
+L 61.716342 181.701582 
+L 63.49969 181.575696 
+L 65.283039 190.541056 
+L 67.066387 174.316986 
+L 70.633085 177.438876 
+L 72.416433 177.985109 
+L 74.199782 181.948127 
+L 75.98313 182.495667 
+L 77.766479 182.222115 
+L 79.549828 180.085535 
+L 81.333176 188.916297 
+L 83.116525 181.345703 
+L 84.899873 182.408549 
+L 86.683222 187.333355 
+L 88.466571 187.880023 
+L 90.249919 187.318109 
+L 92.033268 184.807791 
+L 93.816616 183.884771 
+L 95.599965 206.026362 
+L 97.383314 186.0244 
+L 99.166662 189.02476 
+L 100.950011 190.439563 
+L 102.733359 188.733784 
+L 104.516708 187.481456 
+L 106.300057 189.450769 
+L 108.083405 189.613245 
+L 109.866754 186.863351 
+L 111.650102 191.637442 
+L 113.433451 193.951308 
+L 115.2168 190.379452 
+L 118.783497 190.572419 
+L 120.566845 193.025675 
+L 122.350194 194.723178 
+L 124.133543 197.531006 
+L 125.916891 198.643508 
+L 127.70024 198.78464 
+L 129.483588 194.121189 
+L 131.266937 193.201218 
+L 133.050286 173.566461 
+L 134.833634 129.706674 
+L 136.616983 189.618908 
+L 138.400331 154.208304 
+L 140.18368 198.721915 
+L 141.967029 173.755072 
+L 143.750377 200.234291 
+L 145.533726 199.617928 
+L 147.317074 200.640699 
+L 149.100423 200.949098 
+L 150.883772 203.908512 
+L 152.66712 200.747855 
+L 154.450469 203.807891 
+L 156.233817 202.501549 
+L 158.017166 204.658602 
+L 159.800515 208.131579 
+L 161.583863 205.781124 
+L 163.367212 206.457598 
+L 165.15056 203.914175 
+L 166.933909 200.792721 
+L 168.717258 203.3405 
+L 172.283955 206.12045 
+L 174.067303 210.140096 
+L 175.850652 212.315443 
+L 177.634001 215.228249 
+L 179.417349 211.909471 
+L 181.200698 211.372822 
+L 184.767395 216.025818 
+L 186.550744 218.012555 
+L 188.334092 216.881322 
+L 190.117441 215.212568 
+L 191.900789 211.851538 
+L 193.684138 213.312514 
+L 195.467487 214.96036 
+L 199.034184 215.158119 
+L 200.817532 216.587732 
+L 202.600881 217.455868 
+L 204.38423 215.388982 
+L 206.167578 213.495027 
+L 207.950927 214.523461 
+L 209.734275 213.370883 
+L 211.517624 216.664832 
+L 213.300973 214.533479 
+L 215.084321 216.246664 
+L 216.86767 214.375359 
+L 218.651018 131.146307 
+L 220.434367 158.051971 
+L 222.217716 173.468453 
+L 224.001064 176.887416 
+L 225.784413 179.379004 
+L 227.567761 179.91609 
+L 229.35111 175.134593 
+L 231.134459 124.035698 
+L 232.917807 123.644972 
+L 234.701156 124.951749 
+L 236.484504 125.403022 
+L 238.267853 144.302065 
+L 240.051202 31.438362 
+L 241.83455 103.817247 
+L 243.617899 53.334279 
+L 245.401247 69.623253 
+L 247.184596 225.398458 
+L 248.967945 226.971817 
+L 250.751293 227.100752 
+L 252.534642 226.27879 
+L 254.31799 221.692874 
+L 256.101339 220.236689 
+L 257.884688 219.197801 
+L 259.668036 221.054731 
+L 261.451385 221.022062 
+L 263.234733 223.700083 
+L 265.018082 229.084439 
+L 266.801431 227.487558 
+L 268.584779 224.438412 
+L 270.368128 223.27146 
+L 272.151476 223.63126 
+L 273.934825 224.57693 
+L 275.718174 225.717311 
+L 277.501522 226.284017 
+L 279.284871 224.73505 
+L 281.068219 223.788944 
+L 282.851568 224.53947 
+L 284.634917 221.429776 
+L 286.418265 225.501693 
+L 289.984962 227.805976 
+L 291.768311 225.825338 
+L 293.55166 225.908972 
+L 295.335008 227.469699 
+L 297.118357 226.810648 
+L 298.901705 229.600181 
+L 300.685054 230.34243 
+L 302.468403 229.650709 
+L 304.251751 228.474175 
+L 306.0351 228.390976 
+L 307.818448 228.014625 
+L 309.601797 229.155441 
+L 311.385146 229.789228 
+L 313.168494 231.136515 
+L 314.951843 231.303346 
+L 316.735191 229.045672 
+L 318.51854 228.772555 
+L 320.301889 228.849655 
+L 322.085237 229.662035 
+L 323.868586 231.966318 
+L 327.435283 233.119766 
+L 329.218632 231.040684 
+L 331.00198 231.824315 
+L 332.785329 231.051574 
+L 334.568677 231.45319 
+L 336.352026 231.626556 
+L 338.135375 232.010313 
+L 339.918723 232.232465 
+L 341.702072 228.762101 
+L 343.48542 233.922998 
+L 345.268769 231.350826 
+L 347.052118 231.200111 
+L 348.835466 232.363142 
+L 350.618815 233.217339 
+L 352.402163 233.896427 
+L 354.185512 232.809189 
+L 355.968861 232.920265 
+L 357.752209 232.797864 
+L 359.535558 234.447452 
+L 361.318906 236.295234 
+L 363.102255 236.087456 
+L 364.885604 237.749677 
+L 366.668952 235.250684 
+L 368.452301 236.75217 
+L 370.235649 235.740289 
+L 372.018998 237.365049 
+L 373.802347 237.558452 
+L 375.585695 233.477388 
+L 377.369044 234.344652 
+L 379.152392 233.176393 
+L 380.935741 231.377833 
+L 382.71909 233.621133 
+L 384.502438 235.005881 
+L 386.285787 235.388331 
+L 388.069135 237.030078 
+L 389.852484 237.153351 
+L 391.635833 235.045084 
+L 393.419181 235.46151 
+L 395.20253 236.095733 
+L 396.985878 236.928585 
+L 398.769227 242.794271 
+L 402.335924 238.905303 
+L 404.119273 237.978363 
+L 405.902621 237.774505 
+L 407.68597 237.150302 
+L 409.469319 238.751539 
+L 411.252667 234.883479 
+L 413.036016 236.001209 
+L 414.819364 235.944582 
+L 416.602713 234.475329 
+L 418.386062 235.236309 
+L 420.16941 237.926092 
+L 421.952759 239.248985 
+L 423.736107 238.992857 
+L 425.519456 240.346242 
+L 427.302805 239.941141 
+L 429.086153 238.036732 
+L 430.869502 237.862059 
+L 432.65285 236.681169 
+L 434.436199 237.602882 
+L 436.219548 238.975869 
+L 438.002896 240.934727 
+L 439.786245 240.688182 
+L 441.569593 235.475885 
+L 443.352942 240.503491 
+L 445.136291 239.495095 
+L 446.919639 240.544437 
+L 448.702988 240.668581 
+L 450.486336 241.44437 
+L 452.269685 241.488801 
+L 454.053034 238.062432 
+L 455.836382 239.708971 
+L 457.619731 238.96585 
+L 459.403079 240.861548 
+L 461.186428 241.388179 
+L 462.969777 243.072614 
+L 466.536474 240.617616 
+L 468.319822 240.202061 
+L 470.103171 241.389486 
+L 471.88652 241.621221 
+L 473.669868 243.075663 
+L 477.236565 243.273858 
+L 479.019914 242.020659 
+L 480.803263 242.491534 
+L 482.586611 244.072299 
+L 484.36996 243.313061 
+L 486.153308 243.913743 
+L 487.936657 244.192522 
+L 489.720006 243.16496 
+L 491.503354 242.909267 
+L 493.286703 243.614056 
+L 495.070051 243.614491 
+L 496.8534 244.738755 
+L 498.636749 244.813241 
+L 500.420097 250.134872 
+L 502.203446 250.270777 
+L 503.986794 249.394365 
+L 505.770143 249.166986 
+L 507.553492 249.805564 
+L 509.33684 250.642773 
+L 511.120189 250.817445 
+L 512.903537 251.513086 
+L 514.686886 251.996593 
+L 516.470235 250.792181 
+L 518.253583 250.245948 
+L 520.036932 250.352668 
+L 521.82028 250.73686 
+L 523.603629 252.265789 
+L 525.386978 251.912088 
+L 527.170326 252.079791 
+L 528.953675 251.465606 
+L 530.737023 251.78054 
+L 532.520372 251.793607 
+L 534.303721 252.188254 
+L 536.087069 253.667961 
+L 537.870418 253.61569 
+L 539.653766 253.817369 
+L 541.437115 252.307606 
+L 543.220464 252.152535 
+L 545.003812 252.801568 
+L 546.787161 252.74799 
+L 548.570509 253.582149 
+L 550.353858 255.217798 
+L 552.137207 254.388431 
+L 553.920555 253.433612 
+L 555.703904 253.351285 
+L 557.487252 253.627015 
+L 559.270601 253.450165 
+L 561.05395 254.657627 
+L 562.837298 254.6524 
+L 566.403995 254.319607 
+L 568.187344 254.546551 
+L 569.970693 254.164972 
+L 571.754041 253.605236 
+L 573.53739 253.844376 
+L 575.320738 254.729064 
+L 577.104087 254.834477 
+L 578.887436 253.97244 
+L 580.670784 254.803986 
+L 582.454133 253.914506 
+L 584.237481 253.90623 
+L 586.02083 255.278346 
+L 587.804179 255.906034 
+L 589.587527 255.896887 
+L 591.370876 255.533167 
+L 593.154224 255.820658 
+L 594.937573 255.821965 
+L 596.720922 255.61288 
+L 600.287619 257.058611 
+L 602.070967 256.900056 
+L 603.854316 256.438763 
+L 605.637665 258.156304 
+L 607.421013 258.070928 
+L 609.204362 258.42158 
+L 610.98771 258.920333 
+L 612.771059 260.159157 
+L 614.554408 262.62853 
+L 616.337756 267.650473 
+L 618.121105 269.708647 
+L 619.904453 270.897814 
+L 621.687802 269.925572 
+L 623.471151 261.990823 
+L 625.254499 266.596775 
+L 627.037848 264.386145 
+L 628.821196 263.152547 
+L 630.604545 264.241964 
+L 632.387894 264.978986 
+L 634.171242 265.884146 
+L 635.954591 264.458453 
+L 637.737939 265.844508 
+L 639.521288 261.719013 
+L 641.304637 262.51092 
+L 643.087985 261.979933 
+L 644.871334 263.82728 
+L 646.654682 262.365432 
+L 650.22138 212.440458 
+L 652.004728 212.232681 
+L 653.788077 247.604516 
+L 655.571425 235.052054 
+L 657.354774 212.852093 
+L 659.138123 253.504614 
+L 660.921471 265.917687 
+L 662.70482 264.640966 
+L 664.488168 265.51912 
+L 666.271517 263.646509 
+L 668.054866 265.161934 
+L 669.838214 263.885649 
+L 671.621563 265.241212 
+L 675.18826 265.755647 
+L 676.971609 266.849855 
+L 678.754957 266.284891 
+L 680.538306 266.716563 
+L 682.321654 265.93119 
+L 684.105003 267.018429 
+L 685.888352 267.109468 
+L 689.455049 267.967149 
+L 691.238397 267.812078 
+L 693.021746 262.47433 
+L 694.805095 267.954952 
+L 696.588443 267.946676 
+L 698.371792 268.793032 
+L 700.15514 269.372369 
+L 701.938489 269.172433 
+L 703.721838 268.483326 
+L 705.505186 257.905838 
+L 707.288535 254.934663 
+L 709.071883 255.197761 
+L 710.855232 255.191663 
+L 712.638581 255.84418 
+L 714.421929 254.925951 
+L 716.205278 255.54972 
+L 717.988626 212.095905 
+L 719.771975 255.515308 
+L 719.771975 255.515308 
+" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #7c7872; stroke-linecap: square"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 51.01625 289.417891 
+L 51.01625 10.8 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 51.01625 289.417891 
+L 719.771975 289.417891 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m74dc251f3c" d="M 0 2.345208 
+C 0.621956 2.345208 1.218523 2.098102 1.658312 1.658312 
+C 2.098102 1.218523 2.345208 0.621956 2.345208 0 
+C 2.345208 -0.621956 2.098102 -1.218523 1.658312 -1.658312 
+C 1.218523 -2.098102 0.621956 -2.345208 0 -2.345208 
+C -0.621956 -2.345208 -1.218523 -2.098102 -1.658312 -1.658312 
+C -2.098102 -1.218523 -2.345208 -0.621956 -2.345208 0 
+C -2.345208 0.621956 -2.098102 1.218523 -1.658312 1.658312 
+C -1.218523 2.098102 -0.621956 2.345208 0 2.345208 
+z
+" style="stroke: #1a1a1a; stroke-width: 1.1"/>
+    </defs>
+    <g clip-path="url(#p7a605b75d1)">
+     <use xlink:href="#m74dc251f3c" x="240.051202" y="31.438362" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m74dc251f3c" x="243.617899" y="53.334279" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m74dc251f3c" x="650.22138" y="212.440458" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m74dc251f3c" x="652.004728" y="212.232681" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m74dc251f3c" x="657.354774" y="212.852093" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m74dc251f3c" x="717.988626" y="212.095905" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+    </g>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 8px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #1a1a1a" x="250.051202" y="23.438362" transform="rotate(-0 250.051202 23.438362)">15 Feb 2026</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p7a605b75d1">
+   <rect x="51.01625" y="10.8" width="668.755725" height="278.617891"/>
+  </clipPath>
+ </defs>
+</svg>
+</div>
+    <p class="take">Median distinct signers on a non-burst day were 123,953; 6 days cleared the 2.5x-signer and 60%-intensity test, peaking at 592,250 on 15 Feb 2026.</p>
+    <details>
+      <summary>SQL</summary>
+      <pre>-- Daily transaction count and distinct signers.
+-- tx / signers is the intensity ratio used by classify/ to detect quota
+-- bursts (headcount spikes while tx-per-signer falls).
+-- Columns read: block_date, signer_account_id.
+-- Partition filter: block_date BETWEEN DATE &#x27;2025-10-04&#x27; AND
+--   DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY).
+-- Window starts 28 days before the reporting start (2025-11-01) so the
+-- trailing-median burst detector has a full baseline in November 2025.
+-- End bound is the last fully-closed UTC day. Never include today:
+-- a partial day reads as a collapse on the daily chart.
+
+SELECT
+  block_date,
+  COUNT(*) AS tx,
+  COUNT(DISTINCT signer_account_id) AS signers
+FROM `bigquery-public-data.crypto_near_mainnet_us.transactions`
+WHERE block_date BETWEEN DATE &#x27;2025-10-04&#x27;
+  AND DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY)
+GROUP BY 1
+ORDER BY 1;</pre>
+    </details>
+  </figure>
+
+  <figure>
+    <figcaption>Figure 3 · Transactions per signer. Open circles are burst days.</figcaption>
+    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="731.212913pt" height="301.366406pt" viewBox="0 0 731.212913 301.366406" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-12T16:23:06.013875</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 301.366406 
+L 731.212913 301.366406 
+L 731.212913 0 
+L 0 0 
+z
+" style="fill: #fbf8f3"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 40.137188 275.017891 
+L 720.412912 275.017891 
+L 720.412912 10.8 
+L 40.137188 10.8 
+z
+" style="fill: #fbf8f3"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="meaa102a4b6" d="M 0 0 
+L 0 3 
+" style="stroke: #6f6b66; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#meaa102a4b6" x="40.137187" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="40.137187" y="288.355781" transform="rotate(-0 40.137187 288.355781)">Nov 25</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#meaa102a4b6" x="150.795372" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="150.795372" y="288.355781" transform="rotate(-0 150.795372 288.355781)">Jan 26</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#meaa102a4b6" x="257.825419" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="257.825419" y="288.355781" transform="rotate(-0 257.825419 288.355781)">Mar 26</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#meaa102a4b6" x="368.483604" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="368.483604" y="288.355781" transform="rotate(-0 368.483604 288.355781)">May 26</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#meaa102a4b6" x="479.141789" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="479.141789" y="288.404297" transform="rotate(-0 479.141789 288.404297)">Jul 26</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#meaa102a4b6" x="591.614042" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="591.614042" y="288.355781" transform="rotate(-0 591.614042 288.355781)">Sep 26</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#meaa102a4b6" x="702.272226" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="702.272226" y="288.355781" transform="rotate(-0 702.272226 288.355781)">Nov 26</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_8">
+      <path d="M 40.137188 275.017891 
+L 720.412912 275.017891 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_9">
+      <defs>
+       <path id="m27dd129684" d="M 0 0 
+L -3 0 
+" style="stroke: #6f6b66; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m27dd129684" x="40.137188" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="278.436836" transform="rotate(-0 33.637188 278.436836)">0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_10">
+      <path d="M 40.137188 239.152737 
+L 720.412912 239.152737 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#m27dd129684" x="40.137188" y="239.152737" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="242.571682" transform="rotate(-0 33.637188 242.571682)">5</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_12">
+      <path d="M 40.137188 203.287584 
+L 720.412912 203.287584 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#m27dd129684" x="40.137188" y="203.287584" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="206.706529" transform="rotate(-0 33.637188 206.706529)">10</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_14">
+      <path d="M 40.137188 167.42243 
+L 720.412912 167.42243 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#m27dd129684" x="40.137188" y="167.42243" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="170.841375" transform="rotate(-0 33.637188 170.841375)">15</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_16">
+      <path d="M 40.137188 131.557277 
+L 720.412912 131.557277 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#m27dd129684" x="40.137188" y="131.557277" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="134.976222" transform="rotate(-0 33.637188 134.976222)">20</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_18">
+      <path d="M 40.137188 95.692123 
+L 720.412912 95.692123 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#m27dd129684" x="40.137188" y="95.692123" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="99.111068" transform="rotate(-0 33.637188 99.111068)">25</text>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_20">
+      <path d="M 40.137188 59.82697 
+L 720.412912 59.82697 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_21">
+      <g>
+       <use xlink:href="#m27dd129684" x="40.137188" y="59.82697" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="63.245915" transform="rotate(-0 33.637188 63.245915)">30</text>
+     </g>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_22">
+      <path d="M 40.137188 23.961816 
+L 720.412912 23.961816 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_23">
+      <g>
+       <use xlink:href="#m27dd129684" x="40.137188" y="23.961816" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_15">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="27.380761" transform="rotate(-0 33.637188 27.380761)">35</text>
+     </g>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="16.87875" y="142.908945" transform="rotate(-90 16.87875 142.908945)">Transactions per signer</text>
+    </g>
+   </g>
+   <g id="line2d_24">
+    <path d="M 40.137187 151.920403 
+L 41.951256 150.792029 
+L 43.765325 153.674063 
+L 45.579393 151.146581 
+L 47.393462 153.333024 
+L 49.20753 158.760799 
+L 51.021599 152.801209 
+L 52.835668 151.531323 
+L 54.649736 143.679798 
+L 56.463805 156.777114 
+L 58.277874 158.718955 
+L 60.091942 153.981839 
+L 61.906011 153.014766 
+L 63.720079 148.160572 
+L 65.534148 148.53928 
+L 67.348217 150.124575 
+L 69.162285 150.220697 
+L 70.976354 142.389851 
+L 72.790422 151.44834 
+L 74.604491 144.878119 
+L 76.41856 143.819511 
+L 78.232628 141.681828 
+L 80.046697 142.954596 
+L 81.860765 148.893415 
+L 83.674834 146.768957 
+L 85.488903 131.5889 
+L 87.302971 144.103757 
+L 89.11704 137.658718 
+L 90.931108 147.744523 
+L 92.745177 147.554318 
+L 94.559246 145.399517 
+L 96.373314 147.443981 
+L 98.187383 146.494182 
+L 100.001451 146.54494 
+L 101.81552 147.731929 
+L 103.629588 148.638296 
+L 105.443657 152.620082 
+L 107.257726 151.305018 
+L 109.071794 149.528987 
+L 110.885863 147.401574 
+L 112.699931 146.952535 
+L 114.514 147.561676 
+L 116.328069 150.1904 
+L 118.142137 144.697048 
+L 119.956206 148.998651 
+L 121.770274 149.335327 
+L 123.584343 171.461058 
+L 125.398412 196.237216 
+L 127.21248 153.64962 
+L 129.026549 186.354273 
+L 130.840617 146.671204 
+L 132.654686 171.705934 
+L 134.468755 143.440962 
+L 136.282823 144.189585 
+L 138.096892 141.198007 
+L 139.91096 146.143181 
+L 141.725029 141.825469 
+L 143.539098 148.01132 
+L 145.353166 143.117405 
+L 147.167235 145.299834 
+L 148.981303 141.534175 
+L 150.795372 140.228829 
+L 152.609441 140.787659 
+L 154.423509 142.417872 
+L 156.237578 145.605773 
+L 158.051646 146.435977 
+L 159.865715 141.321107 
+L 161.679784 141.238415 
+L 163.493852 135.528311 
+L 167.121989 131.211686 
+L 168.936058 131.31364 
+L 170.750127 132.987223 
+L 172.564195 161.848629 
+L 174.378264 98.595566 
+L 176.192333 128.54324 
+L 178.006401 125.658157 
+L 179.82047 128.904887 
+L 181.634538 131.102528 
+L 183.448607 133.573625 
+L 185.262676 128.127366 
+L 187.076744 128.388426 
+L 188.890813 132.357882 
+L 190.704881 133.1094 
+L 192.51895 128.002337 
+L 194.333019 125.284538 
+L 196.147087 127.925684 
+L 197.961156 132.310721 
+L 199.775224 129.794276 
+L 201.589293 134.072642 
+L 203.403362 126.665198 
+L 205.21743 130.767348 
+L 207.031499 129.397608 
+L 208.845567 133.824057 
+L 210.659636 202.266001 
+L 214.287773 176.987378 
+L 216.101842 176.095739 
+L 217.91591 177.116992 
+L 219.729979 176.817997 
+L 221.544047 181.088242 
+L 223.358116 208.233637 
+L 225.172185 208.09792 
+L 226.986253 208.14431 
+L 228.800322 206.498762 
+L 230.61439 199.876849 
+L 232.428459 229.103978 
+L 234.242528 214.935981 
+L 236.056596 226.403069 
+L 237.870665 229.134095 
+L 239.684733 115.411942 
+L 241.498802 112.306191 
+L 243.312871 114.462998 
+L 245.126939 114.208786 
+L 246.941008 121.126353 
+L 248.755076 129.600897 
+L 250.569145 106.215573 
+L 252.383214 99.483327 
+L 254.197282 118.560869 
+L 256.011351 107.072077 
+L 257.825419 88.836083 
+L 259.639488 90.134014 
+L 261.453557 114.579349 
+L 263.267625 117.944324 
+L 265.081694 117.078087 
+L 266.895762 115.672592 
+L 268.709831 115.721173 
+L 270.5239 110.934652 
+L 272.337968 113.110588 
+L 274.152037 116.342449 
+L 275.966105 116.683916 
+L 277.780174 121.727988 
+L 279.594243 115.186073 
+L 281.408311 117.305856 
+L 283.22238 113.824001 
+L 285.036448 113.343927 
+L 286.850517 116.637221 
+L 288.664586 111.710695 
+L 290.478654 114.894599 
+L 292.292723 110.729658 
+L 294.106791 110.275662 
+L 295.92086 112.594062 
+L 297.734929 98.411374 
+L 299.548997 75.777147 
+L 301.363066 59.642053 
+L 303.177135 72.018674 
+L 304.991203 85.427255 
+L 306.805272 30.371696 
+L 308.61934 49.652626 
+L 310.433409 95.693831 
+L 312.247478 60.183702 
+L 314.061546 81.120782 
+L 315.875615 219.416092 
+L 317.689683 225.643664 
+L 319.503752 225.108804 
+L 321.317821 225.272483 
+L 323.131889 223.663748 
+L 324.945958 223.087295 
+L 326.760026 223.017072 
+L 328.574095 222.577592 
+L 330.388163 221.345349 
+L 332.202232 222.73214 
+L 334.016301 220.812777 
+L 335.830369 228.866872 
+L 337.644438 230.814914 
+L 339.458506 233.954057 
+L 341.272575 218.192505 
+L 343.086644 235.074719 
+L 344.900712 232.554011 
+L 346.714781 229.830532 
+L 348.528849 230.395058 
+L 350.342918 230.495637 
+L 352.156987 232.030255 
+L 353.971055 232.275899 
+L 355.785124 234.612474 
+L 357.599192 238.56844 
+L 359.413261 231.333072 
+L 361.22733 233.878278 
+L 363.041398 232.927579 
+L 364.855467 220.733388 
+L 366.669535 231.388872 
+L 368.483604 232.580999 
+L 370.297673 236.191119 
+L 372.111741 233.794792 
+L 373.92581 232.328983 
+L 375.739878 234.045848 
+L 377.553947 227.536083 
+L 379.368016 230.012557 
+L 381.182084 230.993131 
+L 382.996153 230.854678 
+L 384.810221 229.746762 
+L 386.62429 231.471833 
+L 388.438359 229.350269 
+L 390.252427 228.696049 
+L 392.066496 228.228391 
+L 393.880564 224.65904 
+L 395.694633 228.559649 
+L 397.508702 230.052453 
+L 399.32277 227.196066 
+L 401.136839 227.882707 
+L 402.950907 226.168746 
+L 404.764976 223.411118 
+L 406.579045 211.473006 
+L 408.393113 223.564454 
+L 410.207182 222.492327 
+L 412.02125 223.907637 
+L 413.835319 219.811631 
+L 415.649388 224.554551 
+L 417.463456 223.601372 
+L 419.277525 221.455808 
+L 421.091594 225.595005 
+L 422.905662 226.937082 
+L 424.719731 221.322474 
+L 426.533799 216.116108 
+L 428.347868 216.532709 
+L 430.161937 213.473332 
+L 431.976005 209.636218 
+L 433.790074 221.503785 
+L 435.604142 220.810758 
+L 437.418211 224.240762 
+L 439.23228 223.625458 
+L 441.046348 224.682628 
+L 442.860417 223.575625 
+L 444.674485 224.426665 
+L 446.488554 227.204438 
+L 448.302622 225.684139 
+L 450.116691 223.239838 
+L 451.93076 224.466058 
+L 453.744828 224.0375 
+L 455.558897 223.432454 
+L 457.372965 222.151373 
+L 459.187034 226.482221 
+L 461.001103 227.53714 
+L 462.815171 226.533538 
+L 464.62924 226.910158 
+L 466.443308 225.043933 
+L 468.257377 226.440951 
+L 470.071446 225.385904 
+L 471.885514 227.819111 
+L 473.699583 226.8482 
+L 475.513651 222.479236 
+L 477.32772 225.277487 
+L 479.141789 225.347025 
+L 480.955857 224.334794 
+L 482.769926 224.271642 
+L 484.583994 222.942551 
+L 486.398063 225.166057 
+L 488.212132 221.497452 
+L 490.0262 219.126807 
+L 491.840269 215.418063 
+L 493.654337 217.434827 
+L 495.468406 221.021501 
+L 497.282475 218.109843 
+L 499.096543 219.620394 
+L 500.910612 212.960554 
+L 502.72468 216.187705 
+L 504.538749 217.825554 
+L 506.352818 216.601329 
+L 508.166886 217.392833 
+L 509.980955 219.580162 
+L 511.795023 219.555382 
+L 513.609092 213.945286 
+L 515.423161 216.163592 
+L 517.237229 217.546864 
+L 519.051298 215.813105 
+L 520.865366 215.086824 
+L 522.679435 215.120006 
+L 524.493504 215.86796 
+L 526.307572 217.551894 
+L 528.121641 216.640354 
+L 529.935709 216.47068 
+L 531.749778 213.477233 
+L 533.563847 213.128214 
+L 535.377915 215.516697 
+L 537.191984 216.115644 
+L 539.006052 216.861404 
+L 540.820121 216.60998 
+L 542.63419 217.708651 
+L 544.448258 217.474394 
+L 546.262327 217.813518 
+L 548.076396 215.064331 
+L 549.890464 218.123336 
+L 551.704533 216.666532 
+L 553.518601 217.827527 
+L 555.33267 215.182456 
+L 557.146738 217.266359 
+L 558.960807 217.513915 
+L 560.774876 222.465546 
+L 562.588944 219.97383 
+L 564.403013 215.439967 
+L 566.217081 214.6415 
+L 568.03115 210.015596 
+L 569.845219 208.815762 
+L 571.659287 205.974648 
+L 573.473356 202.536287 
+L 575.287424 209.405449 
+L 577.101493 203.99393 
+L 578.915562 210.064159 
+L 580.72963 217.343489 
+L 582.543699 215.07643 
+L 584.357767 215.08119 
+L 586.171836 219.622466 
+L 587.985905 216.86447 
+L 589.799973 211.864699 
+L 591.614042 212.659209 
+L 593.42811 213.671166 
+L 595.242179 209.976756 
+L 597.056248 205.641774 
+L 598.870316 209.922791 
+L 600.684385 201.687555 
+L 602.498453 204.336001 
+L 604.312522 204.629478 
+L 606.126591 197.98476 
+L 607.940659 201.559218 
+L 609.754728 188.284399 
+L 611.568796 205.394535 
+L 613.382865 201.953655 
+L 615.196934 173.591822 
+L 617.011002 163.000697 
+L 618.825071 143.915431 
+L 620.639139 140.319951 
+L 622.453208 164.128635 
+L 624.267277 160.095509 
+L 626.081345 169.416714 
+L 627.895414 171.318003 
+L 629.709482 154.390665 
+L 631.523551 163.802098 
+L 633.33762 176.598524 
+L 635.151688 185.452775 
+L 636.965757 195.074743 
+L 638.779825 137.71305 
+L 640.593894 143.822995 
+L 642.407963 162.551169 
+L 644.222031 162.258859 
+L 646.0361 142.022359 
+L 647.850168 222.286392 
+L 649.664237 246.992987 
+L 651.478306 241.036307 
+L 653.292374 210.329621 
+L 656.920511 235.390297 
+L 658.73458 186.724196 
+L 660.548649 184.562982 
+L 662.362717 167.78448 
+L 664.176786 129.951271 
+L 665.990854 188.619873 
+L 667.804923 180.847597 
+L 669.618992 181.056634 
+L 671.43306 157.156504 
+L 673.247129 189.046632 
+L 675.061197 201.348745 
+L 676.875266 196.138781 
+L 680.503403 189.960303 
+L 682.317472 187.377581 
+L 684.13154 198.679229 
+L 685.945609 189.688322 
+L 687.759678 184.180944 
+L 689.573746 194.868431 
+L 691.387815 192.037866 
+L 693.201883 204.937769 
+L 695.015952 199.303715 
+L 696.830021 180.559647 
+L 698.644089 170.272766 
+L 700.458158 196.669454 
+L 702.272226 196.40979 
+L 704.086295 197.055136 
+L 705.900364 215.804767 
+L 707.714432 210.984882 
+L 709.528501 197.517567 
+L 711.342569 209.518683 
+L 713.156638 211.507775 
+L 714.970707 219.804831 
+L 716.784775 192.421575 
+L 718.598844 235.800595 
+L 720.412912 192.874519 
+L 720.412912 192.874519 
+" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #7c7872; stroke-linecap: square"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 40.137188 275.017891 
+L 40.137188 10.8 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 40.137187 275.017891 
+L 720.412912 275.017891 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="me463070bbf" d="M 0 2.345208 
+C 0.621956 2.345208 1.218523 2.098102 1.658312 1.658312 
+C 2.098102 1.218523 2.345208 0.621956 2.345208 0 
+C 2.345208 -0.621956 2.098102 -1.218523 1.658312 -1.658312 
+C 1.218523 -2.098102 0.621956 -2.345208 0 -2.345208 
+C -0.621956 -2.345208 -1.218523 -2.098102 -1.658312 -1.658312 
+C -2.098102 -1.218523 -2.345208 -0.621956 -2.345208 0 
+C -2.345208 0.621956 -2.098102 1.218523 -1.658312 1.658312 
+C -1.218523 2.098102 -0.621956 2.345208 0 2.345208 
+z
+" style="stroke: #1a1a1a; stroke-width: 1.1"/>
+    </defs>
+    <g clip-path="url(#p1969d5bbb1)">
+     <use xlink:href="#me463070bbf" x="232.428459" y="229.103978" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#me463070bbf" x="236.056596" y="226.403069" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#me463070bbf" x="649.664237" y="246.992987" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#me463070bbf" x="651.478306" y="241.036307" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#me463070bbf" x="656.920511" y="235.390297" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#me463070bbf" x="718.598844" y="235.800595" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p1969d5bbb1">
+   <rect x="40.137188" y="10.8" width="680.275725" height="264.217891"/>
+  </clipPath>
+ </defs>
+</svg>
+</div>
+    <p class="take">On those burst days, transactions per signer fell to 0.27–0.49 of the trailing 28-day median, the quota-campaign half of the detector.</p>
+    <details>
+      <summary>SQL</summary>
+      <pre>-- Daily transaction count and distinct signers.
+-- tx / signers is the intensity ratio used by classify/ to detect quota
+-- bursts (headcount spikes while tx-per-signer falls).
+-- Columns read: block_date, signer_account_id.
+-- Partition filter: block_date BETWEEN DATE &#x27;2025-10-04&#x27; AND
+--   DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY).
+-- Window starts 28 days before the reporting start (2025-11-01) so the
+-- trailing-median burst detector has a full baseline in November 2025.
+-- End bound is the last fully-closed UTC day. Never include today:
+-- a partial day reads as a collapse on the daily chart.
+
+SELECT
+  block_date,
+  COUNT(*) AS tx,
+  COUNT(DISTINCT signer_account_id) AS signers
+FROM `bigquery-public-data.crypto_near_mainnet_us.transactions`
+WHERE block_date BETWEEN DATE &#x27;2025-10-04&#x27;
+  AND DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY)
+GROUP BY 1
+ORDER BY 1;</pre>
+    </details>
+  </figure>
+
+  <figure>
+    <figcaption>Figure 4 · Share of daily signers taken by the #1 contract</figcaption>
+    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="730.571975pt" height="301.366406pt" viewBox="0 0 730.571975 301.366406" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-12T16:23:06.053795</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M -0 301.366406 
+L 730.571975 301.366406 
+L 730.571975 0 
+L -0 0 
+z
+" style="fill: #fbf8f3"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 51.01625 275.017891 
+L 719.771975 275.017891 
+L 719.771975 10.8 
+L 51.01625 10.8 
+z
+" style="fill: #fbf8f3"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <defs>
+       <path id="m6725b36bbb" d="M 0 0 
+L 0 3 
+" style="stroke: #6f6b66; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m6725b36bbb" x="51.01625" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="51.01625" y="288.355781" transform="rotate(-0 51.01625 288.355781)">Nov 25</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2">
+      <g>
+       <use xlink:href="#m6725b36bbb" x="159.800515" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="159.800515" y="288.355781" transform="rotate(-0 159.800515 288.355781)">Jan 26</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3">
+      <g>
+       <use xlink:href="#m6725b36bbb" x="265.018082" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="265.018082" y="288.355781" transform="rotate(-0 265.018082 288.355781)">Mar 26</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m6725b36bbb" x="373.802347" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="373.802347" y="288.355781" transform="rotate(-0 373.802347 288.355781)">May 26</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5">
+      <g>
+       <use xlink:href="#m6725b36bbb" x="482.586611" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="482.586611" y="288.404297" transform="rotate(-0 482.586611 288.404297)">Jul 26</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m6725b36bbb" x="593.154224" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="593.154224" y="288.355781" transform="rotate(-0 593.154224 288.355781)">Sep 26</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7">
+      <g>
+       <use xlink:href="#m6725b36bbb" x="701.938489" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_7">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="701.938489" y="288.355781" transform="rotate(-0 701.938489 288.355781)">Nov 26</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_8">
+      <path d="M 51.01625 275.017891 
+L 719.771975 275.017891 
+" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_9">
+      <defs>
+       <path id="m255cf45ba8" d="M 0 0 
+L -3 0 
+" style="stroke: #6f6b66; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m255cf45ba8" x="51.01625" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="278.436836" transform="rotate(-0 44.51625 278.436836)">0%</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_10">
+      <path d="M 51.01625 223.210461 
+L 719.771975 223.210461 
+" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_11">
+      <g>
+       <use xlink:href="#m255cf45ba8" x="51.01625" y="223.210461" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="226.629406" transform="rotate(-0 44.51625 226.629406)">20%</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_12">
+      <path d="M 51.01625 171.403032 
+L 719.771975 171.403032 
+" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_13">
+      <g>
+       <use xlink:href="#m255cf45ba8" x="51.01625" y="171.403032" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="174.821977" transform="rotate(-0 44.51625 174.821977)">40%</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_14">
+      <path d="M 51.01625 119.595602 
+L 719.771975 119.595602 
+" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_15">
+      <g>
+       <use xlink:href="#m255cf45ba8" x="51.01625" y="119.595602" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="123.014547" transform="rotate(-0 44.51625 123.014547)">60%</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_16">
+      <path d="M 51.01625 67.788172 
+L 719.771975 67.788172 
+" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#m255cf45ba8" x="51.01625" y="67.788172" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="71.207118" transform="rotate(-0 44.51625 71.207118)">80%</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_18">
+      <path d="M 51.01625 15.980743 
+L 719.771975 15.980743 
+" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#m255cf45ba8" x="51.01625" y="15.980743" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="19.399688" transform="rotate(-0 44.51625 19.399688)">100%</text>
+     </g>
+    </g>
+    <g id="text_14">
+     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="16.92125" y="142.908945" transform="rotate(-90 16.92125 142.908945)">Share of daily signers, #1 contract</text>
+    </g>
+   </g>
+   <g id="line2d_20">
+    <path d="M 51.01625 29.850191 
+L 52.799599 29.507831 
+L 54.582947 29.419251 
+L 56.366296 29.680758 
+L 58.149644 29.117857 
+L 59.932993 29.358665 
+L 61.716342 32.640441 
+L 63.49969 32.4358 
+L 65.283039 33.728109 
+L 67.066387 30.873614 
+L 70.633085 29.525446 
+L 72.416433 29.628293 
+L 74.199782 30.002416 
+L 75.98313 29.229983 
+L 77.766479 29.27196 
+L 79.549828 30.368313 
+L 81.333176 30.185325 
+L 83.116525 31.687684 
+L 84.899873 31.125618 
+L 86.683222 33.536308 
+L 88.466571 29.741428 
+L 90.249919 30.073492 
+L 92.033268 35.041043 
+L 95.599965 36.172608 
+L 97.383314 34.15 
+L 99.166662 34.578368 
+L 100.950011 34.027969 
+L 102.733359 34.210831 
+L 104.516708 35.1613 
+L 106.300057 35.155386 
+L 108.083405 32.458573 
+L 109.866754 33.030058 
+L 111.650102 31.753048 
+L 113.433451 30.939218 
+L 115.2168 29.201191 
+L 117.000148 30.830841 
+L 118.783497 30.674453 
+L 120.566845 25.498711 
+L 122.350194 24.89839 
+L 124.133543 24.909332 
+L 125.916891 24.137455 
+L 127.70024 24.619506 
+L 129.483588 31.332934 
+L 131.266937 29.583046 
+L 133.050286 71.990223 
+L 134.833634 132.575825 
+L 136.616983 47.977248 
+L 138.400331 106.070098 
+L 140.18368 25.460761 
+L 141.967029 78.592362 
+L 143.750377 24.589125 
+L 145.533726 25.577969 
+L 147.317074 25.247503 
+L 149.100423 25.314243 
+L 150.883772 25.7811 
+L 152.66712 24.345031 
+L 154.450469 26.852983 
+L 156.233817 27.777464 
+L 158.017166 36.223511 
+L 159.800515 28.103133 
+L 161.583863 29.313924 
+L 163.367212 28.405288 
+L 165.15056 28.814294 
+L 166.933909 35.298496 
+L 168.717258 31.446156 
+L 170.500606 31.353353 
+L 172.283955 28.699068 
+L 174.067303 27.900722 
+L 175.850652 28.386299 
+L 177.634001 24.876452 
+L 179.417349 30.916963 
+L 181.200698 33.527954 
+L 182.984046 29.833292 
+L 184.767395 25.089968 
+L 186.550744 25.817477 
+L 188.334092 26.174291 
+L 190.117441 28.595413 
+L 191.900789 35.46188 
+L 193.684138 32.166395 
+L 195.467487 29.348281 
+L 199.034184 28.264039 
+L 200.817532 27.924172 
+L 204.38423 30.927011 
+L 206.167578 32.223138 
+L 207.950927 29.285366 
+L 209.734275 26.760171 
+L 211.517624 28.046944 
+L 213.300973 27.991313 
+L 215.084321 25.997979 
+L 216.86767 27.453275 
+L 218.651018 161.887864 
+L 220.434367 137.001029 
+L 222.217716 121.051219 
+L 224.001064 121.32767 
+L 225.784413 122.393321 
+L 227.567761 122.641158 
+L 229.35111 126.858156 
+L 231.134459 173.777862 
+L 232.917807 178.53605 
+L 234.701156 174.380968 
+L 236.484504 173.60118 
+L 238.267853 159.660029 
+L 240.051202 213.81733 
+L 241.83455 189.437169 
+L 243.617899 209.526275 
+L 245.401247 203.840531 
+L 247.184596 28.334142 
+L 248.967945 24.964711 
+L 250.751293 25.435962 
+L 252.534642 25.22173 
+L 254.31799 25.202437 
+L 256.101339 24.276012 
+L 257.884688 26.023683 
+L 259.668036 24.926547 
+L 261.451385 24.367965 
+L 265.018082 25.627146 
+L 266.801431 27.320621 
+L 268.584779 26.489828 
+L 270.368128 26.718944 
+L 272.151476 25.244321 
+L 273.934825 24.792986 
+L 275.718174 25.737214 
+L 277.501522 24.545136 
+L 279.284871 24.776151 
+L 281.068219 27.732027 
+L 282.851568 27.356652 
+L 284.634917 37.036369 
+L 286.418265 26.380431 
+L 288.201614 24.323796 
+L 289.984962 24.94716 
+L 291.768311 26.930173 
+L 293.55166 26.383163 
+L 295.335008 27.676175 
+L 297.118357 28.131586 
+L 298.901705 26.96471 
+L 300.685054 24.482187 
+L 302.468403 25.004915 
+L 304.251751 29.829631 
+L 306.0351 27.686328 
+L 307.818448 27.699112 
+L 309.601797 27.366724 
+L 311.385146 30.328068 
+L 313.168494 25.798359 
+L 314.951843 24.708187 
+L 316.735191 27.065674 
+L 318.51854 27.53113 
+L 320.301889 25.47984 
+L 322.085237 25.46736 
+L 323.868586 24.956199 
+L 327.435283 24.578904 
+L 329.218632 25.140535 
+L 331.00198 25.457162 
+L 332.785329 26.34857 
+L 334.568677 25.602829 
+L 336.352026 28.203068 
+L 338.135375 25.58614 
+L 339.918723 25.323539 
+L 341.702072 35.712353 
+L 343.48542 25.84197 
+L 345.268769 25.914264 
+L 347.052118 23.989164 
+L 348.835466 24.623093 
+L 350.618815 31.907931 
+L 352.402163 25.44299 
+L 354.185512 25.500445 
+L 355.968861 25.375366 
+L 357.752209 25.960879 
+L 359.535558 25.802631 
+L 361.318906 25.233056 
+L 363.102255 24.183558 
+L 364.885604 24.550091 
+L 366.668952 25.083799 
+L 370.235649 24.708577 
+L 372.018998 25.538101 
+L 373.802347 25.253905 
+L 375.585695 39.598338 
+L 377.369044 38.312768 
+L 379.152392 39.162978 
+L 380.935741 35.761769 
+L 382.71909 31.475166 
+L 384.502438 25.615187 
+L 386.285787 26.069736 
+L 388.069135 25.586837 
+L 389.852484 25.341789 
+L 391.635833 33.267179 
+L 393.419181 25.48324 
+L 395.20253 25.744391 
+L 396.985878 25.112533 
+L 398.769227 25.639427 
+L 400.552576 24.28612 
+L 402.335924 25.096846 
+L 404.119273 26.121471 
+L 405.902621 25.404129 
+L 407.68597 25.520422 
+L 409.469319 27.643606 
+L 411.252667 34.358071 
+L 413.036016 29.294868 
+L 414.819364 29.605726 
+L 416.602713 34.654879 
+L 421.952759 26.41429 
+L 423.736107 30.236938 
+L 425.519456 26.162417 
+L 427.302805 28.184007 
+L 429.086153 27.325436 
+L 430.869502 28.462272 
+L 432.65285 30.962102 
+L 434.436199 29.053133 
+L 436.219548 27.644025 
+L 438.002896 24.680168 
+L 439.786245 25.231243 
+L 441.569593 47.537273 
+L 443.352942 26.407372 
+L 445.136291 24.700523 
+L 446.919639 26.217559 
+L 448.702988 25.702014 
+L 450.486336 25.059532 
+L 452.269685 27.346812 
+L 454.053034 30.024793 
+L 455.836382 26.771877 
+L 457.619731 29.509163 
+L 459.403079 28.32005 
+L 461.186428 24.597852 
+L 462.969777 24.419244 
+L 464.753125 24.976489 
+L 466.536474 25.178559 
+L 468.319822 24.931241 
+L 470.103171 25.126685 
+L 471.88652 26.714939 
+L 473.669868 26.428519 
+L 475.453217 25.589366 
+L 477.236565 26.21664 
+L 479.019914 27.586243 
+L 480.803263 28.472138 
+L 482.586611 26.160482 
+L 484.36996 27.231204 
+L 486.153308 25.34144 
+L 487.936657 24.603256 
+L 489.720006 24.767865 
+L 491.503354 25.15868 
+L 493.286703 25.378732 
+L 495.070051 25.22855 
+L 496.8534 24.951114 
+L 498.636749 24.414628 
+L 500.420097 24.299069 
+L 502.203446 24.843883 
+L 507.553492 25.711122 
+L 509.33684 25.470168 
+L 511.120189 28.050396 
+L 512.903537 25.488605 
+L 514.686886 25.195348 
+L 516.470235 24.662638 
+L 518.253583 25.327949 
+L 520.036932 25.133968 
+L 521.82028 25.566176 
+L 523.603629 25.827016 
+L 525.386978 29.016386 
+L 527.170326 26.696645 
+L 528.953675 26.288357 
+L 530.737023 26.569473 
+L 534.303721 26.467218 
+L 536.087069 27.336816 
+L 537.870418 25.876799 
+L 539.653766 25.127817 
+L 541.437115 25.768179 
+L 543.220464 26.099878 
+L 545.003812 25.666016 
+L 546.787161 26.41497 
+L 548.570509 28.984711 
+L 550.353858 25.047076 
+L 552.137207 25.215734 
+L 555.703904 26.498779 
+L 557.487252 25.690774 
+L 559.270601 25.420296 
+L 561.05395 26.118249 
+L 562.837298 24.873664 
+L 564.620647 24.724858 
+L 566.403995 24.442143 
+L 568.187344 24.51986 
+L 569.970693 27.048819 
+L 571.754041 27.036515 
+L 573.53739 28.563553 
+L 575.320738 27.973685 
+L 577.104087 26.799787 
+L 578.887436 29.137448 
+L 580.670784 26.444717 
+L 582.454133 29.112801 
+L 584.237481 30.714325 
+L 586.02083 26.540535 
+L 587.804179 24.835966 
+L 589.587527 26.698361 
+L 591.370876 26.663236 
+L 593.154224 27.738672 
+L 594.937573 26.540116 
+L 596.720922 26.905384 
+L 598.50427 27.034839 
+L 600.287619 31.208172 
+L 602.070967 33.24017 
+L 603.854316 34.446005 
+L 605.637665 29.533921 
+L 607.421013 31.843907 
+L 609.204362 31.375396 
+L 610.98771 31.849145 
+L 612.771059 30.619793 
+L 614.554408 30.709819 
+L 616.337756 38.918376 
+L 618.121105 46.523391 
+L 619.904453 44.274567 
+L 621.687802 58.625867 
+L 623.471151 86.724851 
+L 625.254499 64.771157 
+L 627.037848 69.351429 
+L 628.821196 71.853859 
+L 630.604545 66.661437 
+L 632.387894 67.257217 
+L 634.171242 64.631416 
+L 635.954591 74.270882 
+L 637.737939 63.692822 
+L 639.521288 100.887115 
+L 641.304637 99.469282 
+L 643.087985 90.003106 
+L 644.871334 77.555472 
+L 646.654682 90.40726 
+L 648.438031 178.911965 
+L 650.22138 209.607416 
+L 652.004728 206.64779 
+L 653.788077 146.713655 
+L 657.354774 207.425426 
+L 659.138123 126.954473 
+L 660.921471 59.155201 
+L 662.70482 71.776582 
+L 664.488168 57.769457 
+L 666.271517 66.558749 
+L 668.054866 58.828748 
+L 669.838214 66.674509 
+L 671.621563 61.708829 
+L 673.404911 59.22433 
+L 675.18826 61.959098 
+L 676.971609 51.653973 
+L 678.754957 52.597232 
+L 680.538306 52.597649 
+L 682.321654 58.353703 
+L 684.105003 51.877107 
+L 685.888352 48.589258 
+L 687.6717 47.109804 
+L 689.455049 43.738668 
+L 691.238397 45.315064 
+L 693.021746 89.543859 
+L 694.805095 45.089762 
+L 696.588443 49.019908 
+L 698.371792 46.551601 
+L 700.15514 41.642977 
+L 701.938489 41.083013 
+L 703.721838 46.568255 
+L 705.505186 50.949666 
+L 707.288535 30.273531 
+L 709.071883 30.202067 
+L 710.855232 31.356685 
+L 712.638581 28.859335 
+L 714.421929 32.255619 
+L 716.205278 30.02336 
+L 717.988626 132.422691 
+L 719.771975 29.862666 
+L 719.771975 29.862666 
+" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #7c7872; stroke-linecap: square"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 51.01625 275.017891 
+L 51.01625 10.8 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 51.01625 275.017891 
+L 719.771975 275.017891 
+" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m8ae51a9a97" d="M 0 2.345208 
+C 0.621956 2.345208 1.218523 2.098102 1.658312 1.658312 
+C 2.098102 1.218523 2.345208 0.621956 2.345208 0 
+C 2.345208 -0.621956 2.098102 -1.218523 1.658312 -1.658312 
+C 1.218523 -2.098102 0.621956 -2.345208 0 -2.345208 
+C -0.621956 -2.345208 -1.218523 -2.098102 -1.658312 -1.658312 
+C -2.098102 -1.218523 -2.345208 -0.621956 -2.345208 0 
+C -2.345208 0.621956 -2.098102 1.218523 -1.658312 1.658312 
+C -1.218523 2.098102 -0.621956 2.345208 0 2.345208 
+z
+" style="stroke: #1a1a1a; stroke-width: 1.1"/>
+    </defs>
+    <g clip-path="url(#p91d5c00da6)">
+     <use xlink:href="#m8ae51a9a97" x="240.051202" y="213.81733" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m8ae51a9a97" x="243.617899" y="209.526275" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m8ae51a9a97" x="650.22138" y="209.607416" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m8ae51a9a97" x="652.004728" y="206.64779" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m8ae51a9a97" x="657.354774" y="207.425426" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+     <use xlink:href="#m8ae51a9a97" x="717.988626" y="132.422691" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p91d5c00da6">
+   <rect x="51.01625" y="10.8" width="668.755725" height="264.217891"/>
+  </clipPath>
+ </defs>
+</svg>
+</div>
+    <p class="take">game.hot.tg was the #1 receiver on 375 of 376 days, taking a median 95.4% of signers on non-burst days. The one exception is 2026-11-10, when a single implicit account took 55.0% of that day’s signers.</p>
+    <details>
+      <summary>SQL</summary>
+      <pre>-- Top 20 receiver contracts per day by distinct signers.
+-- Generalizes the verified one-day attribution query across the extract
+-- window so burst days can be attributed offline after classification,
+-- with no second BigQuery round-trip.
+-- top_receiver_share is computed in classify/ as
+--   (signers of the day&#x27;s #1 receiver) / (that day&#x27;s distinct signers).
+-- Columns read: block_date, receiver_account_id, signer_account_id.
+-- Partition filter: block_date BETWEEN DATE &#x27;2025-10-04&#x27; AND
+--   DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY).
+-- Window matches daily_activity.sql. End bound is the last fully-closed
+-- UTC day. Never include today.
+
+WITH per_receiver AS (
+  SELECT
+    block_date,
+    receiver_account_id,
+    COUNT(DISTINCT signer_account_id) AS signers
+  FROM `bigquery-public-data.crypto_near_mainnet_us.transactions`
+  WHERE block_date BETWEEN DATE &#x27;2025-10-04&#x27;
+    AND DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY)
+  GROUP BY 1, 2
+),
+ranked AS (
+  SELECT
+    block_date,
+    receiver_account_id,
+    signers,
+    ROW_NUMBER() OVER (
+      PARTITION BY block_date
+      ORDER BY signers DESC, receiver_account_id
+    ) AS rn
+  FROM per_receiver
+)
+SELECT
+  block_date,
+  receiver_account_id,
+  signers
+FROM ranked
+WHERE rn &lt;= 20
+ORDER BY block_date, signers DESC;</pre>
+    </details>
+  </figure>
+
+  <h2>Monthly figures</h2>
+  <p class="note">In the ten months without a burst flag, Net Demand was 28.0%–63.9% of reported signers (median 35.2%). The monthly table reports <span class="mono">top_receiver_share_median_day</span> (median of daily #1-contract shares). <span class="mono">top_receiver_share_peak_day</span> is in <span class="mono">data/processed/monthly.csv</span> and is the share on the loudest day; it is not shown here because it understates typical-day HOT dominance in burst months. Burst months are flagged when at least one day meets both detector cuts (signers &gt; 2.5× the trailing 28-day median, and tx/signer &lt; 60% of that median).</p>
+  <table>
+    <thead>
+      <tr>
+        <th>month</th>
+        <th class="num">reported</th>
+        <th class="num">net demand</th>
+        <th class="num">net / reported</th>
+        <th class="num">burst</th>
+        <th class="num">burst days</th>
+        <th class="num">median #1 share</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>2025-11</td><td class='num'>556,744</td><td class='num rust'>197,191</td><td class='num'>35.4%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>94.5%</td></tr>
+<tr><td>2025-12</td><td class='num'>915,686</td><td class='num rust'>584,720</td><td class='num'>63.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>94.7%</td></tr>
+<tr><td>2026-01</td><td class='num'>526,590</td><td class='num rust'>220,182</td><td class='num'>41.8%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>95.1%</td></tr>
+<tr><td>2026-02</td><td class='num'>3,791,961</td><td class='num rust'>3,521,593</td><td class='num'>92.9%</td><td class='num'>yes</td><td class='num'>2</td><td class='num'>59.1%</td></tr>
+<tr><td>2026-03</td><td class='num'>381,465</td><td class='num rust'>133,640</td><td class='num'>35.0%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>95.9%</td></tr>
+<tr><td>2026-04</td><td class='num'>335,794</td><td class='num rust'>111,340</td><td class='num'>33.2%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.3%</td></tr>
+<tr><td>2026-05</td><td class='num'>359,151</td><td class='num rust'>143,206</td><td class='num'>39.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.0%</td></tr>
+<tr><td>2026-06</td><td class='num'>302,563</td><td class='num rust'>105,474</td><td class='num'>34.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.0%</td></tr>
+<tr><td>2026-07</td><td class='num'>252,587</td><td class='num rust'>70,617</td><td class='num'>28.0%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.3%</td></tr>
+<tr><td>2026-08</td><td class='num'>215,609</td><td class='num rust'>63,134</td><td class='num'>29.3%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.1%</td></tr>
+<tr><td>2026-09</td><td class='num'>302,272</td><td class='num rust'>160,431</td><td class='num'>53.1%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>88.6%</td></tr>
+<tr><td>2026-10</td><td class='num'>826,700</td><td class='num rust'>722,549</td><td class='num'>87.4%</td><td class='num'>yes</td><td class='num'>3</td><td class='num'>83.3%</td></tr>
+<tr><td>2026-11†</td><td class='num'>259,859</td><td class='num rust'>138,154</td><td class='num'>53.2%</td><td class='num'>yes</td><td class='num'>1</td><td class='num'>94.1%</td></tr>
+    </tbody>
+  </table>
+  <p class='note'><span class='mono'>†</span> 2026-11 is a partial month (1–11 Nov), equal to max(block_date) in data/raw/daily_activity.csv.</p>
+
+  <h2>Burst days</h2>
+  <p class="note">A day is flagged only when both conditions hold. On 2026-11-10 the #1 receiver is a single implicit account (55.0% of that day’s signers). On the February and October burst days the #1 receiver is still game.hot.tg at 23.6%–26.4%; those two episodes remain unattributed.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>day</th>
+        <th class="num">signers</th>
+        <th class="num">vs 28d median</th>
+        <th class="num">tx/signer vs median</th>
+        <th>top receiver</th>
+        <th class="num">#1 share</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>2026-02-15</td><td class='num'>592,250</td><td class='num'>3.39x</td><td class='num'>0.32</td><td>game.hot.tg</td><td class='num'>23.6%</td></tr>
+<tr><td>2026-02-17</td><td class='num'>541,983</td><td class='num'>2.54x</td><td class='num'>0.41</td><td>game.hot.tg</td><td class='num'>25.3%</td></tr>
+<tr><td>2026-10-03</td><td class='num'>176,719</td><td class='num'>2.87x</td><td class='num'>0.27</td><td>game.hot.tg</td><td class='num'>25.3%</td></tr>
+<tr><td>2026-10-04</td><td class='num'>177,196</td><td class='num'>2.87x</td><td class='num'>0.33</td><td>game.hot.tg</td><td class='num'>26.4%</td></tr>
+<tr><td>2026-10-07</td><td class='num'>175,774</td><td class='num'>2.85x</td><td class='num'>0.39</td><td>game.hot.tg</td><td class='num'>26.1%</td></tr>
+<tr><td>2026-11-10</td><td class='num'>177,510</td><td class='num'>3.32x</td><td class='num'>0.49</td><td>3d9ccff55cef5a3efd1fe14b14509b726123910845243ef1671b45e46f214324</td><td class='num'>55.0%</td></tr>
+    </tbody>
+  </table>
+
+  <h2>How to read this</h2>
+  <p>Net Demand does not subtract burst windows. It only subtracts signers whose monthly activity is exclusively with receivers matching <span class="mono">%hot.tg</span>. February and October therefore remain large on the rust line. That is a finding, not a bug: those bursts are not HOT-only, and they are not attributed. The last month in the extract (2026-11) has a named receiver on 10 Nov; one attributed burst does not attribute the others. See THESIS.md.</p>
+  <p>Rebuild this page from the committed CSVs with <span class="mono">make all</span>. No BigQuery credentials are required.</p>
+
+  <footer>
+    Source: bigquery-public-data.crypto_near_mainnet_us.transactions. Charts rebuilt from data/raw/*.csv. MIT license.
+  </footer>
+</article>
+</body>
+</html>
