@@ -903,7 +903,7 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
   {dagger}
 
   <h2>Burst days</h2>
-  <p class="note">A day is flagged only when both conditions hold (<span id="burst-day-count">{len(bursts)}</span> days at default cuts). On 2026-11-10 the #1 receiver is a single implicit account (55.0% of that day’s signers). On the February and October burst days the #1 receiver is still game.hot.tg at 23.6%–26.4%; those two episodes remain unattributed.</p>
+  <p class="note">A day is flagged only when both conditions hold (<span id="burst-day-count">{len(bursts)}</span> days at these cuts). On 2026-11-10 the #1 receiver is a single implicit account (55.0% of that day’s signers). On the February and October burst days the #1 receiver is still game.hot.tg at 23.6%–26.4%; those two episodes remain unattributed.</p>
   {coverage_block}
   <table>
     <thead>
