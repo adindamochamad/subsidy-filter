@@ -29,6 +29,12 @@ QUERIES = (
     ("daily_top_receivers.sql", "daily_top_receivers.csv"),
 )
 
+OPTIONAL_QUERIES = (
+    ("burst_coverage.sql", "burst_coverage.csv"),
+)
+
+ALL_NAMED = {name: csv for pair in (QUERIES + OPTIONAL_QUERIES) for name, csv in [pair]}
+
 BYTES_RE = re.compile(r"will process ([\d,]+) bytes", re.IGNORECASE)
 
 
@@ -104,11 +110,24 @@ def main() -> int:
         action="store_true",
         help="Print byte estimates and exit. No billed query.",
     )
+    parser.add_argument(
+        "--only",
+        metavar="SQL_FILE",
+        help="Run a single extract/sql file (e.g. burst_coverage.sql).",
+    )
     args = parser.parse_args()
+
+    if args.only:
+        if args.only not in ALL_NAMED:
+            known = ", ".join(sorted(ALL_NAMED))
+            raise SystemExit(f"Unknown --only {args.only!r}. Known: {known}")
+        query_list = [(args.only, ALL_NAMED[args.only])]
+    else:
+        query_list = list(QUERIES)
 
     estimates: list[tuple[str, int]] = []
     loaded: list[tuple[str, str, Path]] = []
-    for sql_name, csv_name in QUERIES:
+    for sql_name, csv_name in query_list:
         sql = _read_sql(sql_name)
         nbytes = dry_run_bq(sql_name, sql)
         estimates.append((sql_name, nbytes))

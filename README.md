@@ -1,6 +1,8 @@
 # Subsidy Filter
 
-Counts NEAR active accounts with and without the HOT Telegram game, and flags days that match a quota-campaign signature.
+**Dashboard:** https://adindamochamad.github.io/subsidy-filter/
+
+Counts NEAR active accounts with and without the HOT Telegram game, and flags days that match a burst signature (headcount up, intensity down).
 
 ## The problem
 

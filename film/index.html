@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Subsidy Filter — 89s</title>
+<style>
+  @font-face {
+    font-family: "Instrument Serif";
+    font-style: normal;
+    font-weight: 400;
+    src: url("fonts/instrument-1.ttf") format("truetype");
+  }
+  @font-face {
+    font-family: "Instrument Serif";
+    font-style: italic;
+    font-weight: 400;
+    src: url("fonts/instrument-0.ttf") format("truetype");
+  }
+  @font-face {
+    font-family: "IBM Plex Mono";
+    font-style: italic;
+    font-weight: 400;
+    src: url("fonts/plex-0.ttf") format("truetype");
+  }
+  @font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 400;
+    src: url("fonts/plex-1.ttf") format("truetype");
+  }
+  @font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 500;
+    src: url("fonts/plex-2.ttf") format("truetype");
+  }
+  @font-face {
+    font-family: "IBM Plex Mono";
+    font-style: normal;
+    font-weight: 600;
+    src: url("fonts/plex-3.ttf") format("truetype");
+  }
+  :root {
+    --cream: #EDEAE1;
+    --charcoal: #16202A;
+    --ink: #101925;
+    --accent: #0F6E63;
+    --accent-hi: #3AA496;
+    --grey: #79838F;
+    --muted: #5C6672;
+    --rule: #D3D0C6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    background: #070b10;
+    color: var(--charcoal);
+    overflow: hidden;
+    font-family: "Instrument Serif", "Times New Roman", serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+  #frame { position: absolute; inset: 0; display: grid; place-items: center; }
+  #stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: center center;
+    overflow: hidden;
+    background: var(--cream);
+  }
+  #stage.ink { background: var(--ink); color: var(--cream); }
+  .scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .kicker {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 17px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .ink .kicker { color: #9aa3ad; }
+  .nums { font-variant-numeric: tabular-nums; }
+  .pad {
+    position: absolute;
+    inset: 0;
+    padding: 108px 132px 168px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 22px;
+  }
+  .grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.055;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    z-index: 40;
+  }
+  .ink .grain { mix-blend-mode: overlay; opacity: 0.12; }
+  .hair {
+    position: absolute;
+    left: 132px; right: 132px; top: 64px;
+    height: 1px;
+    background: var(--rule);
+    transform-origin: left center;
+    z-index: 8;
+  }
+  .ink .hair { background: #2a3542; }
+  .frame-rule {
+    position: absolute;
+    inset: 36px;
+    border: 1px solid color-mix(in srgb, var(--rule) 80%, transparent);
+    pointer-events: none;
+    z-index: 7;
+  }
+  .ink .frame-rule { border-color: #2a3542; }
+  .glow {
+    position: absolute;
+    width: 780px; height: 780px;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 70%);
+    left: 54%; top: 8%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  #s1 .display { font-size: 128px; line-height: 0.92; letter-spacing: -0.034em; max-width: 14ch; }
+  #s1 .sub { font-size: 40px; font-style: italic; color: var(--muted); }
+  #s1 .marker { position: relative; display: inline-block; }
+  #s1 .marker::after {
+    content: "";
+    position: absolute;
+    left: 0; bottom: 1px; height: 0.4em;
+    width: calc(var(--mark, 0) * 1%);
+    background: color-mix(in srgb, var(--accent) 32%, transparent);
+    z-index: -1;
+  }
+  #ribbon { position: absolute; left: 132px; right: 132px; bottom: 168px; height: 236px; z-index: 2; }
+  #s2 .cut {
+    font-size: 196px;
+    letter-spacing: -0.05em;
+    line-height: 0.86;
+  }
+  canvas#dots { position: absolute; inset: 0; z-index: 1; }
+  #ring { position: absolute; left: 80px; top: 90px; width: 820px; height: 820px; }
+  #hot-label {
+    position: absolute;
+    left: 490px; top: 658px;
+    transform: translateX(-50%);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 20px;
+    letter-spacing: 0.12em;
+    color: var(--grey);
+    z-index: 3;
+  }
+  #stats {
+    position: absolute;
+    right: 132px; top: 200px;
+    text-align: right;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+  #stats .n { font-size: 96px; line-height: 0.88; letter-spacing: -0.035em; }
+  #stats .l {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .panel {
+    background: color-mix(in srgb, var(--cream) 88%, white);
+    border: 1px solid var(--rule);
+    padding: 40px 44px;
+  }
+  .panel h2 {
+    font-size: 18px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 28px;
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 44px;
+    letter-spacing: -0.02em;
+  }
+  .row.grey .val { color: var(--grey); }
+  .row.teal .val { color: var(--accent); }
+  #row-rep, #row-op, #row-net { opacity: 0; }
+  .op {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    padding: 14px 0 6px;
+  }
+  .planes { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 72px; align-items: start; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 17px;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--rule);
+    padding: 9px 13px;
+    opacity: 0;
+  }
+  .gauge {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 16px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 22px;
+    line-height: 1.7;
+  }
+  .flag {
+    margin-top: 24px;
+    display: inline-block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 14px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cream);
+    background: var(--accent);
+    padding: 8px 14px;
+  }
+  .collapse { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: end; }
+  .collapse .n { font-size: 92px; line-height: 0.9; letter-spacing: -0.04em; }
+  .collapse .l {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+  .collapse .teal { color: var(--accent); }
+  .collapse .grey { color: var(--grey); }
+  .bar-track {
+    margin-top: 18px;
+    height: 10px;
+    background: color-mix(in srgb, var(--rule) 70%, transparent);
+    position: relative;
+  }
+  .bar-track > i {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: currentColor;
+  }
+  .note {
+    font-size: 36px;
+    font-style: italic;
+    color: var(--muted);
+    max-width: none;
+    margin-top: 28px;
+  }
+  #pair { position: absolute; left: 132px; top: 118px; display: flex; gap: 80px; z-index: 3; }
+  #pair .n { font-size: 88px; line-height: 0.92; letter-spacing: -0.03em; }
+  #pair .l {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 15px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  #pair .teal { color: var(--accent); }
+  #pair .grey { color: var(--grey); }
+  #chart { position: absolute; left: 132px; right: 132px; top: 318px; height: 430px; z-index: 2; }
+  #months {
+    position: absolute;
+    left: 132px; right: 132px; top: 756px;
+    display: flex;
+    justify-content: space-between;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    z-index: 3;
+  }
+  #pct {
+    position: absolute;
+    right: 132px; top: 118px;
+    text-align: right;
+    z-index: 3;
+  }
+  #pct .n { font-size: 72px; color: var(--accent); letter-spacing: -0.03em; }
+  #pct .l {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 14px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  #s7 .big { font-size: 128px; letter-spacing: -0.045em; line-height: 0.9; }
+  #s7 .gone { font-size: 48px; font-style: italic; color: var(--accent-hi); }
+  #s7 .next {
+    margin-top: 8px;
+    font-size: 96px;
+    letter-spacing: -0.04em;
+    color: var(--accent-hi);
+    opacity: 0;
+  }
+  #s8 h1 { font-size: 120px; font-weight: 400; letter-spacing: -0.034em; line-height: 0.92; }
+  #s8 .thesis { font-size: 42px; font-style: italic; color: var(--accent-hi); margin-top: 18px; max-width: 28ch; }
+  #s8 .foot {
+    margin-top: 52px;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 15px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #9aa3ad;
+  }
+  #caption {
+    position: absolute;
+    left: 132px; right: 132px; bottom: 56px;
+    z-index: 45;
+    min-height: 64px;
+    opacity: 0;
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+  }
+  .ink #caption { border-top-color: #2a3542; }
+  #caption .tag {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding-top: 6px;
+    flex: 0 0 auto;
+  }
+  #caption p {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 20px;
+    line-height: 1.45;
+    letter-spacing: 0.01em;
+    color: var(--charcoal);
+    white-space: pre-line;
+  }
+  .ink #caption p { color: #d8d3c8; }
+  #progress {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+    background: color-mix(in srgb, var(--rule) 45%, transparent);
+    z-index: 50;
+  }
+  .ink #progress { background: #1c2733; }
+  #progress > i { display: block; height: 100%; width: 0; background: var(--accent); }
+  #gate {
+    position: absolute; inset: 0;
+    background: var(--ink);
+    color: var(--cream);
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 108px 132px;
+    transition: opacity 0.4s ease;
+  }
+  #gate .kicker { color: #c9c4b8; }
+  #gate h1 {
+    font-size: 96px;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 0.96;
+    margin: 18px 0 22px;
+    max-width: 16ch;
+  }
+  #gate p { font-size: 30px; font-style: italic; color: #c9c4b8; max-width: 34ch; }
+  #play {
+    margin-top: 48px;
+    align-self: flex-start;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 15px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--accent-hi);
+    border: 0;
+    padding: 16px 28px;
+    cursor: pointer;
+  }
+  #play:hover { filter: brightness(1.06); }
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="stage">
+    <div class="frame-rule"></div>
+    <div class="hair" id="hair"></div>
+    <div class="grain"></div>
+    <div class="glow" id="glow"></div>
+
+    <section class="scene" id="s1">
+      <div class="pad" style="justify-content:flex-start;padding-top:118px;">
+        <p class="kicker">Subsidy Filter · NEAR · 2025-11-01 → 2026-11-11</p>
+        <h1 class="display">Active accounts.</h1>
+        <p class="sub">It <span class="marker" id="marker">looks like demand.</span></p>
+      </div>
+      <svg id="ribbon" viewBox="0 0 1656 236" preserveAspectRatio="none" aria-hidden="true"></svg>
+    </section>
+
+    <section class="scene" id="s2">
+      <div class="pad">
+        <h1 class="cut" id="cutline">It isn’t.</h1>
+      </div>
+    </section>
+
+    <section class="scene" id="s3">
+      <canvas id="dots" width="1920" height="1080"></canvas>
+      <div id="ring"></div>
+      <p id="hot-label">game.hot.tg</p>
+      <div id="stats">
+        <div>
+          <div class="n nums" id="stat-days">0 / 376</div>
+          <div class="l">days as #1 receiver</div>
+        </div>
+        <div>
+          <div class="n nums" id="stat-share">0%</div>
+          <div class="l">typical-day share</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="s4">
+      <div class="pad">
+        <p class="kicker">The instrument</p>
+        <div class="planes">
+          <div class="panel">
+            <h2>Subsidy Filter</h2>
+            <div class="row grey" id="row-rep"><span>Reported</span><span class="val nums">215,609</span></div>
+            <div class="op" id="row-op">−  receivers matching *hot.tg</div>
+            <div class="row teal" id="row-net"><span>Net Demand</span><span class="val nums">63,134</span></div>
+          </div>
+          <div>
+            <p class="gauge">A burst day is both cuts at once.<br>Signers 2.5× the 28-day median,<br>and tx/signer below 60% of its median.</p>
+            <div class="chips" id="chips"></div>
+            <span class="flag">six burst days</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene" id="s5">
+      <div class="pad">
+        <p class="kicker">A launch that does not stick</p>
+        <div class="collapse">
+          <div class="grey">
+            <div class="n nums" id="n-feb">0</div>
+            <div class="l">Feb 2026 · Net Demand</div>
+            <div class="bar-track"><i id="bar-feb"></i></div>
+          </div>
+          <div class="teal">
+            <div class="n nums" id="n-mar">0</div>
+            <div class="l">Mar 2026 · Net Demand</div>
+            <div class="bar-track"><i id="bar-mar"></i></div>
+          </div>
+        </div>
+        <p class="note">Twenty-six times smaller in one month. If it were product demand, it would have stayed.</p>
+      </div>
+    </section>
+
+    <section class="scene" id="s6">
+      <div id="pair">
+        <div class="grey">
+          <div class="n nums" id="n-rep">0</div>
+          <div class="l">August 2026 · Reported</div>
+        </div>
+        <div class="teal">
+          <div class="n nums" id="n-net">0</div>
+          <div class="l">Net Demand</div>
+        </div>
+      </div>
+      <div id="pct">
+        <div class="n nums">29.3%</div>
+        <div class="l">quiet-month trough</div>
+      </div>
+      <svg id="chart" viewBox="0 0 1656 430" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div id="months"></div>
+    </section>
+
+    <section class="scene" id="s7">
+      <div class="pad">
+        <p class="kicker">10 November 2026 · one receiver</p>
+        <h1 class="big nums" id="n-nov">0</h1>
+        <p class="gone" id="gone-line">One unnamed contract. Then the next day:</p>
+        <p class="next nums" id="n-eighty">80 signers.</p>
+      </div>
+    </section>
+
+    <section class="scene" id="s8">
+      <div class="pad">
+        <p class="kicker">Subsidy Filter</p>
+        <h1>Use Net Demand.</h1>
+        <p class="thesis">A long-term thesis rests on the teal line. Not the grey one.</p>
+        <p class="foot">public NEAR transactions · no prices · no wallets · just the print</p>
+      </div>
+    </section>
+
+    <div id="caption"><span class="tag">VO</span><p id="caption-text"></p></div>
+    <div id="progress"><i></i></div>
+    <div id="gate">
+      <p class="kicker">Subsidy Filter · NEAR Hackathon</p>
+      <h1>Most of NEAR’s active accounts are one Telegram game.</h1>
+      <p>Editorial motion graphic. Captions, score, and voiceover.</p>
+      <button id="play" type="button">Play</button>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  const DURATION = 88.8;
+  const STAGE_W = 1920, STAGE_H = 1080;
+  const CREAM = "#EDEAE1", ACCENT = "#0F6E63", GREY = "#79838F", RULE = "#D3D0C6", INK = "#101925";
+  const reported = [556744,915686,526590,3791961,381465,335794,359151,302563,252587,215609,302272,826700,259859];
+  const net =      [197191,584720,220182,3521593,133640,111340,143206,105474,70617,63134,160431,722549,138154];
+  const months = ["N","D","J","F","M","A","M","J","J","A","S","O","N"];
+  const bursts = ["15 Feb","17 Feb","03 Oct","04 Oct","07 Oct","10 Nov"];
+  const qs = new URLSearchParams(location.search);
+  const RENDER = qs.get("render") === "1";
+  const AUTOPLAY = qs.get("autoplay") === "1";
+
+  const stage = document.getElementById("stage");
+  const gate = document.getElementById("gate");
+  const play = document.getElementById("play");
+  const bar = document.querySelector("#progress > i");
+  const hair = document.getElementById("hair");
+  const glow = document.getElementById("glow");
+  const caption = document.getElementById("caption");
+  const captionText = document.getElementById("caption-text");
+  const scenes = Object.fromEntries(
+    ["s1","s2","s3","s4","s5","s6","s7","s8"].map((id) => [id, document.getElementById(id)])
+  );
+  const marker = document.getElementById("marker");
+  const chips = document.getElementById("chips");
+  const nFeb = document.getElementById("n-feb");
+  const nMar = document.getElementById("n-mar");
+  const nRep = document.getElementById("n-rep");
+  const nNet = document.getElementById("n-net");
+  const nNov = document.getElementById("n-nov");
+  const nEighty = document.getElementById("n-eighty");
+  const barFeb = document.getElementById("bar-feb");
+  const barMar = document.getElementById("bar-mar");
+  const statDays = document.getElementById("stat-days");
+  const statShare = document.getElementById("stat-share");
+  const canvas = document.getElementById("dots");
+  const ctx = canvas.getContext("2d", { alpha: true });
+  const monthRow = document.getElementById("months");
+
+  bursts.forEach((d) => {
+    const el = document.createElement("span");
+    el.className = "chip";
+    el.textContent = d;
+    chips.appendChild(el);
+  });
+  months.forEach((m) => {
+    const el = document.createElement("span");
+    el.textContent = m;
+    monthRow.appendChild(el);
+  });
+
+  function fit() {
+    const r = Math.min(window.innerWidth / STAGE_W, window.innerHeight / STAGE_H);
+    stage.style.transform = `scale(${r})`;
+  }
+  window.addEventListener("resize", fit);
+  fit();
+
+  const clamp = (t, a, b) => Math.max(a, Math.min(b, t));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const expoOut = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
+  const cubicOut = (t) => 1 - Math.pow(1 - t, 3);
+  const range = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const fmt = (n) => Math.round(n).toLocaleString("en-US");
+
+  function fade(el, t, a, b, fadeIn = 0.28, fadeOut = 0.28) {
+    const oIn = cubicOut(range(t, a, a + fadeIn));
+    const oOut = 1 - range(t, b - fadeOut, b);
+    const o = Math.min(oIn, oOut);
+    el.style.opacity = o;
+    el.style.transform = `translateY(${lerp(14, 0, oIn)}px)`;
+  }
+  function hard(el, t, a, b) {
+    el.style.opacity = (t >= a && t < b) ? 1 : 0;
+    el.style.transform = "none";
+  }
+
+  function mulberry32(a) {
+    return function() {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  const logMin = Math.log(50000), logMax = Math.log(4200000);
+  const yOf = (v, h) => h - ((Math.log(v) - logMin) / (logMax - logMin)) * h;
+  function lineD(values, w, h) {
+    const step = w / (values.length - 1);
+    return values.map((v, i) => `${i === 0 ? "M" : "L"}${i * step},${yOf(v, h)}`).join(" ");
+  }
+  function areaD(top, bot, w, h) {
+    const step = w / (top.length - 1);
+    let d = top.map((v, i) => `${i === 0 ? "M" : "L"}${i * step},${yOf(v, h)}`).join(" ");
+    for (let i = bot.length - 1; i >= 0; i--) d += ` L${i * step},${yOf(bot[i], h)}`;
+    return d + " Z";
+  }
+  function svgEl(name, attrs) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    return el;
+  }
+  function strokePath(svg, d, color, width, dash) {
+    const p = svgEl("path", {
+      d, fill: "none", stroke: color, "stroke-width": width,
+      "stroke-linejoin": "round", "stroke-linecap": "round",
+    });
+    p.style.strokeDasharray = dash;
+    p.style.strokeDashoffset = dash;
+    svg.appendChild(p);
+    return p;
+  }
+
+  const rib = document.getElementById("ribbon");
+  const ribFill = svgEl("path", {
+    d: areaD(reported, reported.map(() => 50000), 1656, 220),
+    fill: "rgba(121,131,143,0.10)",
+  });
+  rib.appendChild(ribFill);
+  const ribPath = strokePath(rib, lineD(reported, 1656, 220), GREY, 3.2, 2500);
+
+  const chart = document.getElementById("chart");
+  const gapFill = svgEl("path", {
+    d: areaD(reported, net, 1656, 400),
+    fill: "rgba(121,131,143,0.16)",
+  });
+  chart.appendChild(gapFill);
+  const repPath = strokePath(chart, lineD(reported, 1656, 400), GREY, 3.0, 2900);
+  const netPath = strokePath(chart, lineD(net, 1656, 400), ACCENT, 4.4, 2900);
+  const augX = (9 / 12) * 1656;
+  chart.appendChild(svgEl("line", {
+    x1: augX, x2: augX, y1: 0, y2: 430, stroke: RULE, "stroke-width": 1,
+  }));
+
+  const ringSvg = svgEl("svg", { width: "820", height: "820", viewBox: "0 0 820 820" });
+  ringSvg.style.cssText = "position:absolute;inset:0;";
+  const ticks = [];
+  for (let i = 0; i < 376; i++) {
+    const a = (i / 376) * Math.PI * 2 - Math.PI / 2;
+    const l = svgEl("line", {
+      x1: 410 + Math.cos(a) * 278,
+      y1: 410 + Math.sin(a) * 278,
+      x2: 410 + Math.cos(a) * 328,
+      y2: 410 + Math.sin(a) * 328,
+      stroke: RULE,
+      "stroke-width": i === 375 ? "2.6" : "1.15",
+      opacity: "0",
+    });
+    ringSvg.appendChild(l);
+    ticks.push(l);
+  }
+  ringSvg.appendChild(svgEl("circle", { cx: "410", cy: "410", r: "16", fill: GREY }));
+  document.getElementById("ring").appendChild(ringSvg);
+
+  const rand = mulberry32(20261110);
+  const particles = Array.from({ length: 640 }, () => {
+    const hot = rand() < 0.954;
+    return {
+      ox: rand() * STAGE_W,
+      oy: rand() * STAGE_H,
+      hot,
+      ang: rand() * Math.PI * 2,
+      rad: 22 + rand() * 108,
+    };
+  });
+
+  function drawDots(t) {
+    ctx.clearRect(0, 0, STAGE_W, STAGE_H);
+    const swarm = cubicOut(range(t, 15.1, 23.8));
+    const cx = 490, cy = 500;
+    for (const p of particles) {
+      const tx = p.hot ? cx + Math.cos(p.ang) * p.rad : p.ox;
+      const ty = p.hot ? cy + Math.sin(p.ang) * p.rad : p.oy;
+      const x = lerp(p.ox, tx, swarm);
+      const y = lerp(p.oy, ty, swarm);
+      ctx.fillStyle = p.hot ? "rgba(121,131,143,0.48)" : ACCENT;
+      ctx.globalAlpha = p.hot ? 0.85 : 1;
+      ctx.beginPath();
+      ctx.arc(x, y, p.hot ? 1.4 : 2.7, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  const captions = [
+    { t: 0.35, end: 7.45, text: "NEAR publishes a number. Active accounts.\nIt looks like demand." },
+    { t: 8.15, end: 12.7, text: "It isn’t." },
+    { t: 13.55, end: 26.8, text: "One Telegram game. Number one on 375 of 376 days.\nOn a typical day, 19 in 20 signers touch that contract." },
+    { t: 27.75, end: 40.4, text: "Take the headline. Remove the game.\nFlag quota days: more wallets, fewer transactions each." },
+    { t: 41.55, end: 55.6, text: "February: 3.5 million Net Demand.\nMarch: 134 thousand. A launch that does not stick." },
+    { t: 56.75, end: 70.1, text: "August 2026. 215,609 reported.\n63,134 after the filter. 29.3%." },
+    { t: 71.15, end: 79.7, text: "10 November. 97,716 signers on one unnamed receiver.\nEighty the next day. Gone." },
+    { t: 80.55, end: 86.6, text: "A long-term thesis rests on the teal line.\nNot the grey one." },
+  ];
+
+  function renderAt(t) {
+    const tt = clamp(t, 0, DURATION);
+    bar.style.width = `${(tt / DURATION) * 100}%`;
+    hair.style.transform = `scaleX(${expoOut(range(tt, 0.02, 0.55))})`;
+    glow.style.opacity = tt >= 70.72 ? 0 : 1;
+    glow.style.transform = `translate(${Math.sin(tt * 0.14) * 20}px, ${Math.cos(tt * 0.11) * 14}px) scale(${1 + Math.sin(tt * 0.35) * 0.03})`;
+
+    const ink = tt >= 70.72;
+    stage.classList.toggle("ink", ink);
+
+    fade(scenes.s1, tt, 0.00, 7.82, 0.22, 0.18);
+    hard(scenes.s2, tt, 7.80, 13.22);
+    fade(scenes.s3, tt, 13.18, 27.42, 0.22, 0.22);
+    fade(scenes.s4, tt, 27.38, 41.22, 0.24, 0.22);
+    fade(scenes.s5, tt, 41.18, 56.42, 0.24, 0.22);
+    fade(scenes.s6, tt, 56.38, 70.82, 0.24, 0.18);
+    hard(scenes.s7, tt, 70.80, 80.22);
+    fade(scenes.s8, tt, 80.18, 88.85, 0.28, 0.55);
+
+    ribFill.style.opacity = expoOut(range(tt, 0.8, 3.4));
+    ribPath.style.strokeDashoffset = String(2500 * (1 - expoOut(range(tt, 0.7, 5.4))));
+    marker.style.setProperty("--mark", String(expoOut(range(tt, 3.8, 6.1)) * 100));
+    scenes.s1.style.transform = `translateY(${lerp(14, 0, cubicOut(range(tt, 0, 0.6)))}px) scale(${lerp(1.03, 1, expoOut(range(tt, 0, 7.5)))})`;
+
+    const cut = range(tt, 7.80, 8.15);
+    scenes.s2.style.transform = `scale(${lerp(1.06, 1, cubicOut(cut))})`;
+
+    if (tt >= 13.1 && tt <= 27.5) drawDots(tt);
+    else ctx.clearRect(0, 0, STAGE_W, STAGE_H);
+    const fill = expoOut(range(tt, 16.4, 24.8));
+    ticks.forEach((l, i) => {
+      const on = i / 376 <= fill;
+      l.setAttribute("opacity", on ? (i === 375 ? "0.35" : "0.88") : "0");
+      if (on && i < 375) l.setAttribute("stroke", GREY);
+      if (on && i === 375) l.setAttribute("stroke", ACCENT);
+    });
+    const days = Math.round(375 * expoOut(range(tt, 16.6, 22.2)));
+    statDays.textContent = `${days} / 376`;
+    statShare.textContent = `${(95.4 * expoOut(range(tt, 18.0, 23.4))).toFixed(1)}%`;
+
+    const chipEls = chips.children;
+    for (let i = 0; i < chipEls.length; i++) {
+      const c = expoOut(range(tt, 31.6 + i * 0.12, 32.05 + i * 0.12));
+      chipEls[i].style.opacity = c;
+      chipEls[i].style.transform = `translateY(${lerp(12, 0, c)}px)`;
+    }
+    document.getElementById("row-rep").style.opacity = expoOut(range(tt, 28.2, 29.4));
+    document.getElementById("row-op").style.opacity = expoOut(range(tt, 29.3, 30.4));
+    document.getElementById("row-net").style.opacity = expoOut(range(tt, 30.5, 31.8));
+
+    const drop = expoOut(range(tt, 42.6, 48.2));
+    nFeb.textContent = fmt(3521593 * drop);
+    nMar.textContent = fmt(133640 * expoOut(range(tt, 46.0, 51.2)));
+    barFeb.style.width = `${100 * drop}%`;
+    barMar.style.width = `${(133640 / 3521593) * 100 * expoOut(range(tt, 46.4, 52.0))}%`;
+
+    const countT = expoOut(range(tt, 57.1, 62.6));
+    nRep.textContent = fmt(215609 * countT);
+    nNet.textContent = fmt(63134 * countT);
+    gapFill.style.opacity = expoOut(range(tt, 58.0, 63.5));
+    repPath.style.strokeDashoffset = String(2900 * (1 - expoOut(range(tt, 57.4, 64.6))));
+    netPath.style.strokeDashoffset = String(2900 * (1 - expoOut(range(tt, 58.2, 66.0))));
+
+    nNov.textContent = `${fmt(97716 * expoOut(range(tt, 71.1, 75.4)))} signers.`;
+    nEighty.style.opacity = expoOut(range(tt, 76.4, 77.8));
+    document.getElementById("gone-line").style.opacity = expoOut(range(tt, 75.6, 76.8));
+
+    let cap = null;
+    for (const c of captions) {
+      if (tt >= c.t && tt < c.end) cap = c;
+    }
+    if (cap) {
+      caption.style.opacity = 1;
+      captionText.textContent = cap.text;
+    } else {
+      caption.style.opacity = 0;
+    }
+  }
+
+  let audioCtx = null;
+  function startScore() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const t0 = audioCtx.currentTime + 0.05;
+    const drone = audioCtx.createOscillator();
+    const dg = audioCtx.createGain();
+    const df = audioCtx.createBiquadFilter();
+    drone.type = "sine";
+    drone.frequency.value = 73.42;
+    df.type = "lowpass"; df.frequency.value = 240;
+    dg.gain.setValueAtTime(0.0001, t0);
+    dg.gain.exponentialRampToValueAtTime(0.04, t0 + 2.5);
+    dg.gain.linearRampToValueAtTime(0.055, t0 + 70);
+    dg.gain.exponentialRampToValueAtTime(0.0001, t0 + 88.2);
+    drone.connect(df); df.connect(dg); dg.connect(audioCtx.destination);
+    drone.start(t0); drone.stop(t0 + DURATION);
+  }
+
+  let startAt = 0, raf = 0, playing = false;
+  function frame(now) {
+    if (!playing) return;
+    const t = (now - startAt) / 1000;
+    if (t >= DURATION) {
+      playing = false;
+      renderAt(DURATION);
+      return;
+    }
+    renderAt(t);
+    raf = requestAnimationFrame(frame);
+  }
+
+  function hideGate() {
+    gate.style.opacity = "0";
+    gate.style.pointerEvents = "none";
+    gate.style.display = "none";
+  }
+
+  function start() {
+    hideGate();
+    if (!RENDER) startScore();
+    playing = true;
+    startAt = performance.now();
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(frame);
+  }
+
+  play.addEventListener("click", start);
+  window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && !playing && gate.style.display !== "none") {
+      e.preventDefault();
+      start();
+    }
+  });
+
+  window.__film = {
+    duration: DURATION,
+    fps: 30,
+    seek(t) {
+      hideGate();
+      playing = false;
+      cancelAnimationFrame(raf);
+      renderAt(t);
+    },
+    prepare() {
+      hideGate();
+      renderAt(0);
+    },
+  };
+
+  if (RENDER) {
+    hideGate();
+    document.fonts.ready.then(() => renderAt(0));
+  } else if (AUTOPLAY) {
+    window.addEventListener("load", () => {
+      document.fonts.ready.then(() => setTimeout(start, 120));
+    });
+  }
+})();
+</script>
+</body>
+</html>

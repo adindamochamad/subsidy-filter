@@ -8,13 +8,14 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
 <style>
   :root {
-    --cream: #FBF8F3;
-    --charcoal: #1A1A1A;
-    --rust: #B5431F;
-    --grey: #7C7872;
-    --muted: #6F6B66;
-    --rule: #D9D3C9;
-    --ink: #201819;
+    --cream: #EDEAE1;
+    --charcoal: #16202A;
+    --accent: #0F6E63;
+    --accent-hi: #3AA496;
+    --grey: #79838F;
+    --muted: #5C6672;
+    --rule: #D3D0C6;
+    --ink: #101925;
   }
   * { box-sizing: border-box; }
   html, body {
@@ -160,7 +161,7 @@
   td {
     overflow-wrap: anywhere;
   }
-  td.rust { color: var(--rust); }
+  td.accent { color: var(--accent); }
   .note {
     font-size: 1.05rem;
     color: var(--charcoal);
@@ -174,6 +175,93 @@
     color: var(--muted);
     letter-spacing: 0.02em;
   }
+  .hero-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.8rem 2.4rem;
+    margin: 1.4rem 0 0.2rem;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+  }
+  .hero-stat strong {
+    display: block;
+    font-size: 1.55rem;
+    font-weight: 500;
+    color: var(--accent-hi);
+    letter-spacing: -0.02em;
+    margin-top: 0.2rem;
+  }
+  .hero-stat span {
+    text-transform: uppercase;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--grey);
+  }
+  .controls {
+    margin: 2.2rem 0 0.4rem;
+    padding: 1.1rem 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .controls label {
+    display: block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 0.85rem 0 0.35rem;
+  }
+  .controls input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+  .controls .readout {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+  #feb16-note {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+    margin: 0.6rem 0 0;
+  }
+  body.film-mode .page > *:not(#film-stage),
+  body.film-mode footer,
+  body.film-mode .controls,
+  body.film-mode .hero-band h1,
+  body.film-mode .standfirst {
+    display: none !important;
+  }
+  body.film-mode {
+    overflow: hidden;
+    background: var(--ink);
+    width: 1920px;
+    min-height: 1080px;
+    margin: 0 auto;
+  }
+  body.film-mode .hero-band {
+    padding: 3rem 2rem 1.5rem;
+    min-height: 100vh;
+  }
+  body.film-mode .hero-inner {
+    max-width: 56rem;
+  }
+  body.film-mode #film-stage {
+    display: block !important;
+    margin-top: 2rem;
+  }
+  body.film-mode .hero-stats {
+    gap: 2.5rem 4rem;
+  }
+  body.film-mode .hero-stat strong {
+    font-size: 2.4rem;
+  }
+  #film-stage {
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -181,22 +269,45 @@
   <div class="hero-inner">
     <p class="kicker">Subsidy Filter · NEAR public transactions · 2025-11-01 to 2026-11-11</p>
     <h1>Most of NEAR’s active accounts are one Telegram game.</h1>
-    <p class="standfirst">After removing HOT and flagging quota-shaped bursts, quiet-month Net Demand is a fraction of the headline. 2026-11 is a partial month (1–11 Nov), equal to max(block_date) in data/raw/daily_activity.csv.</p>
+    <p class="standfirst">After removing HOT and flagging burst days, quiet-month Net Demand is a fraction of the headline. 2026-11 is a partial month (1–11 Nov), equal to max(block_date) in data/raw/daily_activity.csv.</p>
+    <div class="hero-stats" data-august="2026-08">
+      <div class="hero-stat"><span>Aug 2026 reported</span><strong>215,609</strong></div>
+      <div class="hero-stat"><span>Net Demand</span><strong>63,134</strong></div>
+      <div class="hero-stat"><span>Net / reported</span><strong>29.3%</strong></div>
+    </div>
   </div>
 </header>
 <article class="page">
+  <div id="film-stage">
+    <figure>
+      <figcaption>Figure 2 · Daily distinct signers. Open circles follow the cuts below.</figcaption>
+      <div class="chart" id="fig2-chart"></div>
+    </figure>
+  </div>
+
+  <div class="controls no-film-hide">
+    <p class="note">Move the burst cuts. Figures 2–3, the monthly burst column, and the burst-day table recompute from <span class="mono">data/processed/daily.csv</span> in the browser. Defaults match <span class="mono">classify/config.py</span>.</p>
+    <label for="cut-signer-mult">Signer burst multiple (vs trailing 28d median)</label>
+    <input type="range" id="cut-signer-mult" min="2.0" max="3.0" step="0.05" value="2.5">
+    <p class="readout" id="cut-signer-mult-val">2.5×</p>
+    <label for="cut-tx-ratio">Tx-per-signer intensity cut (fraction of trailing median)</label>
+    <input type="range" id="cut-tx-ratio" min="0.45" max="0.75" step="0.01" value="0.6">
+    <p class="readout" id="cut-tx-ratio-val">60%</p>
+    <p id="feb16-note" hidden></p>
+  </div>
+
   <figure>
     <figcaption>Figure 1 · Reported active accounts and Net Demand</figcaption>
-    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="689.795847pt" height="314.300703pt" viewBox="0 0 689.795847 314.300703" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="689.592722pt" height="314.058125pt" viewBox="0 0 689.592722 314.058125" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-12T16:23:05.930112</dc:date>
+    <dc:date>2026-11-13T14:06:40.923462</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.10.9, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -207,264 +318,264 @@
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="M 0 314.300703 
-L 689.795847 314.300703 
-L 689.795847 0 
+   <path d="M 0 314.058125 
+L 689.592722 314.058125 
+L 689.592722 0 
 L 0 0 
 z
-" style="fill: #fbf8f3"/>
+" style="fill: #edeae1"/>
   </g>
   <g id="axes_1">
    <g id="patch_2">
-    <path d="M 51.01625 288 
-L 620.17625 288 
-L 620.17625 10.8 
-L 51.01625 10.8 
+    <path d="M 50.813125 288 
+L 619.973125 288 
+L 619.973125 10.8 
+L 50.813125 10.8 
 z
-" style="fill: #fbf8f3"/>
+" style="fill: #edeae1"/>
    </g>
    <g id="matplotlib.axis_1">
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
-       <path id="m3b8358351b" d="M 0 0 
+       <path id="maeee442331" d="M 0 0 
 L 0 3 
-" style="stroke: #6f6b66; stroke-width: 0.8"/>
+" style="stroke: #5c6672; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#m3b8358351b" x="111.085907" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#maeee442331" x="110.882782" y="288" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="111.085907" y="301.337891" transform="rotate(-0 111.085907 301.337891)">Dec 25</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="110.882782" y="301.386406" transform="rotate(-0 110.882782 301.386406)">Dec 25</text>
      </g>
     </g>
     <g id="xtick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="#m3b8358351b" x="204.193875" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#maeee442331" x="203.99075" y="288" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="204.193875" y="301.338594" transform="rotate(-0 204.193875 301.338594)">Feb 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="203.99075" y="301.386406" transform="rotate(-0 203.99075 301.386406)">Feb 26</text>
      </g>
     </g>
     <g id="xtick_3">
      <g id="line2d_3">
       <g>
-       <use xlink:href="#m3b8358351b" x="292.796619" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#maeee442331" x="292.593494" y="288" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_3">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="292.796619" y="301.337891" transform="rotate(-0 292.796619 301.337891)">Apr 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="292.593494" y="301.386406" transform="rotate(-0 292.593494 301.386406)">Apr 26</text>
      </g>
     </g>
     <g id="xtick_4">
      <g id="line2d_4">
       <g>
-       <use xlink:href="#m3b8358351b" x="384.402846" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#maeee442331" x="384.199721" y="288" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_4">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="384.402846" y="301.337891" transform="rotate(-0 384.402846 301.337891)">Jun 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="384.199721" y="301.386406" transform="rotate(-0 384.199721 301.386406)">Jun 26</text>
      </g>
     </g>
     <g id="xtick_5">
      <g id="line2d_5">
       <g>
-       <use xlink:href="#m3b8358351b" x="476.009073" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#maeee442331" x="475.805948" y="288" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_5">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="476.009073" y="301.337891" transform="rotate(-0 476.009073 301.337891)">Aug 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="475.805948" y="301.324531" transform="rotate(-0 475.805948 301.324531)">Aug 26</text>
      </g>
     </g>
     <g id="xtick_6">
      <g id="line2d_6">
       <g>
-       <use xlink:href="#m3b8358351b" x="567.6153" y="288" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#maeee442331" x="567.412175" y="288" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="567.6153" y="301.337891" transform="rotate(-0 567.6153 301.337891)">Oct 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="567.412175" y="301.386406" transform="rotate(-0 567.412175 301.386406)">Oct 26</text>
      </g>
     </g>
    </g>
    <g id="matplotlib.axis_2">
     <g id="ytick_1">
      <g id="line2d_7">
-      <path d="M 51.01625 282.409769 
-L 620.17625 282.409769 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 282.409769 
+L 619.973125 282.409769 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_8">
       <defs>
-       <path id="mb5e62c482c" d="M 0 0 
+       <path id="m863da991f6" d="M 0 0 
 L -3 0 
-" style="stroke: #6f6b66; stroke-width: 0.8"/>
+" style="stroke: #5c6672; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#mb5e62c482c" x="51.01625" y="282.409769" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m863da991f6" x="50.813125" y="282.409769" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_7">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="285.829066" transform="rotate(-0 44.51625 285.829066)">50k</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="285.852972" transform="rotate(-0 44.313125 285.852972)">50k</text>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_9">
-      <path d="M 51.01625 241.736421 
-L 620.17625 241.736421 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 241.736421 
+L 619.973125 241.736421 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_10">
       <g>
-       <use xlink:href="#mb5e62c482c" x="51.01625" y="241.736421" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m863da991f6" x="50.813125" y="241.736421" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_8">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="245.155718" transform="rotate(-0 44.51625 245.155718)">100k</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="245.179624" transform="rotate(-0 44.313125 245.179624)">100k</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_11">
-      <path d="M 51.01625 201.063073 
-L 620.17625 201.063073 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 201.063073 
+L 619.973125 201.063073 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_12">
       <g>
-       <use xlink:href="#mb5e62c482c" x="51.01625" y="201.063073" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m863da991f6" x="50.813125" y="201.063073" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="204.48237" transform="rotate(-0 44.51625 204.48237)">200k</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="204.506276" transform="rotate(-0 44.313125 204.506276)">200k</text>
      </g>
     </g>
     <g id="ytick_4">
      <g id="line2d_13">
-      <path d="M 51.01625 147.295832 
-L 620.17625 147.295832 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 147.295832 
+L 619.973125 147.295832 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_14">
       <g>
-       <use xlink:href="#mb5e62c482c" x="51.01625" y="147.295832" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m863da991f6" x="50.813125" y="147.295832" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="150.715129" transform="rotate(-0 44.51625 150.715129)">500k</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="150.739035" transform="rotate(-0 44.313125 150.739035)">500k</text>
      </g>
     </g>
     <g id="ytick_5">
      <g id="line2d_15">
-      <path d="M 51.01625 106.622484 
-L 620.17625 106.622484 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 106.622484 
+L 619.973125 106.622484 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_16">
       <g>
-       <use xlink:href="#mb5e62c482c" x="51.01625" y="106.622484" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m863da991f6" x="50.813125" y="106.622484" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="110.041429" transform="rotate(-0 44.51625 110.041429)">1M</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="110.065687" transform="rotate(-0 44.313125 110.065687)">1M</text>
      </g>
     </g>
     <g id="ytick_6">
      <g id="line2d_17">
-      <path d="M 51.01625 65.949136 
-L 620.17625 65.949136 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 65.949136 
+L 619.973125 65.949136 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_18">
       <g>
-       <use xlink:href="#mb5e62c482c" x="51.01625" y="65.949136" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m863da991f6" x="50.813125" y="65.949136" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="69.368081" transform="rotate(-0 44.51625 69.368081)">2M</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="69.392339" transform="rotate(-0 44.313125 69.392339)">2M</text>
      </g>
     </g>
     <g id="ytick_7">
      <g id="line2d_19">
-      <path d="M 51.01625 25.275788 
-L 620.17625 25.275788 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 25.275788 
+L 619.973125 25.275788 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_20">
       <g>
-       <use xlink:href="#mb5e62c482c" x="51.01625" y="25.275788" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m863da991f6" x="50.813125" y="25.275788" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_13">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="28.694734" transform="rotate(-0 44.51625 28.694734)">4M</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="28.718991" transform="rotate(-0 44.313125 28.718991)">4M</text>
      </g>
     </g>
     <g id="text_14">
-     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="16.92125" y="149.4" transform="rotate(-90 16.92125 149.4)">Monthly distinct signers, log scale</text>
+     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="16.92125" y="149.4" transform="rotate(-90 16.92125 149.4)">Monthly distinct signers, log scale</text>
     </g>
    </g>
    <g id="line2d_21">
-    <path d="M 66.033664 140.987965 
-L 111.085907 111.791055 
-L 157.639891 144.255416 
-L 204.193875 28.409909 
-L 246.242635 163.173788 
-L 292.796619 170.656636 
-L 337.848862 166.710748 
-L 384.402846 176.771503 
-L 429.455089 187.365087 
-L 476.009073 196.653374 
-L 522.563057 176.827967 
-L 567.6153 117.789929 
-L 614.169284 185.699569 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #7c7872; stroke-width: 1.8; stroke-linecap: round"/>
+    <path d="M 65.830539 140.987965 
+L 110.882782 111.791055 
+L 157.436766 144.255416 
+L 203.99075 28.409909 
+L 246.03951 163.173788 
+L 292.593494 170.656636 
+L 337.645737 166.710748 
+L 384.199721 176.771503 
+L 429.251964 187.365087 
+L 475.805948 196.653374 
+L 522.359932 176.827967 
+L 567.412175 117.789929 
+L 613.966159 185.699569 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #79838f; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="line2d_22">
-    <path d="M 66.033664 201.893065 
-L 111.085907 138.111064 
-L 157.639891 195.421821 
-L 204.193875 32.750403 
-L 246.242635 224.720649 
-L 292.796619 235.433191 
-L 337.848862 220.663887 
-L 384.402846 238.609152 
-L 429.455089 262.150885 
-L 476.009073 268.723632 
-L 522.563057 213.999112 
-L 567.6153 125.691478 
-L 614.169284 222.771361 
-" clip-path="url(#pc35b0916f3)" style="fill: none; stroke: #b5431f; stroke-width: 1.8; stroke-linecap: round"/>
+    <path d="M 65.830539 201.893065 
+L 110.882782 138.111064 
+L 157.436766 195.421821 
+L 203.99075 32.750403 
+L 246.03951 224.720649 
+L 292.593494 235.433191 
+L 337.645737 220.663887 
+L 384.199721 238.609152 
+L 429.251964 262.150885 
+L 475.805948 268.723632 
+L 522.359932 213.999112 
+L 567.412175 125.691478 
+L 613.966159 222.771361 
+" clip-path="url(#p3196394e24)" style="fill: none; stroke: #0f6e63; stroke-width: 1.8; stroke-linecap: round"/>
    </g>
    <g id="line2d_23">
-    <path d="M 450.479469 262.150885 
-L 450.479469 187.365087 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.8; stroke-linecap: square"/>
+    <path d="M 450.276344 262.150885 
+L 450.276344 187.365087 
+" style="fill: none; stroke: #16202a; stroke-width: 0.8; stroke-linecap: square"/>
    </g>
    <g id="line2d_24">
-    <path d="M 438.465538 187.365087 
-L 450.479469 187.365087 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.8; stroke-linecap: square"/>
+    <path d="M 438.262413 187.365087 
+L 450.276344 187.365087 
+" style="fill: none; stroke: #16202a; stroke-width: 0.8; stroke-linecap: square"/>
    </g>
    <g id="line2d_25">
-    <path d="M 438.465538 262.150885 
-L 450.479469 262.150885 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.8; stroke-linecap: square"/>
+    <path d="M 438.262413 262.150885 
+L 450.276344 262.150885 
+" style="fill: none; stroke: #16202a; stroke-width: 0.8; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
-    <path d="M 51.01625 288 
-L 51.01625 10.8 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+    <path d="M 50.813125 288 
+L 50.813125 10.8 
+" style="fill: none; stroke: #16202a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="patch_4">
-    <path d="M 51.01625 288 
-L 620.17625 288 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+    <path d="M 50.813125 288 
+L 619.973125 288 
+" style="fill: none; stroke: #16202a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="PathCollection_1">
     <defs>
-     <path id="m05a4906269" d="M 0 1.732051 
+     <path id="m170619cddb" d="M 0 1.732051 
 C 0.459345 1.732051 0.899939 1.549551 1.224745 1.224745 
 C 1.549551 0.899939 1.732051 0.459345 1.732051 0 
 C 1.732051 -0.459345 1.549551 -0.899939 1.224745 -1.224745 
@@ -474,15 +585,15 @@ C -1.549551 -0.899939 -1.732051 -0.459345 -1.732051 0
 C -1.732051 0.459345 -1.549551 0.899939 -1.224745 1.224745 
 C -0.899939 1.549551 -0.459345 1.732051 0 1.732051 
 z
-" style="stroke: #7c7872"/>
+" style="stroke: #79838f"/>
     </defs>
-    <g clip-path="url(#pc35b0916f3)">
-     <use xlink:href="#m05a4906269" x="614.169284" y="185.699569" style="fill: #7c7872; stroke: #7c7872"/>
+    <g clip-path="url(#p3196394e24)">
+     <use xlink:href="#m170619cddb" x="613.966159" y="185.699569" style="fill: #79838f; stroke: #79838f"/>
     </g>
    </g>
    <g id="PathCollection_2">
     <defs>
-     <path id="m3d9de6b201" d="M 0 1.732051 
+     <path id="mc357f3b02f" d="M 0 1.732051 
 C 0.459345 1.732051 0.899939 1.549551 1.224745 1.224745 
 C 1.549551 0.899939 1.732051 0.459345 1.732051 0 
 C 1.732051 -0.459345 1.549551 -0.899939 1.224745 -1.224745 
@@ -492,29 +603,29 @@ C -1.549551 -0.899939 -1.732051 -0.459345 -1.732051 0
 C -1.732051 0.459345 -1.549551 0.899939 -1.224745 1.224745 
 C -0.899939 1.549551 -0.459345 1.732051 0 1.732051 
 z
-" style="stroke: #b5431f"/>
+" style="stroke: #0f6e63"/>
     </defs>
-    <g clip-path="url(#pc35b0916f3)">
-     <use xlink:href="#m3d9de6b201" x="614.169284" y="222.771361" style="fill: #b5431f; stroke: #b5431f"/>
+    <g clip-path="url(#p3196394e24)">
+     <use xlink:href="#mc357f3b02f" x="613.966159" y="222.771361" style="fill: #0f6e63; stroke: #0f6e63"/>
     </g>
    </g>
    <g id="text_15">
-    <text style="font-size: 9px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #7c7872" x="622.169284" y="177.53746" transform="rotate(-0 622.169284 177.53746)">Reported</text>
+    <text style="font-size: 9px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #79838f" x="621.966159" y="177.82785" transform="rotate(-0 621.966159 177.82785)">Reported</text>
    </g>
    <g id="text_16">
-    <text style="font-size: 9px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #b5431f" x="622.169284" y="235.609954" transform="rotate(-0 622.169284 235.609954)">Net Demand</text>
+    <text style="font-size: 9px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #0f6e63" x="621.966159" y="235.609954" transform="rotate(-0 621.966159 235.609954)">Net Demand</text>
    </g>
    <g id="text_17">
-    <text style="font-size: 8px; font-family: 'IBM Plex Mono'; text-anchor: middle; fill: #7c7872" x="204.193875" y="20.409909" transform="rotate(-0 204.193875 20.409909)">3,791,961</text>
+    <text style="font-size: 8px; font-family: 'IBM Plex Mono'; text-anchor: middle; fill: #79838f" x="203.99075" y="20.409909" transform="rotate(-0 203.99075 20.409909)">3,791,961</text>
    </g>
    <g id="text_18">
-    <text style="font-size: 8px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #1a1a1a" x="459.489918" y="226.836111" transform="rotate(-0 459.489918 226.836111)">72.0%</text>
+    <text style="font-size: 8px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #16202a" x="459.286793" y="226.965486" transform="rotate(-0 459.286793 226.965486)">72.0%</text>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="pc35b0916f3">
-   <rect x="51.01625" y="10.8" width="569.16" height="277.2"/>
+  <clipPath id="p3196394e24">
+   <rect x="50.813125" y="10.8" width="569.16" height="277.2"/>
   </clipPath>
  </defs>
 </svg>
@@ -545,654 +656,17 @@ ORDER BY 1;</pre>
     </details>
   </figure>
 
-  <p>NEAR’s reported active accounts are a count of distinct <span class="mono">signer_account_id</span> values. This note splits that count into signers who did something other than transact with a <span class="mono">hot.tg</span> receiver, and flags days where headcount spikes while transactions-per-signer collapse. Thresholds live in <span class="mono">classify/config.py</span>. The argument, including what cuts against it, is in <a href="../THESIS.md">THESIS.md</a>.</p>
+  <p>NEAR’s reported active accounts are a count of distinct <span class="mono">signer_account_id</span> values. This note splits that count into signers who did something other than transact with a <span class="mono">hot.tg</span> receiver, and flags days where headcount spikes while transactions-per-signer collapse. Thresholds live in <span class="mono">classify/config.py</span>. The argument, including what cuts against it, is in <a href="https://github.com/adindamochamad/subsidy-filter/blob/main/THESIS.md">THESIS.md</a>.</p>
 
   <figure>
     <figcaption>Figure 2 · Daily distinct signers. Open circles are burst days.</figcaption>
-    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="730.571975pt" height="315.766406pt" viewBox="0 0 730.571975 315.766406" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:Work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-12T16:23:05.973021</dc:date>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:Agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:Agent>
-    </dc:creator>
-   </cc:Work>
-  </rdf:RDF>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 315.766406 
-L 730.571975 315.766406 
-L 730.571975 0 
-L 0 0 
-z
-" style="fill: #fbf8f3"/>
-  </g>
-  <g id="axes_1">
-   <g id="patch_2">
-    <path d="M 51.01625 289.417891 
-L 719.771975 289.417891 
-L 719.771975 10.8 
-L 51.01625 10.8 
-z
-" style="fill: #fbf8f3"/>
-   </g>
-   <g id="matplotlib.axis_1">
-    <g id="xtick_1">
-     <g id="line2d_1">
-      <defs>
-       <path id="m8e3b6c82f2" d="M 0 0 
-L 0 3 
-" style="stroke: #6f6b66; stroke-width: 0.8"/>
-      </defs>
-      <g>
-       <use xlink:href="#m8e3b6c82f2" x="51.01625" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_1">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="51.01625" y="302.755781" transform="rotate(-0 51.01625 302.755781)">Nov 25</text>
-     </g>
-    </g>
-    <g id="xtick_2">
-     <g id="line2d_2">
-      <g>
-       <use xlink:href="#m8e3b6c82f2" x="159.800515" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_2">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="159.800515" y="302.755781" transform="rotate(-0 159.800515 302.755781)">Jan 26</text>
-     </g>
-    </g>
-    <g id="xtick_3">
-     <g id="line2d_3">
-      <g>
-       <use xlink:href="#m8e3b6c82f2" x="265.018082" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_3">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="265.018082" y="302.755781" transform="rotate(-0 265.018082 302.755781)">Mar 26</text>
-     </g>
-    </g>
-    <g id="xtick_4">
-     <g id="line2d_4">
-      <g>
-       <use xlink:href="#m8e3b6c82f2" x="373.802347" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_4">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="373.802347" y="302.755781" transform="rotate(-0 373.802347 302.755781)">May 26</text>
-     </g>
-    </g>
-    <g id="xtick_5">
-     <g id="line2d_5">
-      <g>
-       <use xlink:href="#m8e3b6c82f2" x="482.586611" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_5">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="482.586611" y="302.804297" transform="rotate(-0 482.586611 302.804297)">Jul 26</text>
-     </g>
-    </g>
-    <g id="xtick_6">
-     <g id="line2d_6">
-      <g>
-       <use xlink:href="#m8e3b6c82f2" x="593.154224" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_6">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="593.154224" y="302.755781" transform="rotate(-0 593.154224 302.755781)">Sep 26</text>
-     </g>
-    </g>
-    <g id="xtick_7">
-     <g id="line2d_7">
-      <g>
-       <use xlink:href="#m8e3b6c82f2" x="701.938489" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_7">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="701.938489" y="302.755781" transform="rotate(-0 701.938489 302.755781)">Nov 26</text>
-     </g>
-    </g>
-   </g>
-   <g id="matplotlib.axis_2">
-    <g id="ytick_1">
-     <g id="line2d_8">
-      <path d="M 51.01625 289.417891 
-L 719.771975 289.417891 
-" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_9">
-      <defs>
-       <path id="made75220f9" d="M 0 0 
-L -3 0 
-" style="stroke: #6f6b66; stroke-width: 0.8"/>
-      </defs>
-      <g>
-       <use xlink:href="#made75220f9" x="51.01625" y="289.417891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_8">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="292.836836" transform="rotate(-0 44.51625 292.836836)">0</text>
-     </g>
-    </g>
-    <g id="ytick_2">
-     <g id="line2d_10">
-      <path d="M 51.01625 245.858663 
-L 719.771975 245.858663 
-" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_11">
-      <g>
-       <use xlink:href="#made75220f9" x="51.01625" y="245.858663" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_9">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="249.277959" transform="rotate(-0 44.51625 249.277959)">100k</text>
-     </g>
-    </g>
-    <g id="ytick_3">
-     <g id="line2d_12">
-      <path d="M 51.01625 202.299434 
-L 719.771975 202.299434 
-" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_13">
-      <g>
-       <use xlink:href="#made75220f9" x="51.01625" y="202.299434" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_10">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="205.718731" transform="rotate(-0 44.51625 205.718731)">200k</text>
-     </g>
-    </g>
-    <g id="ytick_4">
-     <g id="line2d_14">
-      <path d="M 51.01625 158.740206 
-L 719.771975 158.740206 
-" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_15">
-      <g>
-       <use xlink:href="#made75220f9" x="51.01625" y="158.740206" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_11">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="162.159503" transform="rotate(-0 44.51625 162.159503)">300k</text>
-     </g>
-    </g>
-    <g id="ytick_5">
-     <g id="line2d_16">
-      <path d="M 51.01625 115.180978 
-L 719.771975 115.180978 
-" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_17">
-      <g>
-       <use xlink:href="#made75220f9" x="51.01625" y="115.180978" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_12">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="118.600275" transform="rotate(-0 44.51625 118.600275)">400k</text>
-     </g>
-    </g>
-    <g id="ytick_6">
-     <g id="line2d_18">
-      <path d="M 51.01625 71.62175 
-L 719.771975 71.62175 
-" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_19">
-      <g>
-       <use xlink:href="#made75220f9" x="51.01625" y="71.62175" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_13">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="75.041047" transform="rotate(-0 44.51625 75.041047)">500k</text>
-     </g>
-    </g>
-    <g id="ytick_7">
-     <g id="line2d_20">
-      <path d="M 51.01625 28.062522 
-L 719.771975 28.062522 
-" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_21">
-      <g>
-       <use xlink:href="#made75220f9" x="51.01625" y="28.062522" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_14">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="31.481819" transform="rotate(-0 44.51625 31.481819)">600k</text>
-     </g>
-    </g>
-    <g id="text_15">
-     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="16.92125" y="150.108945" transform="rotate(-90 16.92125 150.108945)">Daily distinct signers</text>
-    </g>
-   </g>
-   <g id="line2d_22">
-    <path d="M 51.01625 180.418763 
-L 52.799599 180.57122 
-L 54.582947 178.090522 
-L 56.366296 180.347326 
-L 58.149644 180.363443 
-L 59.932993 180.082921 
-L 61.716342 181.701582 
-L 63.49969 181.575696 
-L 65.283039 190.541056 
-L 67.066387 174.316986 
-L 70.633085 177.438876 
-L 72.416433 177.985109 
-L 74.199782 181.948127 
-L 75.98313 182.495667 
-L 77.766479 182.222115 
-L 79.549828 180.085535 
-L 81.333176 188.916297 
-L 83.116525 181.345703 
-L 84.899873 182.408549 
-L 86.683222 187.333355 
-L 88.466571 187.880023 
-L 90.249919 187.318109 
-L 92.033268 184.807791 
-L 93.816616 183.884771 
-L 95.599965 206.026362 
-L 97.383314 186.0244 
-L 99.166662 189.02476 
-L 100.950011 190.439563 
-L 102.733359 188.733784 
-L 104.516708 187.481456 
-L 106.300057 189.450769 
-L 108.083405 189.613245 
-L 109.866754 186.863351 
-L 111.650102 191.637442 
-L 113.433451 193.951308 
-L 115.2168 190.379452 
-L 118.783497 190.572419 
-L 120.566845 193.025675 
-L 122.350194 194.723178 
-L 124.133543 197.531006 
-L 125.916891 198.643508 
-L 127.70024 198.78464 
-L 129.483588 194.121189 
-L 131.266937 193.201218 
-L 133.050286 173.566461 
-L 134.833634 129.706674 
-L 136.616983 189.618908 
-L 138.400331 154.208304 
-L 140.18368 198.721915 
-L 141.967029 173.755072 
-L 143.750377 200.234291 
-L 145.533726 199.617928 
-L 147.317074 200.640699 
-L 149.100423 200.949098 
-L 150.883772 203.908512 
-L 152.66712 200.747855 
-L 154.450469 203.807891 
-L 156.233817 202.501549 
-L 158.017166 204.658602 
-L 159.800515 208.131579 
-L 161.583863 205.781124 
-L 163.367212 206.457598 
-L 165.15056 203.914175 
-L 166.933909 200.792721 
-L 168.717258 203.3405 
-L 172.283955 206.12045 
-L 174.067303 210.140096 
-L 175.850652 212.315443 
-L 177.634001 215.228249 
-L 179.417349 211.909471 
-L 181.200698 211.372822 
-L 184.767395 216.025818 
-L 186.550744 218.012555 
-L 188.334092 216.881322 
-L 190.117441 215.212568 
-L 191.900789 211.851538 
-L 193.684138 213.312514 
-L 195.467487 214.96036 
-L 199.034184 215.158119 
-L 200.817532 216.587732 
-L 202.600881 217.455868 
-L 204.38423 215.388982 
-L 206.167578 213.495027 
-L 207.950927 214.523461 
-L 209.734275 213.370883 
-L 211.517624 216.664832 
-L 213.300973 214.533479 
-L 215.084321 216.246664 
-L 216.86767 214.375359 
-L 218.651018 131.146307 
-L 220.434367 158.051971 
-L 222.217716 173.468453 
-L 224.001064 176.887416 
-L 225.784413 179.379004 
-L 227.567761 179.91609 
-L 229.35111 175.134593 
-L 231.134459 124.035698 
-L 232.917807 123.644972 
-L 234.701156 124.951749 
-L 236.484504 125.403022 
-L 238.267853 144.302065 
-L 240.051202 31.438362 
-L 241.83455 103.817247 
-L 243.617899 53.334279 
-L 245.401247 69.623253 
-L 247.184596 225.398458 
-L 248.967945 226.971817 
-L 250.751293 227.100752 
-L 252.534642 226.27879 
-L 254.31799 221.692874 
-L 256.101339 220.236689 
-L 257.884688 219.197801 
-L 259.668036 221.054731 
-L 261.451385 221.022062 
-L 263.234733 223.700083 
-L 265.018082 229.084439 
-L 266.801431 227.487558 
-L 268.584779 224.438412 
-L 270.368128 223.27146 
-L 272.151476 223.63126 
-L 273.934825 224.57693 
-L 275.718174 225.717311 
-L 277.501522 226.284017 
-L 279.284871 224.73505 
-L 281.068219 223.788944 
-L 282.851568 224.53947 
-L 284.634917 221.429776 
-L 286.418265 225.501693 
-L 289.984962 227.805976 
-L 291.768311 225.825338 
-L 293.55166 225.908972 
-L 295.335008 227.469699 
-L 297.118357 226.810648 
-L 298.901705 229.600181 
-L 300.685054 230.34243 
-L 302.468403 229.650709 
-L 304.251751 228.474175 
-L 306.0351 228.390976 
-L 307.818448 228.014625 
-L 309.601797 229.155441 
-L 311.385146 229.789228 
-L 313.168494 231.136515 
-L 314.951843 231.303346 
-L 316.735191 229.045672 
-L 318.51854 228.772555 
-L 320.301889 228.849655 
-L 322.085237 229.662035 
-L 323.868586 231.966318 
-L 327.435283 233.119766 
-L 329.218632 231.040684 
-L 331.00198 231.824315 
-L 332.785329 231.051574 
-L 334.568677 231.45319 
-L 336.352026 231.626556 
-L 338.135375 232.010313 
-L 339.918723 232.232465 
-L 341.702072 228.762101 
-L 343.48542 233.922998 
-L 345.268769 231.350826 
-L 347.052118 231.200111 
-L 348.835466 232.363142 
-L 350.618815 233.217339 
-L 352.402163 233.896427 
-L 354.185512 232.809189 
-L 355.968861 232.920265 
-L 357.752209 232.797864 
-L 359.535558 234.447452 
-L 361.318906 236.295234 
-L 363.102255 236.087456 
-L 364.885604 237.749677 
-L 366.668952 235.250684 
-L 368.452301 236.75217 
-L 370.235649 235.740289 
-L 372.018998 237.365049 
-L 373.802347 237.558452 
-L 375.585695 233.477388 
-L 377.369044 234.344652 
-L 379.152392 233.176393 
-L 380.935741 231.377833 
-L 382.71909 233.621133 
-L 384.502438 235.005881 
-L 386.285787 235.388331 
-L 388.069135 237.030078 
-L 389.852484 237.153351 
-L 391.635833 235.045084 
-L 393.419181 235.46151 
-L 395.20253 236.095733 
-L 396.985878 236.928585 
-L 398.769227 242.794271 
-L 402.335924 238.905303 
-L 404.119273 237.978363 
-L 405.902621 237.774505 
-L 407.68597 237.150302 
-L 409.469319 238.751539 
-L 411.252667 234.883479 
-L 413.036016 236.001209 
-L 414.819364 235.944582 
-L 416.602713 234.475329 
-L 418.386062 235.236309 
-L 420.16941 237.926092 
-L 421.952759 239.248985 
-L 423.736107 238.992857 
-L 425.519456 240.346242 
-L 427.302805 239.941141 
-L 429.086153 238.036732 
-L 430.869502 237.862059 
-L 432.65285 236.681169 
-L 434.436199 237.602882 
-L 436.219548 238.975869 
-L 438.002896 240.934727 
-L 439.786245 240.688182 
-L 441.569593 235.475885 
-L 443.352942 240.503491 
-L 445.136291 239.495095 
-L 446.919639 240.544437 
-L 448.702988 240.668581 
-L 450.486336 241.44437 
-L 452.269685 241.488801 
-L 454.053034 238.062432 
-L 455.836382 239.708971 
-L 457.619731 238.96585 
-L 459.403079 240.861548 
-L 461.186428 241.388179 
-L 462.969777 243.072614 
-L 466.536474 240.617616 
-L 468.319822 240.202061 
-L 470.103171 241.389486 
-L 471.88652 241.621221 
-L 473.669868 243.075663 
-L 477.236565 243.273858 
-L 479.019914 242.020659 
-L 480.803263 242.491534 
-L 482.586611 244.072299 
-L 484.36996 243.313061 
-L 486.153308 243.913743 
-L 487.936657 244.192522 
-L 489.720006 243.16496 
-L 491.503354 242.909267 
-L 493.286703 243.614056 
-L 495.070051 243.614491 
-L 496.8534 244.738755 
-L 498.636749 244.813241 
-L 500.420097 250.134872 
-L 502.203446 250.270777 
-L 503.986794 249.394365 
-L 505.770143 249.166986 
-L 507.553492 249.805564 
-L 509.33684 250.642773 
-L 511.120189 250.817445 
-L 512.903537 251.513086 
-L 514.686886 251.996593 
-L 516.470235 250.792181 
-L 518.253583 250.245948 
-L 520.036932 250.352668 
-L 521.82028 250.73686 
-L 523.603629 252.265789 
-L 525.386978 251.912088 
-L 527.170326 252.079791 
-L 528.953675 251.465606 
-L 530.737023 251.78054 
-L 532.520372 251.793607 
-L 534.303721 252.188254 
-L 536.087069 253.667961 
-L 537.870418 253.61569 
-L 539.653766 253.817369 
-L 541.437115 252.307606 
-L 543.220464 252.152535 
-L 545.003812 252.801568 
-L 546.787161 252.74799 
-L 548.570509 253.582149 
-L 550.353858 255.217798 
-L 552.137207 254.388431 
-L 553.920555 253.433612 
-L 555.703904 253.351285 
-L 557.487252 253.627015 
-L 559.270601 253.450165 
-L 561.05395 254.657627 
-L 562.837298 254.6524 
-L 566.403995 254.319607 
-L 568.187344 254.546551 
-L 569.970693 254.164972 
-L 571.754041 253.605236 
-L 573.53739 253.844376 
-L 575.320738 254.729064 
-L 577.104087 254.834477 
-L 578.887436 253.97244 
-L 580.670784 254.803986 
-L 582.454133 253.914506 
-L 584.237481 253.90623 
-L 586.02083 255.278346 
-L 587.804179 255.906034 
-L 589.587527 255.896887 
-L 591.370876 255.533167 
-L 593.154224 255.820658 
-L 594.937573 255.821965 
-L 596.720922 255.61288 
-L 600.287619 257.058611 
-L 602.070967 256.900056 
-L 603.854316 256.438763 
-L 605.637665 258.156304 
-L 607.421013 258.070928 
-L 609.204362 258.42158 
-L 610.98771 258.920333 
-L 612.771059 260.159157 
-L 614.554408 262.62853 
-L 616.337756 267.650473 
-L 618.121105 269.708647 
-L 619.904453 270.897814 
-L 621.687802 269.925572 
-L 623.471151 261.990823 
-L 625.254499 266.596775 
-L 627.037848 264.386145 
-L 628.821196 263.152547 
-L 630.604545 264.241964 
-L 632.387894 264.978986 
-L 634.171242 265.884146 
-L 635.954591 264.458453 
-L 637.737939 265.844508 
-L 639.521288 261.719013 
-L 641.304637 262.51092 
-L 643.087985 261.979933 
-L 644.871334 263.82728 
-L 646.654682 262.365432 
-L 650.22138 212.440458 
-L 652.004728 212.232681 
-L 653.788077 247.604516 
-L 655.571425 235.052054 
-L 657.354774 212.852093 
-L 659.138123 253.504614 
-L 660.921471 265.917687 
-L 662.70482 264.640966 
-L 664.488168 265.51912 
-L 666.271517 263.646509 
-L 668.054866 265.161934 
-L 669.838214 263.885649 
-L 671.621563 265.241212 
-L 675.18826 265.755647 
-L 676.971609 266.849855 
-L 678.754957 266.284891 
-L 680.538306 266.716563 
-L 682.321654 265.93119 
-L 684.105003 267.018429 
-L 685.888352 267.109468 
-L 689.455049 267.967149 
-L 691.238397 267.812078 
-L 693.021746 262.47433 
-L 694.805095 267.954952 
-L 696.588443 267.946676 
-L 698.371792 268.793032 
-L 700.15514 269.372369 
-L 701.938489 269.172433 
-L 703.721838 268.483326 
-L 705.505186 257.905838 
-L 707.288535 254.934663 
-L 709.071883 255.197761 
-L 710.855232 255.191663 
-L 712.638581 255.84418 
-L 714.421929 254.925951 
-L 716.205278 255.54972 
-L 717.988626 212.095905 
-L 719.771975 255.515308 
-L 719.771975 255.515308 
-" clip-path="url(#p7a605b75d1)" style="fill: none; stroke: #7c7872; stroke-linecap: square"/>
-   </g>
-   <g id="patch_3">
-    <path d="M 51.01625 289.417891 
-L 51.01625 10.8 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
-   </g>
-   <g id="patch_4">
-    <path d="M 51.01625 289.417891 
-L 719.771975 289.417891 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
-   </g>
-   <g id="PathCollection_1">
-    <defs>
-     <path id="m74dc251f3c" d="M 0 2.345208 
-C 0.621956 2.345208 1.218523 2.098102 1.658312 1.658312 
-C 2.098102 1.218523 2.345208 0.621956 2.345208 0 
-C 2.345208 -0.621956 2.098102 -1.218523 1.658312 -1.658312 
-C 1.218523 -2.098102 0.621956 -2.345208 0 -2.345208 
-C -0.621956 -2.345208 -1.218523 -2.098102 -1.658312 -1.658312 
-C -2.098102 -1.218523 -2.345208 -0.621956 -2.345208 0 
-C -2.345208 0.621956 -2.098102 1.218523 -1.658312 1.658312 
-C -1.218523 2.098102 -0.621956 2.345208 0 2.345208 
-z
-" style="stroke: #1a1a1a; stroke-width: 1.1"/>
-    </defs>
-    <g clip-path="url(#p7a605b75d1)">
-     <use xlink:href="#m74dc251f3c" x="240.051202" y="31.438362" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m74dc251f3c" x="243.617899" y="53.334279" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m74dc251f3c" x="650.22138" y="212.440458" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m74dc251f3c" x="652.004728" y="212.232681" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m74dc251f3c" x="657.354774" y="212.852093" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m74dc251f3c" x="717.988626" y="212.095905" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-    </g>
-   </g>
-   <g id="text_16">
-    <text style="font-size: 8px; font-family: 'IBM Plex Mono'; text-anchor: start; fill: #1a1a1a" x="250.051202" y="23.438362" transform="rotate(-0 250.051202 23.438362)">15 Feb 2026</text>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p7a605b75d1">
-   <rect x="51.01625" y="10.8" width="668.755725" height="278.617891"/>
-  </clipPath>
- </defs>
-</svg>
-</div>
+    <div class="chart" id="fig2-chart-main"></div>
     <p class="take">Median distinct signers on a non-burst day were 123,953; 6 days cleared the 2.5x-signer and 60%-intensity test, peaking at 592,250 on 15 Feb 2026.</p>
     <details>
       <summary>SQL</summary>
       <pre>-- Daily transaction count and distinct signers.
--- tx / signers is the intensity ratio used by classify/ to detect quota
--- bursts (headcount spikes while tx-per-signer falls).
+-- tx / signers is the intensity ratio used by classify/ to detect burst
+-- days (headcount spikes while tx-per-signer falls).
 -- Columns read: block_date, signer_account_id.
 -- Partition filter: block_date BETWEEN DATE &#x27;2025-10-04&#x27; AND
 --   DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY).
@@ -1215,673 +689,13 @@ ORDER BY 1;</pre>
 
   <figure>
     <figcaption>Figure 3 · Transactions per signer. Open circles are burst days.</figcaption>
-    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="731.212913pt" height="301.366406pt" viewBox="0 0 731.212913 301.366406" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:Work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-12T16:23:06.013875</dc:date>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:Agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:Agent>
-    </dc:creator>
-   </cc:Work>
-  </rdf:RDF>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 301.366406 
-L 731.212913 301.366406 
-L 731.212913 0 
-L 0 0 
-z
-" style="fill: #fbf8f3"/>
-  </g>
-  <g id="axes_1">
-   <g id="patch_2">
-    <path d="M 40.137188 275.017891 
-L 720.412912 275.017891 
-L 720.412912 10.8 
-L 40.137188 10.8 
-z
-" style="fill: #fbf8f3"/>
-   </g>
-   <g id="matplotlib.axis_1">
-    <g id="xtick_1">
-     <g id="line2d_1">
-      <defs>
-       <path id="meaa102a4b6" d="M 0 0 
-L 0 3 
-" style="stroke: #6f6b66; stroke-width: 0.8"/>
-      </defs>
-      <g>
-       <use xlink:href="#meaa102a4b6" x="40.137187" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_1">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="40.137187" y="288.355781" transform="rotate(-0 40.137187 288.355781)">Nov 25</text>
-     </g>
-    </g>
-    <g id="xtick_2">
-     <g id="line2d_2">
-      <g>
-       <use xlink:href="#meaa102a4b6" x="150.795372" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_2">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="150.795372" y="288.355781" transform="rotate(-0 150.795372 288.355781)">Jan 26</text>
-     </g>
-    </g>
-    <g id="xtick_3">
-     <g id="line2d_3">
-      <g>
-       <use xlink:href="#meaa102a4b6" x="257.825419" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_3">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="257.825419" y="288.355781" transform="rotate(-0 257.825419 288.355781)">Mar 26</text>
-     </g>
-    </g>
-    <g id="xtick_4">
-     <g id="line2d_4">
-      <g>
-       <use xlink:href="#meaa102a4b6" x="368.483604" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_4">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="368.483604" y="288.355781" transform="rotate(-0 368.483604 288.355781)">May 26</text>
-     </g>
-    </g>
-    <g id="xtick_5">
-     <g id="line2d_5">
-      <g>
-       <use xlink:href="#meaa102a4b6" x="479.141789" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_5">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="479.141789" y="288.404297" transform="rotate(-0 479.141789 288.404297)">Jul 26</text>
-     </g>
-    </g>
-    <g id="xtick_6">
-     <g id="line2d_6">
-      <g>
-       <use xlink:href="#meaa102a4b6" x="591.614042" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_6">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="591.614042" y="288.355781" transform="rotate(-0 591.614042 288.355781)">Sep 26</text>
-     </g>
-    </g>
-    <g id="xtick_7">
-     <g id="line2d_7">
-      <g>
-       <use xlink:href="#meaa102a4b6" x="702.272226" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_7">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="702.272226" y="288.355781" transform="rotate(-0 702.272226 288.355781)">Nov 26</text>
-     </g>
-    </g>
-   </g>
-   <g id="matplotlib.axis_2">
-    <g id="ytick_1">
-     <g id="line2d_8">
-      <path d="M 40.137188 275.017891 
-L 720.412912 275.017891 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_9">
-      <defs>
-       <path id="m27dd129684" d="M 0 0 
-L -3 0 
-" style="stroke: #6f6b66; stroke-width: 0.8"/>
-      </defs>
-      <g>
-       <use xlink:href="#m27dd129684" x="40.137188" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_8">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="278.436836" transform="rotate(-0 33.637188 278.436836)">0</text>
-     </g>
-    </g>
-    <g id="ytick_2">
-     <g id="line2d_10">
-      <path d="M 40.137188 239.152737 
-L 720.412912 239.152737 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_11">
-      <g>
-       <use xlink:href="#m27dd129684" x="40.137188" y="239.152737" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_9">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="242.571682" transform="rotate(-0 33.637188 242.571682)">5</text>
-     </g>
-    </g>
-    <g id="ytick_3">
-     <g id="line2d_12">
-      <path d="M 40.137188 203.287584 
-L 720.412912 203.287584 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_13">
-      <g>
-       <use xlink:href="#m27dd129684" x="40.137188" y="203.287584" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_10">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="206.706529" transform="rotate(-0 33.637188 206.706529)">10</text>
-     </g>
-    </g>
-    <g id="ytick_4">
-     <g id="line2d_14">
-      <path d="M 40.137188 167.42243 
-L 720.412912 167.42243 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_15">
-      <g>
-       <use xlink:href="#m27dd129684" x="40.137188" y="167.42243" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_11">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="170.841375" transform="rotate(-0 33.637188 170.841375)">15</text>
-     </g>
-    </g>
-    <g id="ytick_5">
-     <g id="line2d_16">
-      <path d="M 40.137188 131.557277 
-L 720.412912 131.557277 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_17">
-      <g>
-       <use xlink:href="#m27dd129684" x="40.137188" y="131.557277" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_12">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="134.976222" transform="rotate(-0 33.637188 134.976222)">20</text>
-     </g>
-    </g>
-    <g id="ytick_6">
-     <g id="line2d_18">
-      <path d="M 40.137188 95.692123 
-L 720.412912 95.692123 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_19">
-      <g>
-       <use xlink:href="#m27dd129684" x="40.137188" y="95.692123" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_13">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="99.111068" transform="rotate(-0 33.637188 99.111068)">25</text>
-     </g>
-    </g>
-    <g id="ytick_7">
-     <g id="line2d_20">
-      <path d="M 40.137188 59.82697 
-L 720.412912 59.82697 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_21">
-      <g>
-       <use xlink:href="#m27dd129684" x="40.137188" y="59.82697" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_14">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="63.245915" transform="rotate(-0 33.637188 63.245915)">30</text>
-     </g>
-    </g>
-    <g id="ytick_8">
-     <g id="line2d_22">
-      <path d="M 40.137188 23.961816 
-L 720.412912 23.961816 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
-     </g>
-     <g id="line2d_23">
-      <g>
-       <use xlink:href="#m27dd129684" x="40.137188" y="23.961816" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
-      </g>
-     </g>
-     <g id="text_15">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="33.637188" y="27.380761" transform="rotate(-0 33.637188 27.380761)">35</text>
-     </g>
-    </g>
-    <g id="text_16">
-     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="16.87875" y="142.908945" transform="rotate(-90 16.87875 142.908945)">Transactions per signer</text>
-    </g>
-   </g>
-   <g id="line2d_24">
-    <path d="M 40.137187 151.920403 
-L 41.951256 150.792029 
-L 43.765325 153.674063 
-L 45.579393 151.146581 
-L 47.393462 153.333024 
-L 49.20753 158.760799 
-L 51.021599 152.801209 
-L 52.835668 151.531323 
-L 54.649736 143.679798 
-L 56.463805 156.777114 
-L 58.277874 158.718955 
-L 60.091942 153.981839 
-L 61.906011 153.014766 
-L 63.720079 148.160572 
-L 65.534148 148.53928 
-L 67.348217 150.124575 
-L 69.162285 150.220697 
-L 70.976354 142.389851 
-L 72.790422 151.44834 
-L 74.604491 144.878119 
-L 76.41856 143.819511 
-L 78.232628 141.681828 
-L 80.046697 142.954596 
-L 81.860765 148.893415 
-L 83.674834 146.768957 
-L 85.488903 131.5889 
-L 87.302971 144.103757 
-L 89.11704 137.658718 
-L 90.931108 147.744523 
-L 92.745177 147.554318 
-L 94.559246 145.399517 
-L 96.373314 147.443981 
-L 98.187383 146.494182 
-L 100.001451 146.54494 
-L 101.81552 147.731929 
-L 103.629588 148.638296 
-L 105.443657 152.620082 
-L 107.257726 151.305018 
-L 109.071794 149.528987 
-L 110.885863 147.401574 
-L 112.699931 146.952535 
-L 114.514 147.561676 
-L 116.328069 150.1904 
-L 118.142137 144.697048 
-L 119.956206 148.998651 
-L 121.770274 149.335327 
-L 123.584343 171.461058 
-L 125.398412 196.237216 
-L 127.21248 153.64962 
-L 129.026549 186.354273 
-L 130.840617 146.671204 
-L 132.654686 171.705934 
-L 134.468755 143.440962 
-L 136.282823 144.189585 
-L 138.096892 141.198007 
-L 139.91096 146.143181 
-L 141.725029 141.825469 
-L 143.539098 148.01132 
-L 145.353166 143.117405 
-L 147.167235 145.299834 
-L 148.981303 141.534175 
-L 150.795372 140.228829 
-L 152.609441 140.787659 
-L 154.423509 142.417872 
-L 156.237578 145.605773 
-L 158.051646 146.435977 
-L 159.865715 141.321107 
-L 161.679784 141.238415 
-L 163.493852 135.528311 
-L 167.121989 131.211686 
-L 168.936058 131.31364 
-L 170.750127 132.987223 
-L 172.564195 161.848629 
-L 174.378264 98.595566 
-L 176.192333 128.54324 
-L 178.006401 125.658157 
-L 179.82047 128.904887 
-L 181.634538 131.102528 
-L 183.448607 133.573625 
-L 185.262676 128.127366 
-L 187.076744 128.388426 
-L 188.890813 132.357882 
-L 190.704881 133.1094 
-L 192.51895 128.002337 
-L 194.333019 125.284538 
-L 196.147087 127.925684 
-L 197.961156 132.310721 
-L 199.775224 129.794276 
-L 201.589293 134.072642 
-L 203.403362 126.665198 
-L 205.21743 130.767348 
-L 207.031499 129.397608 
-L 208.845567 133.824057 
-L 210.659636 202.266001 
-L 214.287773 176.987378 
-L 216.101842 176.095739 
-L 217.91591 177.116992 
-L 219.729979 176.817997 
-L 221.544047 181.088242 
-L 223.358116 208.233637 
-L 225.172185 208.09792 
-L 226.986253 208.14431 
-L 228.800322 206.498762 
-L 230.61439 199.876849 
-L 232.428459 229.103978 
-L 234.242528 214.935981 
-L 236.056596 226.403069 
-L 237.870665 229.134095 
-L 239.684733 115.411942 
-L 241.498802 112.306191 
-L 243.312871 114.462998 
-L 245.126939 114.208786 
-L 246.941008 121.126353 
-L 248.755076 129.600897 
-L 250.569145 106.215573 
-L 252.383214 99.483327 
-L 254.197282 118.560869 
-L 256.011351 107.072077 
-L 257.825419 88.836083 
-L 259.639488 90.134014 
-L 261.453557 114.579349 
-L 263.267625 117.944324 
-L 265.081694 117.078087 
-L 266.895762 115.672592 
-L 268.709831 115.721173 
-L 270.5239 110.934652 
-L 272.337968 113.110588 
-L 274.152037 116.342449 
-L 275.966105 116.683916 
-L 277.780174 121.727988 
-L 279.594243 115.186073 
-L 281.408311 117.305856 
-L 283.22238 113.824001 
-L 285.036448 113.343927 
-L 286.850517 116.637221 
-L 288.664586 111.710695 
-L 290.478654 114.894599 
-L 292.292723 110.729658 
-L 294.106791 110.275662 
-L 295.92086 112.594062 
-L 297.734929 98.411374 
-L 299.548997 75.777147 
-L 301.363066 59.642053 
-L 303.177135 72.018674 
-L 304.991203 85.427255 
-L 306.805272 30.371696 
-L 308.61934 49.652626 
-L 310.433409 95.693831 
-L 312.247478 60.183702 
-L 314.061546 81.120782 
-L 315.875615 219.416092 
-L 317.689683 225.643664 
-L 319.503752 225.108804 
-L 321.317821 225.272483 
-L 323.131889 223.663748 
-L 324.945958 223.087295 
-L 326.760026 223.017072 
-L 328.574095 222.577592 
-L 330.388163 221.345349 
-L 332.202232 222.73214 
-L 334.016301 220.812777 
-L 335.830369 228.866872 
-L 337.644438 230.814914 
-L 339.458506 233.954057 
-L 341.272575 218.192505 
-L 343.086644 235.074719 
-L 344.900712 232.554011 
-L 346.714781 229.830532 
-L 348.528849 230.395058 
-L 350.342918 230.495637 
-L 352.156987 232.030255 
-L 353.971055 232.275899 
-L 355.785124 234.612474 
-L 357.599192 238.56844 
-L 359.413261 231.333072 
-L 361.22733 233.878278 
-L 363.041398 232.927579 
-L 364.855467 220.733388 
-L 366.669535 231.388872 
-L 368.483604 232.580999 
-L 370.297673 236.191119 
-L 372.111741 233.794792 
-L 373.92581 232.328983 
-L 375.739878 234.045848 
-L 377.553947 227.536083 
-L 379.368016 230.012557 
-L 381.182084 230.993131 
-L 382.996153 230.854678 
-L 384.810221 229.746762 
-L 386.62429 231.471833 
-L 388.438359 229.350269 
-L 390.252427 228.696049 
-L 392.066496 228.228391 
-L 393.880564 224.65904 
-L 395.694633 228.559649 
-L 397.508702 230.052453 
-L 399.32277 227.196066 
-L 401.136839 227.882707 
-L 402.950907 226.168746 
-L 404.764976 223.411118 
-L 406.579045 211.473006 
-L 408.393113 223.564454 
-L 410.207182 222.492327 
-L 412.02125 223.907637 
-L 413.835319 219.811631 
-L 415.649388 224.554551 
-L 417.463456 223.601372 
-L 419.277525 221.455808 
-L 421.091594 225.595005 
-L 422.905662 226.937082 
-L 424.719731 221.322474 
-L 426.533799 216.116108 
-L 428.347868 216.532709 
-L 430.161937 213.473332 
-L 431.976005 209.636218 
-L 433.790074 221.503785 
-L 435.604142 220.810758 
-L 437.418211 224.240762 
-L 439.23228 223.625458 
-L 441.046348 224.682628 
-L 442.860417 223.575625 
-L 444.674485 224.426665 
-L 446.488554 227.204438 
-L 448.302622 225.684139 
-L 450.116691 223.239838 
-L 451.93076 224.466058 
-L 453.744828 224.0375 
-L 455.558897 223.432454 
-L 457.372965 222.151373 
-L 459.187034 226.482221 
-L 461.001103 227.53714 
-L 462.815171 226.533538 
-L 464.62924 226.910158 
-L 466.443308 225.043933 
-L 468.257377 226.440951 
-L 470.071446 225.385904 
-L 471.885514 227.819111 
-L 473.699583 226.8482 
-L 475.513651 222.479236 
-L 477.32772 225.277487 
-L 479.141789 225.347025 
-L 480.955857 224.334794 
-L 482.769926 224.271642 
-L 484.583994 222.942551 
-L 486.398063 225.166057 
-L 488.212132 221.497452 
-L 490.0262 219.126807 
-L 491.840269 215.418063 
-L 493.654337 217.434827 
-L 495.468406 221.021501 
-L 497.282475 218.109843 
-L 499.096543 219.620394 
-L 500.910612 212.960554 
-L 502.72468 216.187705 
-L 504.538749 217.825554 
-L 506.352818 216.601329 
-L 508.166886 217.392833 
-L 509.980955 219.580162 
-L 511.795023 219.555382 
-L 513.609092 213.945286 
-L 515.423161 216.163592 
-L 517.237229 217.546864 
-L 519.051298 215.813105 
-L 520.865366 215.086824 
-L 522.679435 215.120006 
-L 524.493504 215.86796 
-L 526.307572 217.551894 
-L 528.121641 216.640354 
-L 529.935709 216.47068 
-L 531.749778 213.477233 
-L 533.563847 213.128214 
-L 535.377915 215.516697 
-L 537.191984 216.115644 
-L 539.006052 216.861404 
-L 540.820121 216.60998 
-L 542.63419 217.708651 
-L 544.448258 217.474394 
-L 546.262327 217.813518 
-L 548.076396 215.064331 
-L 549.890464 218.123336 
-L 551.704533 216.666532 
-L 553.518601 217.827527 
-L 555.33267 215.182456 
-L 557.146738 217.266359 
-L 558.960807 217.513915 
-L 560.774876 222.465546 
-L 562.588944 219.97383 
-L 564.403013 215.439967 
-L 566.217081 214.6415 
-L 568.03115 210.015596 
-L 569.845219 208.815762 
-L 571.659287 205.974648 
-L 573.473356 202.536287 
-L 575.287424 209.405449 
-L 577.101493 203.99393 
-L 578.915562 210.064159 
-L 580.72963 217.343489 
-L 582.543699 215.07643 
-L 584.357767 215.08119 
-L 586.171836 219.622466 
-L 587.985905 216.86447 
-L 589.799973 211.864699 
-L 591.614042 212.659209 
-L 593.42811 213.671166 
-L 595.242179 209.976756 
-L 597.056248 205.641774 
-L 598.870316 209.922791 
-L 600.684385 201.687555 
-L 602.498453 204.336001 
-L 604.312522 204.629478 
-L 606.126591 197.98476 
-L 607.940659 201.559218 
-L 609.754728 188.284399 
-L 611.568796 205.394535 
-L 613.382865 201.953655 
-L 615.196934 173.591822 
-L 617.011002 163.000697 
-L 618.825071 143.915431 
-L 620.639139 140.319951 
-L 622.453208 164.128635 
-L 624.267277 160.095509 
-L 626.081345 169.416714 
-L 627.895414 171.318003 
-L 629.709482 154.390665 
-L 631.523551 163.802098 
-L 633.33762 176.598524 
-L 635.151688 185.452775 
-L 636.965757 195.074743 
-L 638.779825 137.71305 
-L 640.593894 143.822995 
-L 642.407963 162.551169 
-L 644.222031 162.258859 
-L 646.0361 142.022359 
-L 647.850168 222.286392 
-L 649.664237 246.992987 
-L 651.478306 241.036307 
-L 653.292374 210.329621 
-L 656.920511 235.390297 
-L 658.73458 186.724196 
-L 660.548649 184.562982 
-L 662.362717 167.78448 
-L 664.176786 129.951271 
-L 665.990854 188.619873 
-L 667.804923 180.847597 
-L 669.618992 181.056634 
-L 671.43306 157.156504 
-L 673.247129 189.046632 
-L 675.061197 201.348745 
-L 676.875266 196.138781 
-L 680.503403 189.960303 
-L 682.317472 187.377581 
-L 684.13154 198.679229 
-L 685.945609 189.688322 
-L 687.759678 184.180944 
-L 689.573746 194.868431 
-L 691.387815 192.037866 
-L 693.201883 204.937769 
-L 695.015952 199.303715 
-L 696.830021 180.559647 
-L 698.644089 170.272766 
-L 700.458158 196.669454 
-L 702.272226 196.40979 
-L 704.086295 197.055136 
-L 705.900364 215.804767 
-L 707.714432 210.984882 
-L 709.528501 197.517567 
-L 711.342569 209.518683 
-L 713.156638 211.507775 
-L 714.970707 219.804831 
-L 716.784775 192.421575 
-L 718.598844 235.800595 
-L 720.412912 192.874519 
-L 720.412912 192.874519 
-" clip-path="url(#p1969d5bbb1)" style="fill: none; stroke: #7c7872; stroke-linecap: square"/>
-   </g>
-   <g id="patch_3">
-    <path d="M 40.137188 275.017891 
-L 40.137188 10.8 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
-   </g>
-   <g id="patch_4">
-    <path d="M 40.137187 275.017891 
-L 720.412912 275.017891 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
-   </g>
-   <g id="PathCollection_1">
-    <defs>
-     <path id="me463070bbf" d="M 0 2.345208 
-C 0.621956 2.345208 1.218523 2.098102 1.658312 1.658312 
-C 2.098102 1.218523 2.345208 0.621956 2.345208 0 
-C 2.345208 -0.621956 2.098102 -1.218523 1.658312 -1.658312 
-C 1.218523 -2.098102 0.621956 -2.345208 0 -2.345208 
-C -0.621956 -2.345208 -1.218523 -2.098102 -1.658312 -1.658312 
-C -2.098102 -1.218523 -2.345208 -0.621956 -2.345208 0 
-C -2.345208 0.621956 -2.098102 1.218523 -1.658312 1.658312 
-C -1.218523 2.098102 -0.621956 2.345208 0 2.345208 
-z
-" style="stroke: #1a1a1a; stroke-width: 1.1"/>
-    </defs>
-    <g clip-path="url(#p1969d5bbb1)">
-     <use xlink:href="#me463070bbf" x="232.428459" y="229.103978" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#me463070bbf" x="236.056596" y="226.403069" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#me463070bbf" x="649.664237" y="246.992987" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#me463070bbf" x="651.478306" y="241.036307" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#me463070bbf" x="656.920511" y="235.390297" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#me463070bbf" x="718.598844" y="235.800595" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p1969d5bbb1">
-   <rect x="40.137188" y="10.8" width="680.275725" height="264.217891"/>
-  </clipPath>
- </defs>
-</svg>
-</div>
-    <p class="take">On those burst days, transactions per signer fell to 0.27–0.49 of the trailing 28-day median, the quota-campaign half of the detector.</p>
+    <div class="chart" id="fig3-chart"></div>
+    <p class="take">On those burst days, transactions per signer fell to 0.27–0.49 of the trailing 28-day median, the intensity half of the burst detector.</p>
     <details>
       <summary>SQL</summary>
       <pre>-- Daily transaction count and distinct signers.
--- tx / signers is the intensity ratio used by classify/ to detect quota
--- bursts (headcount spikes while tx-per-signer falls).
+-- tx / signers is the intensity ratio used by classify/ to detect burst
+-- days (headcount spikes while tx-per-signer falls).
 -- Columns read: block_date, signer_account_id.
 -- Partition filter: block_date BETWEEN DATE &#x27;2025-10-04&#x27; AND
 --   DATE_SUB(CURRENT_DATE(&#x27;UTC&#x27;), INTERVAL 1 DAY).
@@ -1904,16 +718,16 @@ ORDER BY 1;</pre>
 
   <figure>
     <figcaption>Figure 4 · Share of daily signers taken by the #1 contract</figcaption>
-    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="730.571975pt" height="301.366406pt" viewBox="0 0 730.571975 301.366406" xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <div class="chart"><svg xmlns:xlink="http://www.w3.org/1999/xlink" width="734.090725pt" height="301.798125pt" viewBox="0 0 734.090725 301.798125" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-11-12T16:23:06.053795</dc:date>
+    <dc:date>2026-11-13T14:06:40.974011</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v3.10.9, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -1924,578 +738,578 @@ ORDER BY 1;</pre>
  </defs>
  <g id="figure_1">
   <g id="patch_1">
-   <path d="M -0 301.366406 
-L 730.571975 301.366406 
-L 730.571975 0 
-L -0 0 
+   <path d="M 0 301.798125 
+L 734.090725 301.798125 
+L 734.090725 0 
+L 0 0 
 z
-" style="fill: #fbf8f3"/>
+" style="fill: #edeae1"/>
   </g>
   <g id="axes_1">
    <g id="patch_2">
-    <path d="M 51.01625 275.017891 
-L 719.771975 275.017891 
-L 719.771975 10.8 
-L 51.01625 10.8 
+    <path d="M 50.813125 275.74 
+L 723.290725 275.74 
+L 723.290725 10.8 
+L 50.813125 10.8 
 z
-" style="fill: #fbf8f3"/>
+" style="fill: #edeae1"/>
    </g>
    <g id="matplotlib.axis_1">
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
-       <path id="m6725b36bbb" d="M 0 0 
+       <path id="m6e8709715d" d="M 0 0 
 L 0 3 
-" style="stroke: #6f6b66; stroke-width: 0.8"/>
+" style="stroke: #5c6672; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#m6725b36bbb" x="51.01625" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m6e8709715d" x="50.813125" y="275.74" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="51.01625" y="288.355781" transform="rotate(-0 51.01625 288.355781)">Nov 25</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="50.813125" y="289.126406" transform="rotate(-0 50.813125 289.126406)">Nov 25</text>
      </g>
     </g>
     <g id="xtick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="#m6725b36bbb" x="159.800515" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m6e8709715d" x="160.202815" y="275.74" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="159.800515" y="288.355781" transform="rotate(-0 159.800515 288.355781)">Jan 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="160.202815" y="289.126406" transform="rotate(-0 160.202815 289.126406)">Jan 26</text>
      </g>
     </g>
     <g id="xtick_3">
      <g id="line2d_3">
       <g>
-       <use xlink:href="#m6725b36bbb" x="265.018082" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m6e8709715d" x="266.005957" y="275.74" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_3">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="265.018082" y="288.355781" transform="rotate(-0 265.018082 288.355781)">Mar 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="266.005957" y="289.126406" transform="rotate(-0 266.005957 289.126406)">Mar 26</text>
      </g>
     </g>
     <g id="xtick_4">
      <g id="line2d_4">
       <g>
-       <use xlink:href="#m6725b36bbb" x="373.802347" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m6e8709715d" x="375.395647" y="275.74" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_4">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="373.802347" y="288.355781" transform="rotate(-0 373.802347 288.355781)">May 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="375.395647" y="289.126406" transform="rotate(-0 375.395647 289.126406)">May 26</text>
      </g>
     </g>
     <g id="xtick_5">
      <g id="line2d_5">
       <g>
-       <use xlink:href="#m6725b36bbb" x="482.586611" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m6e8709715d" x="484.785336" y="275.74" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_5">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="482.586611" y="288.404297" transform="rotate(-0 482.586611 288.404297)">Jul 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="484.785336" y="289.126406" transform="rotate(-0 484.785336 289.126406)">Jul 26</text>
      </g>
     </g>
     <g id="xtick_6">
      <g id="line2d_6">
       <g>
-       <use xlink:href="#m6725b36bbb" x="593.154224" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m6e8709715d" x="595.968299" y="275.74" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="593.154224" y="288.355781" transform="rotate(-0 593.154224 288.355781)">Sep 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="595.968299" y="289.126406" transform="rotate(-0 595.968299 289.126406)">Sep 26</text>
      </g>
     </g>
     <g id="xtick_7">
      <g id="line2d_7">
       <g>
-       <use xlink:href="#m6725b36bbb" x="701.938489" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m6e8709715d" x="705.357989" y="275.74" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_7">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="701.938489" y="288.355781" transform="rotate(-0 701.938489 288.355781)">Nov 26</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="705.357989" y="289.126406" transform="rotate(-0 705.357989 289.126406)">Nov 26</text>
      </g>
     </g>
    </g>
    <g id="matplotlib.axis_2">
     <g id="ytick_1">
      <g id="line2d_8">
-      <path d="M 51.01625 275.017891 
-L 719.771975 275.017891 
-" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 275.74 
+L 723.290725 275.74 
+" clip-path="url(#pafbf063ebd)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_9">
       <defs>
-       <path id="m255cf45ba8" d="M 0 0 
+       <path id="m02da4d2206" d="M 0 0 
 L -3 0 
-" style="stroke: #6f6b66; stroke-width: 0.8"/>
+" style="stroke: #5c6672; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="#m255cf45ba8" x="51.01625" y="275.017891" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m02da4d2206" x="50.813125" y="275.74" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_8">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="278.436836" transform="rotate(-0 44.51625 278.436836)">0%</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="279.183203" transform="rotate(-0 44.313125 279.183203)">0%</text>
      </g>
     </g>
     <g id="ytick_2">
      <g id="line2d_10">
-      <path d="M 51.01625 223.210461 
-L 719.771975 223.210461 
-" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 223.79098 
+L 723.290725 223.79098 
+" clip-path="url(#pafbf063ebd)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_11">
       <g>
-       <use xlink:href="#m255cf45ba8" x="51.01625" y="223.210461" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m02da4d2206" x="50.813125" y="223.79098" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="226.629406" transform="rotate(-0 44.51625 226.629406)">20%</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="227.234184" transform="rotate(-0 44.313125 227.234184)">20%</text>
      </g>
     </g>
     <g id="ytick_3">
      <g id="line2d_12">
-      <path d="M 51.01625 171.403032 
-L 719.771975 171.403032 
-" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 171.841961 
+L 723.290725 171.841961 
+" clip-path="url(#pafbf063ebd)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_13">
       <g>
-       <use xlink:href="#m255cf45ba8" x="51.01625" y="171.403032" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m02da4d2206" x="50.813125" y="171.841961" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="174.821977" transform="rotate(-0 44.51625 174.821977)">40%</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="175.285164" transform="rotate(-0 44.313125 175.285164)">40%</text>
      </g>
     </g>
     <g id="ytick_4">
      <g id="line2d_14">
-      <path d="M 51.01625 119.595602 
-L 719.771975 119.595602 
-" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 119.892941 
+L 723.290725 119.892941 
+" clip-path="url(#pafbf063ebd)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_15">
       <g>
-       <use xlink:href="#m255cf45ba8" x="51.01625" y="119.595602" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m02da4d2206" x="50.813125" y="119.892941" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="123.014547" transform="rotate(-0 44.51625 123.014547)">60%</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="123.336144" transform="rotate(-0 44.313125 123.336144)">60%</text>
      </g>
     </g>
     <g id="ytick_5">
      <g id="line2d_16">
-      <path d="M 51.01625 67.788172 
-L 719.771975 67.788172 
-" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 67.943922 
+L 723.290725 67.943922 
+" clip-path="url(#pafbf063ebd)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_17">
       <g>
-       <use xlink:href="#m255cf45ba8" x="51.01625" y="67.788172" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m02da4d2206" x="50.813125" y="67.943922" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="71.207118" transform="rotate(-0 44.51625 71.207118)">80%</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="71.387125" transform="rotate(-0 44.313125 71.387125)">80%</text>
      </g>
     </g>
     <g id="ytick_6">
      <g id="line2d_18">
-      <path d="M 51.01625 15.980743 
-L 719.771975 15.980743 
-" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #d9d3c9; stroke-width: 0.6; stroke-linecap: square"/>
+      <path d="M 50.813125 15.994902 
+L 723.290725 15.994902 
+" clip-path="url(#pafbf063ebd)" style="fill: none; stroke: #d3d0c6; stroke-width: 0.6; stroke-linecap: square"/>
      </g>
      <g id="line2d_19">
       <g>
-       <use xlink:href="#m255cf45ba8" x="51.01625" y="15.980743" style="fill: #6f6b66; stroke: #6f6b66; stroke-width: 0.8"/>
+       <use xlink:href="#m02da4d2206" x="50.813125" y="15.994902" style="fill: #5c6672; stroke: #5c6672; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_13">
-      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #6f6b66" x="44.51625" y="19.399688" transform="rotate(-0 44.51625 19.399688)">100%</text>
+      <text style="font-size: 9px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: end; fill: #5c6672" x="44.313125" y="19.438105" transform="rotate(-0 44.313125 19.438105)">100%</text>
      </g>
     </g>
     <g id="text_14">
-     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #6f6b66" x="16.92125" y="142.908945" transform="rotate(-90 16.92125 142.908945)">Share of daily signers, #1 contract</text>
+     <text style="font-size: 8px; font-family: 'IBM Plex Mono', 'DejaVu Sans Mono', monospace; text-anchor: middle; fill: #5c6672" x="16.92125" y="143.27" transform="rotate(-90 16.92125 143.27)">Share of daily signers, #1 contract</text>
     </g>
    </g>
    <g id="line2d_20">
-    <path d="M 51.01625 29.850191 
-L 52.799599 29.507831 
-L 54.582947 29.419251 
-L 56.366296 29.680758 
-L 58.149644 29.117857 
-L 59.932993 29.358665 
-L 61.716342 32.640441 
-L 63.49969 32.4358 
-L 65.283039 33.728109 
-L 67.066387 30.873614 
-L 70.633085 29.525446 
-L 72.416433 29.628293 
-L 74.199782 30.002416 
-L 75.98313 29.229983 
-L 77.766479 29.27196 
-L 79.549828 30.368313 
-L 81.333176 30.185325 
-L 83.116525 31.687684 
-L 84.899873 31.125618 
-L 86.683222 33.536308 
-L 88.466571 29.741428 
-L 90.249919 30.073492 
-L 92.033268 35.041043 
-L 95.599965 36.172608 
-L 97.383314 34.15 
-L 99.166662 34.578368 
-L 100.950011 34.027969 
-L 102.733359 34.210831 
-L 104.516708 35.1613 
-L 106.300057 35.155386 
-L 108.083405 32.458573 
-L 109.866754 33.030058 
-L 111.650102 31.753048 
-L 113.433451 30.939218 
-L 115.2168 29.201191 
-L 117.000148 30.830841 
-L 118.783497 30.674453 
-L 120.566845 25.498711 
-L 122.350194 24.89839 
-L 124.133543 24.909332 
-L 125.916891 24.137455 
-L 127.70024 24.619506 
-L 129.483588 31.332934 
-L 131.266937 29.583046 
-L 133.050286 71.990223 
-L 134.833634 132.575825 
-L 136.616983 47.977248 
-L 138.400331 106.070098 
-L 140.18368 25.460761 
-L 141.967029 78.592362 
-L 143.750377 24.589125 
-L 145.533726 25.577969 
-L 147.317074 25.247503 
-L 149.100423 25.314243 
-L 150.883772 25.7811 
-L 152.66712 24.345031 
-L 154.450469 26.852983 
-L 156.233817 27.777464 
-L 158.017166 36.223511 
-L 159.800515 28.103133 
-L 161.583863 29.313924 
-L 163.367212 28.405288 
-L 165.15056 28.814294 
-L 166.933909 35.298496 
-L 168.717258 31.446156 
-L 170.500606 31.353353 
-L 172.283955 28.699068 
-L 174.067303 27.900722 
-L 175.850652 28.386299 
-L 177.634001 24.876452 
-L 179.417349 30.916963 
-L 181.200698 33.527954 
-L 182.984046 29.833292 
-L 184.767395 25.089968 
-L 186.550744 25.817477 
-L 188.334092 26.174291 
-L 190.117441 28.595413 
-L 191.900789 35.46188 
-L 193.684138 32.166395 
-L 195.467487 29.348281 
-L 199.034184 28.264039 
-L 200.817532 27.924172 
-L 204.38423 30.927011 
-L 206.167578 32.223138 
-L 207.950927 29.285366 
-L 209.734275 26.760171 
-L 211.517624 28.046944 
-L 213.300973 27.991313 
-L 215.084321 25.997979 
-L 216.86767 27.453275 
-L 218.651018 161.887864 
-L 220.434367 137.001029 
-L 222.217716 121.051219 
-L 224.001064 121.32767 
-L 225.784413 122.393321 
-L 227.567761 122.641158 
-L 229.35111 126.858156 
-L 231.134459 173.777862 
-L 232.917807 178.53605 
-L 234.701156 174.380968 
-L 236.484504 173.60118 
-L 238.267853 159.660029 
-L 240.051202 213.81733 
-L 241.83455 189.437169 
-L 243.617899 209.526275 
-L 245.401247 203.840531 
-L 247.184596 28.334142 
-L 248.967945 24.964711 
-L 250.751293 25.435962 
-L 252.534642 25.22173 
-L 254.31799 25.202437 
-L 256.101339 24.276012 
-L 257.884688 26.023683 
-L 259.668036 24.926547 
-L 261.451385 24.367965 
-L 265.018082 25.627146 
-L 266.801431 27.320621 
-L 268.584779 26.489828 
-L 270.368128 26.718944 
-L 272.151476 25.244321 
-L 273.934825 24.792986 
-L 275.718174 25.737214 
-L 277.501522 24.545136 
-L 279.284871 24.776151 
-L 281.068219 27.732027 
-L 282.851568 27.356652 
-L 284.634917 37.036369 
-L 286.418265 26.380431 
-L 288.201614 24.323796 
-L 289.984962 24.94716 
-L 291.768311 26.930173 
-L 293.55166 26.383163 
-L 295.335008 27.676175 
-L 297.118357 28.131586 
-L 298.901705 26.96471 
-L 300.685054 24.482187 
-L 302.468403 25.004915 
-L 304.251751 29.829631 
-L 306.0351 27.686328 
-L 307.818448 27.699112 
-L 309.601797 27.366724 
-L 311.385146 30.328068 
-L 313.168494 25.798359 
-L 314.951843 24.708187 
-L 316.735191 27.065674 
-L 318.51854 27.53113 
-L 320.301889 25.47984 
-L 322.085237 25.46736 
-L 323.868586 24.956199 
-L 327.435283 24.578904 
-L 329.218632 25.140535 
-L 331.00198 25.457162 
-L 332.785329 26.34857 
-L 334.568677 25.602829 
-L 336.352026 28.203068 
-L 338.135375 25.58614 
-L 339.918723 25.323539 
-L 341.702072 35.712353 
-L 343.48542 25.84197 
-L 345.268769 25.914264 
-L 347.052118 23.989164 
-L 348.835466 24.623093 
-L 350.618815 31.907931 
-L 352.402163 25.44299 
-L 354.185512 25.500445 
-L 355.968861 25.375366 
-L 357.752209 25.960879 
-L 359.535558 25.802631 
-L 361.318906 25.233056 
-L 363.102255 24.183558 
-L 364.885604 24.550091 
-L 366.668952 25.083799 
-L 370.235649 24.708577 
-L 372.018998 25.538101 
-L 373.802347 25.253905 
-L 375.585695 39.598338 
-L 377.369044 38.312768 
-L 379.152392 39.162978 
-L 380.935741 35.761769 
-L 382.71909 31.475166 
-L 384.502438 25.615187 
-L 386.285787 26.069736 
-L 388.069135 25.586837 
-L 389.852484 25.341789 
-L 391.635833 33.267179 
-L 393.419181 25.48324 
-L 395.20253 25.744391 
-L 396.985878 25.112533 
-L 398.769227 25.639427 
-L 400.552576 24.28612 
-L 402.335924 25.096846 
-L 404.119273 26.121471 
-L 405.902621 25.404129 
-L 407.68597 25.520422 
-L 409.469319 27.643606 
-L 411.252667 34.358071 
-L 413.036016 29.294868 
-L 414.819364 29.605726 
-L 416.602713 34.654879 
-L 421.952759 26.41429 
-L 423.736107 30.236938 
-L 425.519456 26.162417 
-L 427.302805 28.184007 
-L 429.086153 27.325436 
-L 430.869502 28.462272 
-L 432.65285 30.962102 
-L 434.436199 29.053133 
-L 436.219548 27.644025 
-L 438.002896 24.680168 
-L 439.786245 25.231243 
-L 441.569593 47.537273 
-L 443.352942 26.407372 
-L 445.136291 24.700523 
-L 446.919639 26.217559 
-L 448.702988 25.702014 
-L 450.486336 25.059532 
-L 452.269685 27.346812 
-L 454.053034 30.024793 
-L 455.836382 26.771877 
-L 457.619731 29.509163 
-L 459.403079 28.32005 
-L 461.186428 24.597852 
-L 462.969777 24.419244 
-L 464.753125 24.976489 
-L 466.536474 25.178559 
-L 468.319822 24.931241 
-L 470.103171 25.126685 
-L 471.88652 26.714939 
-L 473.669868 26.428519 
-L 475.453217 25.589366 
-L 477.236565 26.21664 
-L 479.019914 27.586243 
-L 480.803263 28.472138 
-L 482.586611 26.160482 
-L 484.36996 27.231204 
-L 486.153308 25.34144 
-L 487.936657 24.603256 
-L 489.720006 24.767865 
-L 491.503354 25.15868 
-L 493.286703 25.378732 
-L 495.070051 25.22855 
-L 496.8534 24.951114 
-L 498.636749 24.414628 
-L 500.420097 24.299069 
-L 502.203446 24.843883 
-L 507.553492 25.711122 
-L 509.33684 25.470168 
-L 511.120189 28.050396 
-L 512.903537 25.488605 
-L 514.686886 25.195348 
-L 516.470235 24.662638 
-L 518.253583 25.327949 
-L 520.036932 25.133968 
-L 521.82028 25.566176 
-L 523.603629 25.827016 
-L 525.386978 29.016386 
-L 527.170326 26.696645 
-L 528.953675 26.288357 
-L 530.737023 26.569473 
-L 534.303721 26.467218 
-L 536.087069 27.336816 
-L 537.870418 25.876799 
-L 539.653766 25.127817 
-L 541.437115 25.768179 
-L 543.220464 26.099878 
-L 545.003812 25.666016 
-L 546.787161 26.41497 
-L 548.570509 28.984711 
-L 550.353858 25.047076 
-L 552.137207 25.215734 
-L 555.703904 26.498779 
-L 557.487252 25.690774 
-L 559.270601 25.420296 
-L 561.05395 26.118249 
-L 562.837298 24.873664 
-L 564.620647 24.724858 
-L 566.403995 24.442143 
-L 568.187344 24.51986 
-L 569.970693 27.048819 
-L 571.754041 27.036515 
-L 573.53739 28.563553 
-L 575.320738 27.973685 
-L 577.104087 26.799787 
-L 578.887436 29.137448 
-L 580.670784 26.444717 
-L 582.454133 29.112801 
-L 584.237481 30.714325 
-L 586.02083 26.540535 
-L 587.804179 24.835966 
-L 589.587527 26.698361 
-L 591.370876 26.663236 
-L 593.154224 27.738672 
-L 594.937573 26.540116 
-L 596.720922 26.905384 
-L 598.50427 27.034839 
-L 600.287619 31.208172 
-L 602.070967 33.24017 
-L 603.854316 34.446005 
-L 605.637665 29.533921 
-L 607.421013 31.843907 
-L 609.204362 31.375396 
-L 610.98771 31.849145 
-L 612.771059 30.619793 
-L 614.554408 30.709819 
-L 616.337756 38.918376 
-L 618.121105 46.523391 
-L 619.904453 44.274567 
-L 621.687802 58.625867 
-L 623.471151 86.724851 
-L 625.254499 64.771157 
-L 627.037848 69.351429 
-L 628.821196 71.853859 
-L 630.604545 66.661437 
-L 632.387894 67.257217 
-L 634.171242 64.631416 
-L 635.954591 74.270882 
-L 637.737939 63.692822 
-L 639.521288 100.887115 
-L 641.304637 99.469282 
-L 643.087985 90.003106 
-L 644.871334 77.555472 
-L 646.654682 90.40726 
-L 648.438031 178.911965 
-L 650.22138 209.607416 
-L 652.004728 206.64779 
-L 653.788077 146.713655 
-L 657.354774 207.425426 
-L 659.138123 126.954473 
-L 660.921471 59.155201 
-L 662.70482 71.776582 
-L 664.488168 57.769457 
-L 666.271517 66.558749 
-L 668.054866 58.828748 
-L 669.838214 66.674509 
-L 671.621563 61.708829 
-L 673.404911 59.22433 
-L 675.18826 61.959098 
-L 676.971609 51.653973 
-L 678.754957 52.597232 
-L 680.538306 52.597649 
-L 682.321654 58.353703 
-L 684.105003 51.877107 
-L 685.888352 48.589258 
-L 687.6717 47.109804 
-L 689.455049 43.738668 
-L 691.238397 45.315064 
-L 693.021746 89.543859 
-L 694.805095 45.089762 
-L 696.588443 49.019908 
-L 698.371792 46.551601 
-L 700.15514 41.642977 
-L 701.938489 41.083013 
-L 703.721838 46.568255 
-L 705.505186 50.949666 
-L 707.288535 30.273531 
-L 709.071883 30.202067 
-L 710.855232 31.356685 
-L 712.638581 28.859335 
-L 714.421929 32.255619 
-L 716.205278 30.02336 
-L 717.988626 132.422691 
-L 719.771975 29.862666 
-L 719.771975 29.862666 
-" clip-path="url(#p91d5c00da6)" style="fill: none; stroke: #7c7872; stroke-linecap: square"/>
+    <path d="M 50.813125 29.902255 
+L 52.606399 29.558959 
+L 54.399672 29.470137 
+L 56.192946 29.732359 
+L 57.986219 29.16792 
+L 59.779493 29.409386 
+L 61.572767 32.700131 
+L 63.36604 32.494931 
+L 65.159314 33.790772 
+L 66.952587 30.928476 
+L 70.539135 29.576622 
+L 72.332408 29.679751 
+L 74.125682 30.054896 
+L 75.918955 29.280352 
+L 77.712229 29.322444 
+L 79.505503 30.421793 
+L 81.298776 30.238305 
+L 83.09205 31.74477 
+L 84.885323 31.181168 
+L 86.678597 33.598446 
+L 88.471871 29.793195 
+L 90.265144 30.126167 
+L 92.058418 35.107294 
+L 95.644965 36.241951 
+L 97.438239 34.213816 
+L 99.231512 34.643355 
+L 101.024786 34.091451 
+L 102.818059 34.274813 
+L 104.611333 35.22788 
+L 106.404607 35.221949 
+L 108.19788 32.517766 
+L 109.991154 33.090813 
+L 111.784427 31.810313 
+L 113.577701 30.994258 
+L 115.370975 29.251481 
+L 117.164248 30.885586 
+L 118.957522 30.72877 
+L 120.750795 25.538882 
+L 122.544069 24.936921 
+L 124.337343 24.947893 
+L 126.130616 24.173907 
+L 127.92389 24.657275 
+L 129.717163 31.389051 
+L 131.510437 29.63438 
+L 133.303711 72.157456 
+L 135.096984 132.908639 
+L 136.890258 48.078854 
+L 138.683531 106.330472 
+L 140.476805 25.500829 
+L 142.270079 78.777639 
+L 144.063352 24.626811 
+L 145.856626 25.618357 
+L 147.649899 25.286988 
+L 149.443173 25.35391 
+L 151.236447 25.822043 
+L 153.02972 24.38205 
+L 154.822994 26.896856 
+L 156.616267 27.823864 
+L 158.409541 36.292994 
+L 160.202815 28.150423 
+L 161.996088 29.364523 
+L 163.789362 28.453404 
+L 165.582635 28.863527 
+L 167.375909 35.36545 
+L 169.169183 31.502582 
+L 170.962456 31.409526 
+L 172.75573 28.747986 
+L 174.549003 27.947458 
+L 176.342277 28.434363 
+L 178.135551 24.914923 
+L 179.928824 30.971943 
+L 181.722098 33.59007 
+L 183.515371 29.88531 
+L 185.308645 25.129023 
+L 187.101919 25.85852 
+L 188.895192 26.216309 
+L 190.688466 28.644048 
+L 192.481739 35.529281 
+L 194.275013 32.224789 
+L 196.068287 29.398973 
+L 199.654834 28.311768 
+L 201.448107 27.970972 
+L 205.034655 30.982018 
+L 206.827928 32.281688 
+L 208.621202 29.335887 
+L 210.414475 26.80379 
+L 212.207749 28.09408 
+L 214.001023 28.038297 
+L 215.794296 26.039515 
+L 217.58757 27.498789 
+L 219.380843 162.300788 
+L 221.174117 137.345938 
+L 222.967391 121.352536 
+L 224.760664 121.629743 
+L 226.553938 122.698306 
+L 228.347211 122.946821 
+L 230.140485 127.175344 
+L 231.933759 174.223281 
+L 233.727032 178.994474 
+L 235.520306 174.828036 
+L 237.313579 174.046117 
+L 239.106853 160.066864 
+L 240.900127 214.372178 
+L 242.6934 189.925386 
+L 244.486674 210.069395 
+L 246.279947 204.368112 
+L 248.073221 28.382063 
+L 249.866495 25.003423 
+L 251.659768 25.475962 
+L 253.453042 25.261145 
+L 255.246315 25.241799 
+L 257.039589 24.312842 
+L 258.832863 26.065289 
+L 260.626136 24.965155 
+L 262.41941 24.405047 
+L 266.005957 25.667668 
+L 267.799231 27.365772 
+L 269.592504 26.532709 
+L 271.385778 26.762451 
+L 273.179051 25.283797 
+L 274.972325 24.831229 
+L 276.765599 25.778038 
+L 278.558872 24.582702 
+L 280.352146 24.814348 
+L 282.145419 27.778302 
+L 283.938693 27.401901 
+L 285.731967 37.108074 
+L 287.52524 26.423013 
+L 289.318514 24.360756 
+L 291.111787 24.985824 
+L 292.905061 26.974257 
+L 294.698335 26.425752 
+L 296.491608 27.722297 
+L 298.284882 28.178953 
+L 300.078155 27.008889 
+L 301.871429 24.519581 
+L 303.664703 25.043737 
+L 305.457976 29.881639 
+L 307.25125 27.732479 
+L 309.044523 27.745297 
+L 310.837797 27.412001 
+L 312.631071 30.381438 
+L 314.424344 25.83935 
+L 316.217618 24.746198 
+L 318.010891 27.110129 
+L 319.804165 27.576856 
+L 321.597439 25.51996 
+L 323.390712 25.507446 
+L 325.183986 24.994888 
+L 328.770533 24.616562 
+L 330.563807 25.179728 
+L 332.35708 25.49722 
+L 334.150354 26.391064 
+L 335.943627 25.643285 
+L 337.736901 28.250631 
+L 339.530175 25.626551 
+L 341.323448 25.363232 
+L 343.116722 35.780439 
+L 344.909995 25.88308 
+L 346.703269 25.955571 
+L 348.496543 24.02521 
+L 350.289816 24.660872 
+L 352.08309 31.965619 
+L 353.876363 25.48301 
+L 355.669637 25.540621 
+L 357.462911 25.4152 
+L 359.256184 26.002314 
+L 361.049458 25.843633 
+L 362.842731 25.272501 
+L 364.636005 24.220135 
+L 366.429279 24.58767 
+L 368.222552 25.122837 
+L 371.809099 24.746589 
+L 373.602373 25.578381 
+L 375.395647 25.293408 
+L 377.18892 39.677044 
+L 378.982194 38.38796 
+L 380.775467 39.240494 
+L 382.568741 35.829989 
+L 384.362015 31.531671 
+L 386.155288 25.655677 
+L 387.948562 26.111469 
+L 389.741835 25.627249 
+L 391.535109 25.381531 
+L 393.328383 33.328582 
+L 395.121656 25.523369 
+L 396.91493 25.785234 
+L 398.708203 25.151649 
+L 400.501477 25.679983 
+L 402.294751 24.322977 
+L 404.088024 25.135919 
+L 405.881298 26.163345 
+L 407.674571 25.444042 
+L 409.467845 25.560653 
+L 411.261119 27.689639 
+L 413.054392 34.422455 
+L 414.847666 29.345415 
+L 416.640939 29.657122 
+L 418.434213 34.720074 
+L 423.814034 26.456964 
+L 425.607307 30.290059 
+L 427.400581 26.204403 
+L 429.193855 28.231518 
+L 430.987128 27.3706 
+L 432.780402 28.510543 
+L 434.573675 31.017205 
+L 436.366949 29.103019 
+L 438.160223 27.69006 
+L 439.953496 24.718103 
+L 441.74677 25.270683 
+L 443.540043 47.637676 
+L 445.333317 26.450027 
+L 447.126591 24.738514 
+L 448.919864 26.259695 
+L 450.713138 25.742741 
+L 452.506411 25.098504 
+L 454.299685 27.392035 
+L 456.092959 30.077335 
+L 457.886232 26.815528 
+L 459.679506 29.560295 
+L 461.472779 28.367933 
+L 463.266053 24.635561 
+L 465.059327 24.456465 
+L 466.8526 25.015234 
+L 468.645874 25.217856 
+L 470.439147 24.969862 
+L 472.232421 25.16584 
+L 474.025695 26.758435 
+L 475.818968 26.471231 
+L 477.612242 25.629786 
+L 479.405515 26.258774 
+L 481.198789 27.63212 
+L 482.992063 28.520436 
+L 484.785336 26.202462 
+L 486.57861 27.27611 
+L 488.371883 25.381182 
+L 490.165157 24.64098 
+L 491.958431 24.80604 
+L 493.751704 25.197922 
+L 495.544978 25.418576 
+L 497.338251 25.267984 
+L 499.131525 24.989789 
+L 500.924799 24.451837 
+L 502.718072 24.335962 
+L 504.511346 24.882265 
+L 509.891167 25.751874 
+L 511.68444 25.510262 
+L 513.477714 28.097542 
+L 515.270987 25.528749 
+L 517.064261 25.234691 
+L 518.857535 24.700525 
+L 520.650808 25.367654 
+L 522.444082 25.173143 
+L 524.237355 25.606532 
+L 526.030629 25.868084 
+L 527.823903 29.066171 
+L 529.617176 26.740091 
+L 531.41045 26.330687 
+L 533.203723 26.612571 
+L 536.790271 26.510037 
+L 538.583544 27.382012 
+L 540.376818 25.918004 
+L 542.170091 25.166975 
+L 543.963365 25.809087 
+L 545.756639 26.141693 
+L 547.549912 25.706645 
+L 549.343186 26.457646 
+L 551.136459 29.03441 
+L 552.929733 25.086013 
+L 554.723007 25.255132 
+L 558.309554 26.541684 
+L 560.102827 25.731471 
+L 561.896101 25.460253 
+L 563.689375 26.160114 
+L 565.482648 24.912127 
+L 567.275922 24.762915 
+L 569.069195 24.479427 
+L 570.862469 24.557357 
+L 572.655743 27.093227 
+L 574.449016 27.080889 
+L 576.24229 28.612101 
+L 578.035563 28.020621 
+L 579.828837 26.843515 
+L 581.622111 29.187564 
+L 583.415384 26.487474 
+L 585.208658 29.16285 
+L 587.001931 30.768751 
+L 588.795205 26.583554 
+L 590.588479 24.874326 
+L 592.381752 26.741811 
+L 594.175026 26.706591 
+L 595.968299 27.784965 
+L 597.761573 26.583134 
+L 599.554847 26.9494 
+L 601.34812 27.079209 
+L 603.141394 31.263947 
+L 604.934667 33.301499 
+L 606.727941 34.51063 
+L 608.521215 29.585121 
+L 610.314488 31.90142 
+L 612.107762 31.431628 
+L 613.901035 31.906673 
+L 615.694309 30.673961 
+L 617.487583 30.764233 
+L 619.280856 38.995223 
+L 621.07413 46.621023 
+L 622.867403 44.366053 
+L 624.660677 58.756576 
+L 626.453951 86.932355 
+L 628.247224 64.91866 
+L 630.040498 69.51145 
+L 631.833771 72.020719 
+L 633.627045 66.814107 
+L 635.420319 67.411515 
+L 637.213592 64.778538 
+L 639.006866 74.444349 
+L 640.800139 63.837378 
+L 642.593413 101.133323 
+L 644.386687 99.711616 
+L 646.17996 90.219569 
+L 647.973234 77.737915 
+L 649.766507 90.624828 
+L 651.559781 179.371416 
+L 653.353055 210.150758 
+L 655.146328 207.183043 
+L 656.939602 147.085108 
+L 660.526149 207.962805 
+L 662.319423 127.271924 
+L 664.112696 59.287356 
+L 665.90597 71.943232 
+L 667.699243 57.897825 
+L 669.492517 66.711138 
+L 671.285791 58.960011 
+L 673.079064 66.827215 
+L 674.872338 61.847963 
+L 676.665611 59.356674 
+L 678.458885 62.098916 
+L 680.252159 51.765627 
+L 682.045432 52.711464 
+L 683.838706 52.711882 
+L 685.631979 58.483668 
+L 687.425253 51.989371 
+L 689.218527 48.692536 
+L 691.0118 47.209038 
+L 692.805074 43.82869 
+L 694.598347 45.409394 
+L 696.391621 89.759066 
+L 698.184895 45.183476 
+L 699.978168 49.124364 
+L 701.771442 46.649311 
+L 703.564715 41.727271 
+L 705.357989 41.165777 
+L 707.151263 46.66601 
+L 708.944536 51.059395 
+L 710.73781 30.326752 
+L 712.531083 30.255093 
+L 714.324357 31.412866 
+L 716.117631 28.908691 
+L 717.910904 32.314258 
+L 719.704178 30.075898 
+L 721.497451 132.755086 
+L 723.290725 29.914764 
+L 723.290725 29.914764 
+" clip-path="url(#pafbf063ebd)" style="fill: none; stroke: #79838f; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
-    <path d="M 51.01625 275.017891 
-L 51.01625 10.8 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+    <path d="M 50.813125 275.74 
+L 50.813125 10.8 
+" style="fill: none; stroke: #16202a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="patch_4">
-    <path d="M 51.01625 275.017891 
-L 719.771975 275.017891 
-" style="fill: none; stroke: #1a1a1a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
+    <path d="M 50.813125 275.74 
+L 723.290725 275.74 
+" style="fill: none; stroke: #16202a; stroke-width: 0.6; stroke-linejoin: miter; stroke-linecap: square"/>
    </g>
    <g id="PathCollection_1">
     <defs>
-     <path id="m8ae51a9a97" d="M 0 2.345208 
+     <path id="m311567c29b" d="M 0 2.345208 
 C 0.621956 2.345208 1.218523 2.098102 1.658312 1.658312 
 C 2.098102 1.218523 2.345208 0.621956 2.345208 0 
 C 2.345208 -0.621956 2.098102 -1.218523 1.658312 -1.658312 
@@ -2505,22 +1319,22 @@ C -2.098102 -1.218523 -2.345208 -0.621956 -2.345208 0
 C -2.345208 0.621956 -2.098102 1.218523 -1.658312 1.658312 
 C -1.218523 2.098102 -0.621956 2.345208 0 2.345208 
 z
-" style="stroke: #1a1a1a; stroke-width: 1.1"/>
+" style="stroke: #16202a; stroke-width: 1.1"/>
     </defs>
-    <g clip-path="url(#p91d5c00da6)">
-     <use xlink:href="#m8ae51a9a97" x="240.051202" y="213.81733" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m8ae51a9a97" x="243.617899" y="209.526275" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m8ae51a9a97" x="650.22138" y="209.607416" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m8ae51a9a97" x="652.004728" y="206.64779" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m8ae51a9a97" x="657.354774" y="207.425426" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
-     <use xlink:href="#m8ae51a9a97" x="717.988626" y="132.422691" style="fill: #fbf8f3; stroke: #1a1a1a; stroke-width: 1.1"/>
+    <g clip-path="url(#pafbf063ebd)">
+     <use xlink:href="#m311567c29b" x="240.900127" y="214.372178" style="fill: #edeae1; stroke: #16202a; stroke-width: 1.1"/>
+     <use xlink:href="#m311567c29b" x="244.486674" y="210.069395" style="fill: #edeae1; stroke: #16202a; stroke-width: 1.1"/>
+     <use xlink:href="#m311567c29b" x="653.353055" y="210.150758" style="fill: #edeae1; stroke: #16202a; stroke-width: 1.1"/>
+     <use xlink:href="#m311567c29b" x="655.146328" y="207.183043" style="fill: #edeae1; stroke: #16202a; stroke-width: 1.1"/>
+     <use xlink:href="#m311567c29b" x="660.526149" y="207.962805" style="fill: #edeae1; stroke: #16202a; stroke-width: 1.1"/>
+     <use xlink:href="#m311567c29b" x="721.497451" y="132.755086" style="fill: #edeae1; stroke: #16202a; stroke-width: 1.1"/>
     </g>
    </g>
   </g>
  </g>
  <defs>
-  <clipPath id="p91d5c00da6">
-   <rect x="51.01625" y="10.8" width="668.755725" height="264.217891"/>
+  <clipPath id="pafbf063ebd">
+   <rect x="50.813125" y="10.8" width="672.4776" height="264.94"/>
   </clipPath>
  </defs>
 </svg>
@@ -2585,26 +1399,27 @@ ORDER BY block_date, signers DESC;</pre>
         <th class="num">median #1 share</th>
       </tr>
     </thead>
-    <tbody>
-      <tr><td>2025-11</td><td class='num'>556,744</td><td class='num rust'>197,191</td><td class='num'>35.4%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>94.5%</td></tr>
-<tr><td>2025-12</td><td class='num'>915,686</td><td class='num rust'>584,720</td><td class='num'>63.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>94.7%</td></tr>
-<tr><td>2026-01</td><td class='num'>526,590</td><td class='num rust'>220,182</td><td class='num'>41.8%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>95.1%</td></tr>
-<tr><td>2026-02</td><td class='num'>3,791,961</td><td class='num rust'>3,521,593</td><td class='num'>92.9%</td><td class='num'>yes</td><td class='num'>2</td><td class='num'>59.1%</td></tr>
-<tr><td>2026-03</td><td class='num'>381,465</td><td class='num rust'>133,640</td><td class='num'>35.0%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>95.9%</td></tr>
-<tr><td>2026-04</td><td class='num'>335,794</td><td class='num rust'>111,340</td><td class='num'>33.2%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.3%</td></tr>
-<tr><td>2026-05</td><td class='num'>359,151</td><td class='num rust'>143,206</td><td class='num'>39.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.0%</td></tr>
-<tr><td>2026-06</td><td class='num'>302,563</td><td class='num rust'>105,474</td><td class='num'>34.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.0%</td></tr>
-<tr><td>2026-07</td><td class='num'>252,587</td><td class='num rust'>70,617</td><td class='num'>28.0%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.3%</td></tr>
-<tr><td>2026-08</td><td class='num'>215,609</td><td class='num rust'>63,134</td><td class='num'>29.3%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.1%</td></tr>
-<tr><td>2026-09</td><td class='num'>302,272</td><td class='num rust'>160,431</td><td class='num'>53.1%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>88.6%</td></tr>
-<tr><td>2026-10</td><td class='num'>826,700</td><td class='num rust'>722,549</td><td class='num'>87.4%</td><td class='num'>yes</td><td class='num'>3</td><td class='num'>83.3%</td></tr>
-<tr><td>2026-11†</td><td class='num'>259,859</td><td class='num rust'>138,154</td><td class='num'>53.2%</td><td class='num'>yes</td><td class='num'>1</td><td class='num'>94.1%</td></tr>
+    <tbody id="monthly-tbody">
+      <tr><td>2025-11</td><td class='num'>556,744</td><td class='num accent'>197,191</td><td class='num'>35.4%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>94.5%</td></tr>
+<tr><td>2025-12</td><td class='num'>915,686</td><td class='num accent'>584,720</td><td class='num'>63.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>94.7%</td></tr>
+<tr><td>2026-01</td><td class='num'>526,590</td><td class='num accent'>220,182</td><td class='num'>41.8%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>95.1%</td></tr>
+<tr><td>2026-02</td><td class='num'>3,791,961</td><td class='num accent'>3,521,593</td><td class='num'>92.9%</td><td class='num'>yes</td><td class='num'>2</td><td class='num'>59.1%</td></tr>
+<tr><td>2026-03</td><td class='num'>381,465</td><td class='num accent'>133,640</td><td class='num'>35.0%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>95.9%</td></tr>
+<tr><td>2026-04</td><td class='num'>335,794</td><td class='num accent'>111,340</td><td class='num'>33.2%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.3%</td></tr>
+<tr><td>2026-05</td><td class='num'>359,151</td><td class='num accent'>143,206</td><td class='num'>39.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.0%</td></tr>
+<tr><td>2026-06</td><td class='num'>302,563</td><td class='num accent'>105,474</td><td class='num'>34.9%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.0%</td></tr>
+<tr><td>2026-07</td><td class='num'>252,587</td><td class='num accent'>70,617</td><td class='num'>28.0%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.3%</td></tr>
+<tr><td>2026-08</td><td class='num'>215,609</td><td class='num accent'>63,134</td><td class='num'>29.3%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>96.1%</td></tr>
+<tr><td>2026-09</td><td class='num'>302,272</td><td class='num accent'>160,431</td><td class='num'>53.1%</td><td class='num'>no</td><td class='num'>0</td><td class='num'>88.6%</td></tr>
+<tr><td>2026-10</td><td class='num'>826,700</td><td class='num accent'>722,549</td><td class='num'>87.4%</td><td class='num'>yes</td><td class='num'>3</td><td class='num'>83.3%</td></tr>
+<tr><td>2026-11†</td><td class='num'>259,859</td><td class='num accent'>138,154</td><td class='num'>53.2%</td><td class='num'>yes</td><td class='num'>1</td><td class='num'>94.1%</td></tr>
     </tbody>
   </table>
   <p class='note'><span class='mono'>†</span> 2026-11 is a partial month (1–11 Nov), equal to max(block_date) in data/raw/daily_activity.csv.</p>
 
   <h2>Burst days</h2>
-  <p class="note">A day is flagged only when both conditions hold. On 2026-11-10 the #1 receiver is a single implicit account (55.0% of that day’s signers). On the February and October burst days the #1 receiver is still game.hot.tg at 23.6%–26.4%; those two episodes remain unattributed.</p>
+  <p class="note">A day is flagged only when both conditions hold (<span id="burst-day-count">6</span> days at default cuts). On 2026-11-10 the #1 receiver is a single implicit account (55.0% of that day’s signers). On the February and October burst days the #1 receiver is still game.hot.tg at 23.6%–26.4%; those two episodes remain unattributed.</p>
+  <p class='note' id='coverage-note'>2026-02-15: top-10 receivers cover 0.5%, top-20 0.6%, top-50 0.7% of 592,250 signers (excluding <span class='mono'>%hot.tg</span>). 2026-02-17: top-10 receivers cover 0.5%, top-20 0.6%, top-50 0.7% of 541,983 signers (excluding <span class='mono'>%hot.tg</span>). 2026-10-03: top-10 receivers cover 2.4%, top-20 2.7%, top-50 3.3% of 176,719 signers (excluding <span class='mono'>%hot.tg</span>). 2026-10-04: top-10 receivers cover 2.1%, top-20 2.5%, top-50 3.1% of 177,196 signers (excluding <span class='mono'>%hot.tg</span>). 2026-10-07: top-10 receivers cover 2.2%, top-20 2.6%, top-50 3.1% of 175,774 signers (excluding <span class='mono'>%hot.tg</span>). Control day 2026-11-10: #1 receiver <span class='mono'>3d9ccff55cef5a3e…</span> took 55.0% of signers.</p>
   <table>
     <thead>
       <tr>
@@ -2616,7 +1431,7 @@ ORDER BY block_date, signers DESC;</pre>
         <th class="num">#1 share</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="burst-tbody">
       <tr><td>2026-02-15</td><td class='num'>592,250</td><td class='num'>3.39x</td><td class='num'>0.32</td><td>game.hot.tg</td><td class='num'>23.6%</td></tr>
 <tr><td>2026-02-17</td><td class='num'>541,983</td><td class='num'>2.54x</td><td class='num'>0.41</td><td>game.hot.tg</td><td class='num'>25.3%</td></tr>
 <tr><td>2026-10-03</td><td class='num'>176,719</td><td class='num'>2.87x</td><td class='num'>0.27</td><td>game.hot.tg</td><td class='num'>25.3%</td></tr>
@@ -2627,12 +1442,296 @@ ORDER BY block_date, signers DESC;</pre>
   </table>
 
   <h2>How to read this</h2>
-  <p>Net Demand does not subtract burst windows. It only subtracts signers whose monthly activity is exclusively with receivers matching <span class="mono">%hot.tg</span>. February and October therefore remain large on the rust line. That is a finding, not a bug: those bursts are not HOT-only, and they are not attributed. The last month in the extract (2026-11) has a named receiver on 10 Nov; one attributed burst does not attribute the others. See THESIS.md.</p>
+  <p>Net Demand does not subtract burst windows. It only subtracts signers whose monthly activity is exclusively with receivers matching <span class="mono">%hot.tg</span>. February and October therefore remain large on the Net Demand line. That is a finding, not a bug: those bursts are not HOT-only, and they are not attributed. The last month in the extract (2026-11) has a named receiver on 10 Nov; one attributed burst does not attribute the others. See <a href="https://github.com/adindamochamad/subsidy-filter/blob/main/THESIS.md">THESIS.md</a>.</p>
   <p>Rebuild this page from the committed CSVs with <span class="mono">make all</span>. No BigQuery credentials are required.</p>
 
   <footer>
     Source: bigquery-public-data.crypto_near_mainnet_us.transactions. Charts rebuilt from data/raw/*.csv. MIT license.
   </footer>
 </article>
+<script>
+window.__subsidyFilter = {"daily": [{"d": "2025-11-01", "s": 250232, "t": 17.16115444867163, "sm": 273119.0, "tm": 16.63948524050893, "tr": "game.hot.tg", "ts": 0.9464576872662168}, {"d": "2025-11-02", "s": 249882, "t": 17.318462314212308, "sm": 272274.0, "tm": 16.75103310221605, "tr": "game.hot.tg", "ts": 0.9477793518540752}, {"d": "2025-11-03", "s": 255577, "t": 16.916674818156565, "sm": 270869.0, "tm": 16.803546895471314, "tr": "game.hot.tg", "ts": 0.9481213098205238}, {"d": "2025-11-04", "s": 250396, "t": 17.269033850380996, "sm": 270074.5, "tm": 16.867037403316697, "tr": "game.hot.tg", "ts": 0.9471117749484816}, {"d": "2025-11-05", "s": 250359, "t": 16.964219380968927, "sm": 269655.5, "tm": 16.917671780107028, "tr": "game.hot.tg", "ts": 0.9492848269884446}, {"d": "2025-11-06", "s": 251003, "t": 16.207527400070916, "sm": 269272.5, "tm": 16.925123872677638, "tr": "game.hot.tg", "ts": 0.9483551989418452}, {"d": "2025-11-07", "s": 247287, "t": 17.03836028582174, "sm": 268005.5, "tm": 16.917671780107028, "tr": "game.hot.tg", "ts": 0.935686065179326}, {"d": "2025-11-08", "s": 247576, "t": 17.21539648431189, "sm": 266566.5, "tm": 16.917671780107028, "tr": "game.hot.tg", "ts": 0.9364760719940544}, {"d": "2025-11-09", "s": 226994, "t": 18.30998616703525, "sm": 266169.0, "tm": 16.917671780107028, "tr": "game.hot.tg", "ts": 0.93148717587249}, {"d": "2025-11-10", "s": 264240, "t": 16.484075083257643, "sm": 265934.5, "tm": 16.917671780107028, "tr": "game.hot.tg", "ts": 0.9425068119891008}, {"d": "2025-11-11", "s": 260821, "t": 16.21336088735186, "sm": 265883.0, "tm": 16.867037403316697, "tr": "game.hot.tg", "ts": 0.9449277473823045}, {"d": "2025-11-12", "s": 257073, "t": 16.873767373469793, "sm": 265055.5, "tm": 16.803546895471314, "tr": "game.hot.tg", "ts": 0.947711350472434}, {"d": "2025-11-13", "s": 255819, "t": 17.008588103307417, "sm": 262530.5, "tm": 16.845583680973313, "tr": "game.hot.tg", "ts": 0.9473143120722072}, {"d": "2025-11-14", "s": 246721, "t": 17.68531661269207, "sm": 260583.0, "tm": 16.845583680973313, "tr": "game.hot.tg", "ts": 0.9458700313309366}, {"d": "2025-11-15", "s": 245464, "t": 17.632520451064106, "sm": 259044.0, "tm": 16.895221095813177, "tr": "game.hot.tg", "ts": 0.9488519701463352}, {"d": "2025-11-16", "s": 246092, "t": 17.411512767582856, "sm": 257408.0, "tm": 16.917671780107028, "tr": "game.hot.tg", "ts": 0.9486899208426116}, {"d": "2025-11-17", "s": 250997, "t": 17.398112328035793, "sm": 256446.0, "tm": 16.94144406151321, "tr": "game.hot.tg", "ts": 0.9444575034761372}, {"d": "2025-11-18", "s": 230724, "t": 18.48981900452489, "sm": 255698.0, "tm": 16.94144406151321, "tr": "game.hot.tg", "ts": 0.9451639187947504}, {"d": "2025-11-19", "s": 248104, "t": 17.22696530487215, "sm": 254733.0, "tm": 16.94144406151321, "tr": "game.hot.tg", "ts": 0.9393641376197078}, {"d": "2025-11-20", "s": 245664, "t": 18.14292692457991, "sm": 252446.0, "tm": 16.986403742138172, "tr": "game.hot.tg", "ts": 0.94153396509053}, {"d": "2025-11-21", "s": 234358, "t": 18.290508538219303, "sm": 251000.0, "tm": 17.022847435218967, "tr": "game.hot.tg", "ts": 0.9322276175765282}, {"d": "2025-11-22", "s": 233103, "t": 18.58852524420535, "sm": 250696.5, "tm": 17.037733526476128, "tr": "game.hot.tg", "ts": 0.946877560563356}, {"d": "2025-11-23", "s": 234393, "t": 18.411087361823945, "sm": 250377.5, "tm": 17.099757367246685, "tr": "game.hot.tg", "ts": 0.9455956449211368}, {"d": "2025-11-24", "s": 240156, "t": 17.583150119089257, "sm": 250295.5, "tm": 17.18827546649176, "tr": "game.hot.tg", "ts": 0.926418661203551}, {"d": "2025-11-25", "s": 242275, "t": 17.87932308327314, "sm": 250057.0, "tm": 17.221180894592017, "tr": "game.hot.tg", "ts": 0.924177071509648}, {"d": "2025-11-26", "s": 191444, "t": 19.99559140009611, "sm": 248993.0, "tm": 17.247999577626572, "tr": "game.hot.tg", "ts": 0.9220503123628842}, {"d": "2025-11-27", "s": 237363, "t": 18.25088156115317, "sm": 247840.0, "tm": 17.293748082296652, "tr": "game.hot.tg", "ts": 0.9298584867902748}, {"d": "2025-11-28", "s": 230475, "t": 19.149391474129516, "sm": 247431.5, "tm": 17.358287321124052, "tr": "game.hot.tg", "ts": 0.9282047944462524}, {"d": "2025-11-29", "s": 227227, "t": 17.74331835565316, "sm": 247004.0, "tm": 17.404812547809325, "tr": "game.hot.tg", "ts": 0.9303295823119612}, {"d": "2025-11-30", "s": 231143, "t": 17.769835123711296, "sm": 246406.5, "tm": 17.49733144333606, "tr": "game.hot.tg", "ts": 0.9296236528902022}, {"d": "2025-12-01", "s": 234018, "t": 18.070238186806144, "sm": 245878.0, "tm": 17.607835285076682, "tr": "game.hot.tg", "ts": 0.925954413763044}, {"d": "2025-12-02", "s": 229497, "t": 17.785217235955155, "sm": 245564.0, "tm": 17.658918531878086, "tr": "game.hot.tg", "ts": 0.9259772458899244}, {"d": "2025-12-03", "s": 229124, "t": 17.917629755067125, "sm": 243869.5, "tm": 17.714317484172614, "tr": "game.hot.tg", "ts": 0.9363881566313436}, {"d": "2025-12-04", "s": 235437, "t": 17.910553566346834, "sm": 241215.5, "tm": 17.756576739682227, "tr": "game.hot.tg", "ts": 0.934181967999932}, {"d": "2025-12-05", "s": 224477, "t": 17.745074105587655, "sm": 238759.5, "tm": 17.777526179833224, "tr": "game.hot.tg", "ts": 0.9391118020999925}, {"d": "2025-12-06", "s": 219165, "t": 17.618716492140624, "sm": 236400.0, "tm": 17.777526179833224, "tr": "game.hot.tg", "ts": 0.94225355325896}, {"d": "2025-12-07", "s": 227365, "t": 17.063611373782244, "sm": 234915.0, "tm": 17.777526179833224, "tr": "game.hot.tg", "ts": 0.948963120972885}, {"d": "2025-12-08", "s": 227236, "t": 17.246945906458485, "sm": 234915.0, "tm": 17.757454614649475, "tr": "game.hot.tg", "ts": 0.9426719357848228}, {"d": "2025-12-09", "s": 226922, "t": 17.494544380888588, "sm": 234375.5, "tm": 17.757454614649475, "tr": "game.hot.tg", "ts": 0.9432756630031464}, {"d": "2025-12-10", "s": 221290, "t": 17.791129287360476, "sm": 234188.0, "tm": 17.757454614649475, "tr": "game.hot.tg", "ts": 0.9632563604320122}, {"d": "2025-12-11", "s": 217393, "t": 17.85373034090334, "sm": 233560.5, "tm": 17.777526179833224, "tr": "game.hot.tg", "ts": 0.9655738685238257}, {"d": "2025-12-12", "s": 210947, "t": 17.768809226962222, "sm": 232123.0, "tm": 17.788173261657818, "tr": "game.hot.tg", "ts": 0.9655316264274912}, {"d": "2025-12-13", "s": 208393, "t": 17.402335970977912, "sm": 230933.5, "tm": 17.788173261657818, "tr": "game.hot.tg", "ts": 0.9685114183297904}, {"d": "2025-12-14", "s": 208069, "t": 18.168170174317172, "sm": 230599.5, "tm": 17.788173261657818, "tr": "game.hot.tg", "ts": 0.9666504861368104}, {"d": "2025-12-15", "s": 218775, "t": 17.56847903096789, "sm": 229986.0, "tm": 17.822429814131908, "tr": "game.hot.tg", "ts": 0.9407336304422352}, {"d": "2025-12-16", "s": 220887, "t": 17.52154268924835, "sm": 229310.5, "tm": 17.822429814131908, "tr": "game.hot.tg", "ts": 0.9474889875818856}, {"d": "2025-12-17", "s": 265963, "t": 14.43697055605479, "sm": 228244.5, "tm": 17.788173261657818, "tr": "game.hot.tg", "ts": 0.7837781947112944}, {"d": "2025-12-18", "s": 366653, "t": 10.982899362612606, "sm": 228244.5, "tm": 17.788173261657818, "tr": "game.hot.tg", "ts": 0.5498904959184843}, {"d": "2025-12-19", "s": 229111, "t": 16.920082405471582, "sm": 228244.5, "tm": 17.777526179833224, "tr": "game.hot.tg", "ts": 0.876479086556298}, {"d": "2025-12-20", "s": 310404, "t": 12.36069122820582, "sm": 228238.0, "tm": 17.76932217533676, "tr": "game.hot.tg", "ts": 0.6522145333178696}, {"d": "2025-12-21", "s": 208213, "t": 17.892950968479393, "sm": 228238.0, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9634028614927982}, {"d": "2025-12-22", "s": 265530, "t": 14.402832071705646, "sm": 227300.5, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.7582909652393327}, {"d": "2025-12-23", "s": 204741, "t": 18.343282488607557, "sm": 227300.5, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9667677700118686}, {"d": "2025-12-24", "s": 206156, "t": 18.23891616057743, "sm": 227231.5, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.962950387085508}, {"d": "2025-12-25", "s": 203808, "t": 18.655975231590517, "sm": 227231.5, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9642261344010048}, {"d": "2025-12-26", "s": 203100, "t": 17.966563269325455, "sm": 227074.5, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9639684884293452}, {"d": "2025-12-27", "s": 196306, "t": 18.568500198669422, "sm": 225699.5, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9621662098967938}, {"d": "2025-12-28", "s": 203562, "t": 17.70612393275759, "sm": 222883.5, "tm": 17.76932217533676, "tr": "game.hot.tg", "ts": 0.9677100834143896}, {"d": "2025-12-29", "s": 196537, "t": 18.388389972371616, "sm": 221088.5, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9580282593099518}, {"d": "2025-12-30", "s": 199536, "t": 18.084135193649267, "sm": 220026.0, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9544593456819822}, {"d": "2025-12-31", "s": 194584, "t": 18.60910969041648, "sm": 218970.0, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9218538009291616}, {"d": "2026-01-01", "s": 186611, "t": 18.79108948561446, "sm": 218084.0, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9532021156309114}, {"d": "2026-01-02", "s": 192007, "t": 18.71318233189415, "sm": 214170.0, "tm": 17.75694166627494, "tr": "game.hot.tg", "ts": 0.9485279182529804}, {"d": "2026-01-03", "s": 190454, "t": 18.48591260881893, "sm": 209670.0, "tm": 17.779969257161348, "tr": "game.hot.tg", "ts": 0.952035662154641}, {"d": "2026-01-04", "s": 196293, "t": 18.041483904163673, "sm": 208303.0, "tm": 17.822429814131908, "tr": "game.hot.tg", "ts": 0.9504567152165384}, {"d": "2026-01-05", "s": 203459, "t": 17.92574425314191, "sm": 208141.0, "tm": 17.87334065469137, "tr": "game.hot.tg", "ts": 0.9254247784565932}, {"d": "2026-01-06", "s": 197610, "t": 18.638813825211276, "sm": 207112.5, "tm": 17.909347610810652, "tr": "game.hot.tg", "ts": 0.9402965436971812}, {"d": "2026-01-07", "s": 194287, "t": 18.650342019795456, "sm": 205448.5, "tm": 17.94615376123368, "tr": "game.hot.tg", "ts": 0.9406548044902644}, {"d": "2026-01-08", "s": 191228, "t": 19.446393833539023, "sm": 204274.5, "tm": 18.004023586744566, "tr": "game.hot.tg", "ts": 0.9509015416152446}, {"d": "2026-01-09", "s": 182000, "t": 19.74913186813187, "sm": 203685.0, "tm": 18.062809548906472, "tr": "game.hot.tg", "ts": 0.9539835164835164}, {"d": "2026-01-10", "s": 177006, "t": 20.04817915776866, "sm": 203510.5, "tm": 18.12615268398322, "tr": "game.hot.tg", "ts": 0.95210896805758}, {"d": "2026-01-11", "s": 170319, "t": 20.033965676172357, "sm": 203279.5, "tm": 18.2035431674473, "tr": "game.hot.tg", "ts": 0.9656585583522684}, {"d": "2026-01-12", "s": 177938, "t": 19.80064966448988, "sm": 201318.0, "tm": 18.291099324592498, "tr": "game.hot.tg", "ts": 0.9423394665557666}, {"d": "2026-01-13", "s": 179170, "t": 15.77704972930736, "sm": 198573.0, "tm": 18.365836230489585, "tr": "game.hot.tg", "ts": 0.9322598649327456}, {"d": "2026-01-14", "s": 173925, "t": 24.59522782808682, "sm": 197073.5, "tm": 18.365836230489585, "tr": "game.hot.tg", "ts": 0.9465229265487998}, {"d": "2026-01-15", "s": 168488, "t": 20.42019016191064, "sm": 196421.5, "tm": 18.43715129059527, "tr": "game.hot.tg", "ts": 0.9648342908693794}, {"d": "2026-01-16", "s": 163927, "t": 20.822402654840264, "sm": 196299.5, "tm": 18.527206403744177, "tr": "game.hot.tg", "ts": 0.9620257797678234}, {"d": "2026-01-17", "s": 166524, "t": 20.36977252528164, "sm": 195438.5, "tm": 18.58880494454295, "tr": "game.hot.tg", "ts": 0.9606483149576036}, {"d": "2026-01-18", "s": 170355, "t": 20.063397023861935, "sm": 194435.5, "tm": 18.623961757813877, "tr": "game.hot.tg", "ts": 0.9513016935223504}, {"d": "2026-01-19", "s": 178071, "t": 19.71889864155309, "sm": 193147.0, "tm": 18.64457792250337, "tr": "game.hot.tg", "ts": 0.9247940428256144}, {"d": "2026-01-20", "s": 174717, "t": 20.478167550953827, "sm": 191617.5, "tm": 18.65315862569299, "tr": "game.hot.tg", "ts": 0.9375160974604646}, {"d": "2026-01-21", "s": 170934, "t": 20.44177284799981, "sm": 190841.0, "tm": 18.68457878174233, "tr": "game.hot.tg", "ts": 0.9483952870698632}, {"d": "2026-01-22", "s": 170580, "t": 19.88838668073631, "sm": 188532.5, "tm": 18.752135908754305, "tr": "game.hot.tg", "ts": 0.950650721069293}, {"d": "2026-01-23", "s": 170480, "t": 19.783616846550917, "sm": 184305.5, "tm": 19.11874165957674, "tr": "game.hot.tg", "ts": 0.9525809479117784}, {"d": "2026-01-24", "s": 167198, "t": 20.4955980334693, "sm": 180585.0, "tm": 19.582646237546054, "tr": "game.hot.tg", "ts": 0.953892989150588}, {"d": "2026-01-25", "s": 165205, "t": 20.874489270905844, "sm": 178620.5, "tm": 19.73401525484248, "tr": "game.hot.tg", "ts": 0.9481674283465996}, {"d": "2026-01-26", "s": 169950, "t": 20.50628420123566, "sm": 178004.5, "tm": 19.76637435734139, "tr": "game.hot.tg", "ts": 0.9423006766696088}, {"d": "2026-01-27", "s": 174298, "t": 19.894961502713745, "sm": 177472.0, "tm": 19.792133255520397, "tr": "game.hot.tg", "ts": 0.9372970429953298}, {"d": "2026-01-28", "s": 171937, "t": 20.2457818852254, "sm": 175861.5, "tm": 19.844518172613093, "tr": "game.hot.tg", "ts": 0.9486381639786666}, {"d": "2026-01-29", "s": 174583, "t": 19.64933011805273, "sm": 174507.5, "tm": 19.89167409172503, "tr": "game.hot.tg", "ts": 0.9583865553919912}, {"d": "2026-01-30", "s": 167021, "t": 20.68201004664084, "sm": 174440.5, "tm": 19.89167409172503, "tr": "game.hot.tg", "ts": 0.9534190311397968}, {"d": "2026-01-31", "s": 171914, "t": 20.11012482985679, "sm": 174111.5, "tm": 19.96446358944305, "tr": "game.hot.tg", "ts": 0.9536337936410064}, {"d": "2026-02-01", "s": 167981, "t": 20.30108166995077, "sm": 172931.0, "tm": 20.041072416970508, "tr": "game.hot.tg", "ts": 0.9613289598228372}, {"d": "2026-02-02", "s": 172277, "t": 19.683985674233934, "sm": 171925.5, "tm": 20.055788090815295, "tr": "game.hot.tg", "ts": 0.9557108609971152}, {"d": "2026-02-03", "s": 363348, "t": 10.142419939011637, "sm": 171925.5, "tm": 20.055788090815295, "tr": "game.hot.tg", "ts": 0.4367328291335028}, {"d": "2026-02-04", "s": 301580, "t": 11.92138404403475, "sm": 171925.5, "tm": 20.055788090815295, "tr": "game.hot.tg", "ts": 0.5328072153325817}, {"d": "2026-02-05", "s": 266188, "t": 13.666540189640404, "sm": 171925.5, "tm": 20.055788090815295, "tr": "game.hot.tg", "ts": 0.5943806632906067}, {"d": "2026-02-06", "s": 258339, "t": 13.790844587925168, "sm": 171925.5, "tm": 20.055788090815295, "tr": "game.hot.tg", "ts": 0.5933134369955756}, {"d": "2026-02-07", "s": 252619, "t": 13.648470621766377, "sm": 171925.5, "tm": 20.055788090815295, "tr": "game.hot.tg", "ts": 0.5891995455607061}, {"d": "2026-02-08", "s": 251386, "t": 13.69015378740264, "sm": 171925.5, "tm": 20.048681350017148, "tr": "game.hot.tg", "ts": 0.5882427820165005}, {"d": "2026-02-09", "s": 262363, "t": 13.094834256354746, "sm": 172107.0, "tm": 19.97917926328784, "tr": "game.hot.tg", "ts": 0.5719632722601892}, {"d": "2026-02-10", "s": 379672, "t": 9.310465349038116, "sm": 172107.0, "tm": 19.97917926328784, "tr": "game.hot.tg", "ts": 0.3908320866432078}, {"d": "2026-02-11", "s": 380569, "t": 9.329385735569634, "sm": 172107.0, "tm": 19.97917926328784, "tr": "game.hot.tg", "ts": 0.37246333779157}, {"d": "2026-02-12", "s": 377569, "t": 9.322918459937124, "sm": 172107.0, "tm": 19.89167409172503, "tr": "game.hot.tg", "ts": 0.38850382314226}, {"d": "2026-02-13", "s": 376533, "t": 9.552326090940236, "sm": 173287.5, "tm": 19.836001763643615, "tr": "game.hot.tg", "ts": 0.391514156793694}, {"d": "2026-02-14", "s": 333146, "t": 10.475494227755998, "sm": 174440.5, "tm": 19.751257744052005, "tr": "game.hot.tg", "ts": 0.4453332773018436}, {"d": "2026-02-15", "s": 592250, "t": 6.400908400168848, "sm": 174650.0, "tm": 19.701442157893513, "tr": "game.hot.tg", "ts": 0.2362617138032925}, {"d": "2026-02-16", "s": 426088, "t": 8.3760842830589, "sm": 176394.0, "tm": 19.666657896143334, "tr": "game.hot.tg", "ts": 0.3303801092732017}, {"d": "2026-02-17", "s": 541983, "t": 6.777445049014452, "sm": 213051.5, "tm": 16.720087352988948, "tr": "game.hot.tg", "ts": 0.2528271181937441}, {"d": "2026-02-18", "s": 504588, "t": 6.396709790958168, "sm": 252002.5, "tm": 13.740499187663904, "tr": "game.hot.tg", "ts": 0.2747766494645136}, {"d": "2026-02-19", "s": 146971, "t": 22.250838600812404, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9523103197229386}, {"d": "2026-02-20", "s": 143359, "t": 22.6838147587525, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9653178384335828}, {"d": "2026-02-21", "s": 143063, "t": 22.383131906922124, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9634985985195332}, {"d": "2026-02-22", "s": 144950, "t": 22.41857192135219, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9643256295274232}, {"d": "2026-02-23", "s": 155478, "t": 21.454186444384415, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9644001080538726}, {"d": "2026-02-24", "s": 158821, "t": 20.272741010319795, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9679765270335788}, {"d": "2026-02-25", "s": 161206, "t": 23.53291440765232, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9612297309033162}, {"d": "2026-02-26", "s": 156943, "t": 24.47146416214804, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9654651688829704}, {"d": "2026-02-27", "s": 157018, "t": 21.811843228164925, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.967621546574278}, {"d": "2026-02-28", "s": 150870, "t": 23.413508318419833, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9650692649300724}, {"d": "2026-03-01", "s": 138509, "t": 25.955807925838755, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9627605426362186}, {"d": "2026-03-02", "s": 142175, "t": 25.774861965887112, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9562229646562336}, {"d": "2026-03-03", "s": 149175, "t": 22.366911345734874, "sm": 255479.0, "tm": 13.678346988521522, "tr": "game.hot.tg", "ts": 0.9594301994301996}, {"d": "2026-03-04", "s": 151854, "t": 21.897796567755872, "sm": 252002.5, "tm": 13.740499187663904, "tr": "game.hot.tg", "ts": 0.958545708377784}, {"d": "2026-03-05", "s": 151028, "t": 22.01855947241571, "sm": 206296.0, "tm": 17.03179279912248, "tr": "game.hot.tg", "ts": 0.9642384193659452}, {"d": "2026-03-06", "s": 148857, "t": 22.214501165548143, "sm": 160013.5, "tm": 20.863463727352105, "tr": "game.hot.tg", "ts": 0.9659807734940244}, {"d": "2026-03-07", "s": 146239, "t": 22.20772844453258, "sm": 157919.5, "tm": 21.63301483627467, "tr": "game.hot.tg", "ts": 0.9623356286626686}, {"d": "2026-03-08", "s": 144938, "t": 22.875022423381033, "sm": 156980.5, "tm": 21.854819897960397, "tr": "game.hot.tg", "ts": 0.9669375871062108}, {"d": "2026-03-09", "s": 148494, "t": 22.571672929545976, "sm": 156210.5, "tm": 21.95817802008579, "tr": "game.hot.tg", "ts": 0.966045766158902}, {"d": "2026-03-10", "s": 150666, "t": 22.121115580157433, "sm": 153666.0, "tm": 22.113143958474147, "tr": "game.hot.tg", "ts": 0.95463475502104}, {"d": "2026-03-11", "s": 148943, "t": 22.073511343265544, "sm": 151441.0, "tm": 22.164422012345007, "tr": "game.hot.tg", "ts": 0.956083871011058}, {"d": "2026-03-12", "s": 156082, "t": 21.370311759203496, "sm": 150949.0, "tm": 22.164422012345007, "tr": "game.hot.tg", "ts": 0.9187158032316348}, {"d": "2026-03-13", "s": 146734, "t": 22.28232720432892, "sm": 150949.0, "tm": 22.164422012345007, "tr": "game.hot.tg", "ts": 0.9598525222511484}, {"d": "2026-03-14", "s": 144157, "t": 21.98680605173526, "sm": 150768.0, "tm": 22.21111480504036, "tr": "game.hot.tg", "ts": 0.9677920600456448}, {"d": "2026-03-15", "s": 141444, "t": 22.472215152286417, "sm": 149920.5, "tm": 22.21111480504036, "tr": "game.hot.tg", "ts": 0.9653855942988038}, {"d": "2026-03-16", "s": 145991, "t": 22.539142823872705, "sm": 149059.0, "tm": 22.23266988318027, "tr": "game.hot.tg", "ts": 0.9577302710441056}, {"d": "2026-03-17", "s": 145799, "t": 22.080021124973424, "sm": 148900.0, "tm": 22.26658290257066, "tr": "game.hot.tg", "ts": 0.9598419742247888}, {"d": "2026-03-18", "s": 142216, "t": 22.766833548967767, "sm": 148675.5, "tm": 22.26658290257066, "tr": "game.hot.tg", "ts": 0.9548503684536198}, {"d": "2026-03-19", "s": 143729, "t": 22.32296196313896, "sm": 147732.5, "tm": 22.3246192750319, "tr": "game.hot.tg", "ts": 0.9530922778284132}, {"d": "2026-03-20", "s": 137325, "t": 22.903600946659385, "sm": 147614.0, "tm": 22.34493665443692, "tr": "game.hot.tg", "ts": 0.957596941561988}, {"d": "2026-03-21", "s": 135621, "t": 22.96689303278991, "sm": 147614.0, "tm": 22.34493665443692, "tr": "game.hot.tg", "ts": 0.9671805988748056}, {"d": "2026-03-22", "s": 137209, "t": 22.643682265740587, "sm": 147614.0, "tm": 22.34493665443692, "tr": "game.hot.tg", "ts": 0.9651626351041112}, {"d": "2026-03-23", "s": 139910, "t": 24.62090629690515, "sm": 147614.0, "tm": 22.34493665443692, "tr": "game.hot.tg", "ts": 0.9465370595382746}, {"d": "2026-03-24", "s": 140101, "t": 27.776368477027287, "sm": 146486.5, "tm": 22.419563249010643, "tr": "game.hot.tg", "ts": 0.9548111719402432}, {"d": "2026-03-25", "s": 140965, "t": 30.025779448799348, "sm": 146115.0, "tm": 22.50567898807956, "tr": "game.hot.tg", "ts": 0.954761820310006}, {"d": "2026-03-26", "s": 138346, "t": 28.300341173579287, "sm": 145895.0, "tm": 22.50567898807956, "tr": "game.hot.tg", "ts": 0.9560449886516416}, {"d": "2026-03-27", "s": 136891, "t": 26.431036372004, "sm": 145368.5, "tm": 22.50567898807956, "tr": "game.hot.tg", "ts": 0.9446128671716914}, {"d": "2026-03-28", "s": 133798, "t": 34.106391724838936, "sm": 144547.5, "tm": 22.55540787670934, "tr": "game.hot.tg", "ts": 0.9620995829534074}, {"d": "2026-03-29", "s": 133415, "t": 31.41841622006521, "sm": 143943.0, "tm": 22.55540787670934, "tr": "game.hot.tg", "ts": 0.9663081362665368}, {"d": "2026-03-30", "s": 138598, "t": 24.99976190132614, "sm": 143943.0, "tm": 22.55540787670934, "tr": "game.hot.tg", "ts": 0.9572071747067056}, {"d": "2026-03-31", "s": 139225, "t": 29.950267552522895, "sm": 143943.0, "tm": 22.55540787670934, "tr": "game.hot.tg", "ts": 0.9554103070569222}, {"d": "2026-04-01", "s": 139048, "t": 27.031406420804327, "sm": 142972.5, "tm": 22.60767759764328, "tr": "game.hot.tg", "ts": 0.9633292100569588}, {"d": "2026-04-02", "s": 137183, "t": 7.751507110939402, "sm": 141830.0, "tm": 22.705257907354177, "tr": "game.hot.tg", "ts": 0.9633773864108528}, {"d": "2026-04-03", "s": 131893, "t": 6.8833145049396105, "sm": 141204.5, "tm": 22.705257907354177, "tr": "game.hot.tg", "ts": 0.9653507009469796}, {"d": "2026-04-04", "s": 130579, "t": 6.957879904119346, "sm": 140533.0, "tm": 22.705257907354177, "tr": "game.hot.tg", "ts": 0.965936329731427}, {"d": "2026-04-05", "s": 129245, "t": 6.93506131765252, "sm": 140005.5, "tm": 22.705257907354177, "tr": "game.hot.tg", "ts": 0.9668072265851676}, {"d": "2026-04-06", "s": 134018, "t": 7.159336805503738, "sm": 139567.5, "tm": 22.60767759764328, "tr": "game.hot.tg", "ts": 0.9646390783327612}, {"d": "2026-04-07", "s": 132219, "t": 7.239700799431247, "sm": 139136.5, "tm": 22.591412544806644, "tr": "game.hot.tg", "ts": 0.9634167555343786}, {"d": "2026-04-08", "s": 133993, "t": 7.249490645033696, "sm": 138823.0, "tm": 22.591412544806644, "tr": "game.hot.tg", "ts": 0.9599755211093116}, {"d": "2026-04-09", "s": 133071, "t": 7.310758918171502, "sm": 138472.0, "tm": 22.591412544806644, "tr": "game.hot.tg", "ts": 0.9628544160636052}, {"d": "2026-04-10", "s": 132673, "t": 7.482547315580412, "sm": 137835.5, "tm": 22.591412544806644, "tr": "game.hot.tg", "ts": 0.9528163228388594}, {"d": "2026-04-11", "s": 131792, "t": 7.289213305815224, "sm": 137267.0, "tm": 22.591412544806644, "tr": "game.hot.tg", "ts": 0.9629188418113392}, {"d": "2026-04-12", "s": 131282, "t": 7.556793772185067, "sm": 137196.0, "tm": 22.591412544806644, "tr": "game.hot.tg", "ts": 0.9639326030986732}, {"d": "2026-04-13", "s": 139249, "t": 6.433963619128324, "sm": 137037.0, "tm": 22.591412544806644, "tr": "game.hot.tg", "ts": 0.923827101092288}, {"d": "2026-04-14", "s": 127401, "t": 6.1623849106364945, "sm": 137037.0, "tm": 22.483322114439773, "tr": "game.hot.tg", "ts": 0.9619312250296308}, {"d": "2026-04-15", "s": 133306, "t": 5.724753574482769, "sm": 136256.0, "tm": 22.483322114439773, "tr": "game.hot.tg", "ts": 0.9616521386884312}, {"d": "2026-04-16", "s": 133652, "t": 7.922088707987909, "sm": 134819.5, "tm": 15.037234537039184, "tr": "game.hot.tg", "ts": 0.9690838895040852}, {"d": "2026-04-17", "s": 130982, "t": 5.56852086546243, "sm": 134005.5, "tm": 7.836797909463655, "tr": "game.hot.tg", "ts": 0.9666366370951732}, {"d": "2026-04-18", "s": 129021, "t": 5.919935514373629, "sm": 133895.5, "tm": 7.654150441562234, "tr": "game.hot.tg", "ts": 0.9385138853364956}, {"d": "2026-04-19", "s": 127462, "t": 6.299618709890006, "sm": 133725.0, "tm": 7.519670543882739, "tr": "game.hot.tg", "ts": 0.9634714660055546}, {"d": "2026-04-20", "s": 129958, "t": 6.220917527201096, "sm": 133533.5, "tm": 7.396653116875957, "tr": "game.hot.tg", "ts": 0.963249665276474}, {"d": "2026-04-21", "s": 129703, "t": 6.206895754146011, "sm": 133360.5, "tm": 7.299986111993363, "tr": "game.hot.tg", "ts": 0.9637325273894976}, {"d": "2026-04-22", "s": 129984, "t": 5.992952978828163, "sm": 133188.5, "tm": 7.26935197542446, "tr": "game.hot.tg", "ts": 0.9614721811915312}, {"d": "2026-04-23", "s": 126197, "t": 5.958707417767458, "sm": 132872.0, "tm": 7.244595722232472, "tr": "game.hot.tg", "ts": 0.962083092308058}, {"d": "2026-04-24", "s": 121955, "t": 5.6329629781476775, "sm": 132446.0, "tm": 7.199518802467493, "tr": "game.hot.tg", "ts": 0.9642819072608748}, {"d": "2026-04-25", "s": 122432, "t": 5.081457462101412, "sm": 132056.0, "tm": 7.0586083548115415, "tr": "game.hot.tg", "ts": 0.9683334422373236}, {"d": "2026-04-26", "s": 118616, "t": 6.090148040736494, "sm": 131842.5, "tm": 6.9464706108859335, "tr": "game.hot.tg", "ts": 0.9669184595670062}, {"d": "2026-04-27", "s": 124353, "t": 5.735318005999051, "sm": 131537.0, "tm": 6.9091879112960655, "tr": "game.hot.tg", "ts": 0.9648581055543494}, {"d": "2026-04-28", "s": 120906, "t": 5.8678560203794685, "sm": 131132.0, "tm": 6.658639062033967, "tr": "game.hot.tg", "ts": 0.96570062693332}, {"d": "2026-04-29", "s": 123229, "t": 7.567861461182027, "sm": 130780.5, "tm": 6.366791164509165, "tr": "game.hot.tg", "ts": 0.966306632367381}, {"d": "2026-04-30", "s": 119499, "t": 6.082368890116236, "sm": 130281.5, "tm": 6.366791164509165, "tr": "game.hot.tg", "ts": 0.9631042937597803}, {"d": "2026-05-01", "s": 119055, "t": 5.91617319726177, "sm": 129971.0, "tm": 6.260268118545551, "tr": "game.hot.tg", "ts": 0.9642014195119902}, {"d": "2026-05-02", "s": 128424, "t": 5.412882327290849, "sm": 129830.5, "tm": 6.213906640673553, "tr": "game.hot.tg", "ts": 0.9088254531863204}, {"d": "2026-05-03", "s": 126433, "t": 5.746956886255962, "sm": 129474.0, "tm": 6.184640332391252, "tr": "game.hot.tg", "ts": 0.9137883305782508}, {"d": "2026-05-04", "s": 129115, "t": 5.951306974402664, "sm": 129362.0, "tm": 6.126266475686494, "tr": "game.hot.tg", "ts": 0.9105061379390466}, {"d": "2026-05-05", "s": 133244, "t": 5.711957011197502, "sm": 129068.0, "tm": 6.086258465426365, "tr": "game.hot.tg", "ts": 0.9236363363453514}, {"d": "2026-05-06", "s": 128094, "t": 6.619490374256405, "sm": 129068.0, "tm": 6.0376609344722, "tr": "game.hot.tg", "ts": 0.9401845519696472}, {"d": "2026-05-07", "s": 124915, "t": 6.274242484889725, "sm": 128722.5, "tm": 6.0376609344722, "tr": "game.hot.tg", "ts": 0.962806708561822}, {"d": "2026-05-08", "s": 124037, "t": 6.137539605117828, "sm": 128259.0, "tm": 6.0376609344722, "tr": "game.hot.tg", "ts": 0.9610519441779468}, {"d": "2026-05-09", "s": 120268, "t": 6.1568413875677654, "sm": 127778.0, "tm": 6.0376609344722, "tr": "game.hot.tg", "ts": 0.9629161539229056}, {"d": "2026-05-10", "s": 119985, "t": 6.311297245489019, "sm": 127431.5, "tm": 6.0376609344722, "tr": "game.hot.tg", "ts": 0.963862149435346}, {"d": "2026-05-11", "s": 124825, "t": 6.070803124374124, "sm": 126917.0, "tm": 6.0376609344722, "tr": "game.hot.tg", "ts": 0.9332665732024836}, {"d": "2026-05-12", "s": 123869, "t": 6.3665727502442095, "sm": 126315.0, "tm": 6.031878051601144, "tr": "game.hot.tg", "ts": 0.9633160839273748}, {"d": "2026-05-13", "s": 122413, "t": 6.457778177154387, "sm": 125556.0, "tm": 6.031878051601144, "tr": "game.hot.tg", "ts": 0.9623079248119072}, {"d": "2026-05-14", "s": 120501, "t": 6.522974913071261, "sm": 124870.0, "tm": 6.076586007245179, "tr": "game.hot.tg", "ts": 0.9647471805213236}, {"d": "2026-05-15", "s": 107035, "t": 7.020582052599617, "sm": 124589.0, "tm": 6.076586007245179, "tr": "game.hot.tg", "ts": 0.9627131312187602}, {"d": "2026-05-16", "s": 111501, "t": 6.476793930099282, "sm": 124195.0, "tm": 6.086258465426365, "tr": "game.hot.tg", "ts": 0.9679375072869302}, {"d": "2026-05-17", "s": 115963, "t": 6.268680527409605, "sm": 123953.0, "tm": 6.113843822927161, "tr": "game.hot.tg", "ts": 0.9648077403999552}, {"d": "2026-05-18", "s": 118091, "t": 6.666892481222108, "sm": 123549.0, "tm": 6.113843822927161, "tr": "game.hot.tg", "ts": 0.960852224132237}, {"d": "2026-05-19", "s": 118559, "t": 6.571167098238008, "sm": 122830.5, "tm": 6.113843822927161, "tr": "game.hot.tg", "ts": 0.9636214880354927}, {"d": "2026-05-20", "s": 119992, "t": 6.810112340822721, "sm": 122422.5, "tm": 6.113843822927161, "tr": "game.hot.tg", "ts": 0.9631725448363224}, {"d": "2026-05-21", "s": 116316, "t": 7.194556208948038, "sm": 122184.0, "tm": 6.147190496342796, "tr": "game.hot.tg", "ts": 0.95497609959077}, {"d": "2026-05-22", "s": 125196, "t": 8.858861305473019, "sm": 121430.5, "tm": 6.212760957488685, "tr": "game.hot.tg", "ts": 0.9290552413815136}, {"d": "2026-05-23", "s": 122630, "t": 7.173179482997635, "sm": 121659.5, "tm": 6.271461506149665, "tr": "game.hot.tg", "ts": 0.9486014841392808}, {"d": "2026-05-24", "s": 122760, "t": 7.322645812968394, "sm": 121659.5, "tm": 6.292769865189372, "tr": "game.hot.tg", "ts": 0.9474014336917562}, {"d": "2026-05-25", "s": 126133, "t": 7.1253359549047435, "sm": 122521.5, "tm": 6.338934997866614, "tr": "game.hot.tg", "ts": 0.9279094289361228}, {"d": "2026-05-26", "s": 124386, "t": 7.696364542633416, "sm": 122521.5, "tm": 6.412175463699299, "tr": "game.hot.tg", "ts": 0.9387390863923591}, {"d": "2026-05-27", "s": 118211, "t": 7.035149013205201, "sm": 122695.0, "tm": 6.467286053626834, "tr": "game.hot.tg", "ts": 0.949539382967744}, {"d": "2026-05-28", "s": 115174, "t": 7.168032715717089, "sm": 122521.5, "tm": 6.467286053626834, "tr": "game.hot.tg", "ts": 0.9597218122145624}, {"d": "2026-05-29", "s": 115762, "t": 7.467148114234377, "sm": 122521.5, "tm": 6.499884421585271, "tr": "game.hot.tg", "ts": 0.9449646688896184}, {"d": "2026-05-30", "s": 112655, "t": 6.890098087080023, "sm": 122521.5, "tm": 6.547071005654635, "tr": "game.hot.tg", "ts": 0.9606941547201632}, {"d": "2026-05-31", "s": 113585, "t": 6.702997754985254, "sm": 121457.0, "tm": 6.595328736247207, "tr": "game.hot.tg", "ts": 0.9528899062376194}, {"d": "2026-06-01", "s": 117957, "t": 7.48573632764482, "sm": 120384.5, "tm": 6.643191427739257, "tr": "game.hot.tg", "ts": 0.9562043795620438}, {"d": "2026-06-02", "s": 118358, "t": 8.21156153365214, "sm": 120130.0, "tm": 6.6849451181036805, "tr": "game.hot.tg", "ts": 0.9518156778587}, {"d": "2026-06-03", "s": 121069, "t": 8.15348272472722, "sm": 119988.5, "tm": 6.756555047903987, "tr": "game.hot.tg", "ts": 0.9421652115735656}, {"d": "2026-06-04", "s": 118953, "t": 8.579993779055593, "sm": 119988.5, "tm": 6.850105213951372, "tr": "game.hot.tg", "ts": 0.9495346901717484}, {"d": "2026-06-05", "s": 115801, "t": 9.114929922884947, "sm": 119469.0, "tm": 6.955340069839821, "tr": "game.hot.tg", "ts": 0.954974482085647}, {"d": "2026-06-06", "s": 111304, "t": 7.460459642061381, "sm": 118756.0, "tm": 7.027865532902409, "tr": "game.hot.tg", "ts": 0.9664163013009416}, {"d": "2026-06-07", "s": 111870, "t": 7.5570751765442035, "sm": 118458.5, "tm": 7.080242484054972, "tr": "game.hot.tg", "ts": 0.9642889067667828}, {"d": "2026-06-08", "s": 123836, "t": 7.078894667140411, "sm": 118284.5, "tm": 7.146684335310916, "tr": "game.hot.tg", "ts": 0.8781775897154301}, {"d": "2026-06-09", "s": 112294, "t": 7.164674871319928, "sm": 118284.5, "tm": 7.146684335310916, "tr": "game.hot.tg", "ts": 0.959748517284984}, {"d": "2026-06-10", "s": 114609, "t": 7.017293580783359, "sm": 118151.0, "tm": 7.166353793518509, "tr": "game.hot.tg", "ts": 0.966337722168416}, {"d": "2026-06-11", "s": 112200, "t": 7.1716221033868095, "sm": 118024.0, "tm": 7.166353793518509, "tr": "game.hot.tg", "ts": 0.96048128342246}, {"d": "2026-06-12", "s": 111915, "t": 7.052977706294956, "sm": 117136.5, "tm": 7.169827409551949, "tr": "game.hot.tg", "ts": 0.9624715185631952}, {"d": "2026-06-13", "s": 110134, "t": 6.665725389071495, "sm": 117136.5, "tm": 7.169827409551949, "tr": "game.hot.tg", "ts": 0.964951786006138}, {"d": "2026-06-14", "s": 110032, "t": 6.877671949978188, "sm": 117136.5, "tm": 7.169827409551949, "tr": "game.hot.tg", "ts": 0.9561218554602298}, {"d": "2026-06-15", "s": 117898, "t": 7.218434579042902, "sm": 117136.5, "tm": 7.169827409551949, "tr": "game.hot.tg", "ts": 0.9457836434884392}, {"d": "2026-06-16", "s": 114118, "t": 7.047485935610508, "sm": 117107.0, "tm": 7.172400793192223, "tr": "game.hot.tg", "ts": 0.9583413659545384}, {"d": "2026-06-17", "s": 115824, "t": 7.107231661831745, "sm": 116058.5, "tm": 7.172400793192223, "tr": "game.hot.tg", "ts": 0.9477742091449096}, {"d": "2026-06-18", "s": 111472, "t": 7.191581742500359, "sm": 115812.5, "tm": 7.172400793192223, "tr": "game.hot.tg", "ts": 0.9523647193914166}, {"d": "2026-06-19", "s": 110263, "t": 7.370178573048076, "sm": 115781.5, "tm": 7.172400793192223, "tr": "game.hot.tg", "ts": 0.9667340812421212}, {"d": "2026-06-20", "s": 106396, "t": 6.766410391368097, "sm": 115468.0, "tm": 7.172400793192223, "tr": "game.hot.tg", "ts": 0.967423587352908}, {"d": "2026-06-21", "s": 109135, "t": 6.619343015531223, "sm": 114891.5, "tm": 7.169827409551949, "tr": "game.hot.tg", "ts": 0.9652723690841618}, {"d": "2026-06-22", "s": 112032, "t": 6.75925628391888, "sm": 114363.5, "tm": 7.166353793518509, "tr": "game.hot.tg", "ts": 0.9644922879177378}, {"d": "2026-06-23", "s": 112986, "t": 6.706751278919512, "sm": 113851.5, "tm": 7.166353793518509, "tr": "game.hot.tg", "ts": 0.9654470465367392}, {"d": "2026-06-24", "s": 110260, "t": 6.966923635044441, "sm": 113285.5, "tm": 7.135953266575836, "tr": "game.hot.tg", "ts": 0.9646925448938872}, {"d": "2026-06-25", "s": 109728, "t": 6.772163896179644, "sm": 112820.5, "tm": 7.135953266575836, "tr": "game.hot.tg", "ts": 0.9585611694371536}, {"d": "2026-06-26", "s": 106389, "t": 6.91924917049695, "sm": 112474.5, "tm": 7.093063164486078, "tr": "game.hot.tg", "ts": 0.9596668828544304}, {"d": "2026-06-27", "s": 106056, "t": 6.5800331900128235, "sm": 112247.0, "tm": 7.065936186717684, "tr": "game.hot.tg", "ts": 0.9629063890774684}, {"d": "2026-06-28", "s": 105934, "t": 6.715388827005494, "sm": 112116.0, "tm": 7.065936186717684, "tr": "game.hot.tg", "ts": 0.96048483017728}, {"d": "2026-06-29", "s": 108811, "t": 7.324470871511152, "sm": 111973.5, "tm": 7.065936186717684, "tr": "game.hot.tg", "ts": 0.9551975443659187}, {"d": "2026-06-30", "s": 107730, "t": 6.934363686995266, "sm": 111892.5, "tm": 7.065936186717684, "tr": "game.hot.tg", "ts": 0.9517775921284694}, {"d": "2026-07-01", "s": 104101, "t": 6.924669311533991, "sm": 111671.0, "tm": 7.050231820952732, "tr": "game.hot.tg", "ts": 0.9607016263052228}, {"d": "2026-07-02", "s": 105844, "t": 7.065785495635086, "sm": 111388.0, "tm": 7.032389758196933, "tr": "game.hot.tg", "ts": 0.9565681569101696}, {"d": "2026-07-03", "s": 104465, "t": 7.074589575455894, "sm": 110783.5, "tm": 7.032389758196933, "tr": "game.hot.tg", "ts": 0.963863494950462}, {"d": "2026-07-04", "s": 103825, "t": 7.259879605104744, "sm": 110261.5, "tm": 7.032389758196933, "tr": "game.hot.tg", "ts": 0.9667132193594992}, {"d": "2026-07-05", "s": 106184, "t": 6.949898289761169, "sm": 110197.0, "tm": 7.032389758196933, "tr": "game.hot.tg", "ts": 0.9660777518270172}, {"d": "2026-07-06", "s": 106771, "t": 7.461342499367806, "sm": 110083.0, "tm": 6.9921086079139, "tr": "game.hot.tg", "ts": 0.9645690309166348}, {"d": "2026-07-07", "s": 105153, "t": 7.791836657061615, "sm": 109880.0, "tm": 6.9921086079139, "tr": "game.hot.tg", "ts": 0.9637195324907516}, {"d": "2026-07-08", "s": 105152, "t": 8.308876673767498, "sm": 109431.5, "tm": 6.9921086079139, "tr": "game.hot.tg", "ts": 0.9642993000608644}, {"d": "2026-07-09", "s": 102571, "t": 8.027717386005792, "sm": 108973.0, "tm": 7.007204785327474, "tr": "game.hot.tg", "ts": 0.9653703288453852}, {"d": "2026-07-10", "s": 102400, "t": 7.5276953125, "sm": 108270.5, "tm": 7.007204785327474, "tr": "game.hot.tg", "ts": 0.96744140625}, {"d": "2026-07-11", "s": 90183, "t": 7.933612765155296, "sm": 107250.5, "tm": 7.007204785327474, "tr": "game.hot.tg", "ts": 0.967887517603096}, {"d": "2026-07-12", "s": 89871, "t": 7.723025225044786, "sm": 106583.5, "tm": 7.056635715622797, "tr": "game.hot.tg", "ts": 0.9657842908168376}, {"d": "2026-07-13", "s": 91883, "t": 8.651480687395928, "sm": 106392.5, "tm": 7.0701875355454895, "tr": "game.hot.tg", "ts": 0.9645745132396636}, {"d": "2026-07-14", "s": 92405, "t": 8.201580001082192, "sm": 106286.5, "tm": 7.0701875355454895, "tr": "game.hot.tg", "ts": 0.9630972349981062}, {"d": "2026-07-15", "s": 90939, "t": 7.973245802131099, "sm": 106120.0, "tm": 7.09091061864382, "tr": "game.hot.tg", "ts": 0.9624363584380738}, {"d": "2026-07-16", "s": 89017, "t": 8.143916330588539, "sm": 105995.0, "tm": 7.133085658978127, "tr": "game.hot.tg", "ts": 0.9633665479627488}, {"d": "2026-07-17", "s": 88616, "t": 8.033571815473504, "sm": 105889.0, "tm": 7.167234590280319, "tr": "game.hot.tg", "ts": 0.953405705515934}, {"d": "2026-07-18", "s": 87019, "t": 7.728633976487893, "sm": 105498.5, "tm": 7.167234590280319, "tr": "game.hot.tg", "ts": 0.9632953722750204}, {"d": "2026-07-19", "s": 85909, "t": 7.732088605384767, "sm": 105152.5, "tm": 7.292175238307948, "tr": "game.hot.tg", "ts": 0.9644274755846304}, {"d": "2026-07-20", "s": 88674, "t": 8.514198073843517, "sm": 104808.5, "tm": 7.392906685439479, "tr": "game.hot.tg", "ts": 0.9664839750095856}, {"d": "2026-07-21", "s": 89928, "t": 8.204941731162707, "sm": 104283.0, "tm": 7.494518905933903, "tr": "game.hot.tg", "ts": 0.9639155769059692}, {"d": "2026-07-22", "s": 89683, "t": 8.012098167991704, "sm": 103963.0, "tm": 7.625360268772393, "tr": "game.hot.tg", "ts": 0.9646644291560272}, {"d": "2026-07-23", "s": 88801, "t": 8.253803448159367, "sm": 103198.0, "tm": 7.72582960076634, "tr": "game.hot.tg", "ts": 0.9629959122081958}, {"d": "2026-07-24", "s": 85291, "t": 8.355055046839643, "sm": 102485.5, "tm": 7.73036129093633, "tr": "game.hot.tg", "ts": 0.961988955458372}, {"d": "2026-07-25", "s": 86103, "t": 8.35042913719615, "sm": 97402.5, "tm": 7.761962631223192, "tr": "game.hot.tg", "ts": 0.9496765501782748}, {"d": "2026-07-26", "s": 85718, "t": 8.246155999906671, "sm": 92144.0, "tm": 7.862724711108456, "tr": "game.hot.tg", "ts": 0.9586317926223196}, {"d": "2026-07-27", "s": 87128, "t": 8.011397025066568, "sm": 91411.0, "tm": 7.953429283643198, "tr": "game.hot.tg", "ts": 0.96020796988339}, {"d": "2026-07-28", "s": 86405, "t": 8.138475782651467, "sm": 90561.0, "tm": 7.992321413598834, "tr": "game.hot.tg", "ts": 0.9591227359527804}, {"d": "2026-07-29", "s": 86375, "t": 8.16213024602026, "sm": 90055.5, "tm": 8.011747596529137, "tr": "game.hot.tg", "ts": 0.9593400868306802}, {"d": "2026-07-30", "s": 85469, "t": 8.57944985901321, "sm": 89899.5, "tm": 8.019907776998748, "tr": "game.hot.tg", "ts": 0.9595174858720704}, {"d": "2026-07-31", "s": 82072, "t": 8.628107027975437, "sm": 89777.0, "tm": 8.030644600739649, "tr": "game.hot.tg", "ts": 0.9561604444877668}, {"d": "2026-08-01", "s": 82192, "t": 8.295126046330543, "sm": 89350.0, "tm": 8.086023799062485, "tr": "game.hot.tg", "ts": 0.9617967685419504}, {"d": "2026-08-02", "s": 81729, "t": 8.211626228144233, "sm": 88909.0, "tm": 8.141196056620004, "tr": "game.hot.tg", "ts": 0.964688176779356}, {"d": "2026-08-03", "s": 85195, "t": 8.107658900170199, "sm": 88737.5, "tm": 8.1530232883044, "tr": "game.hot.tg", "ts": 0.962216092493691}, {"d": "2026-08-04", "s": 85551, "t": 8.142710196257203, "sm": 88645.0, "tm": 8.1530232883044, "tr": "game.hot.tg", "ts": 0.9609355822842516}, {"d": "2026-08-05", "s": 84061, "t": 7.989543307835976, "sm": 87872.0, "tm": 8.1530232883044, "tr": "game.hot.tg", "ts": 0.9626104852428592}, {"d": "2026-08-06", "s": 84184, "t": 8.022201368431055, "sm": 87073.5, "tm": 8.143313263422872, "tr": "game.hot.tg", "ts": 0.9597191865437612}, {"d": "2026-08-07", "s": 82269, "t": 7.974923725826253, "sm": 86712.0, "tm": 8.143313263422872, "tr": "game.hot.tg", "ts": 0.9497988306652566}, {"d": "2026-08-08", "s": 78514, "t": 8.358190895891179, "sm": 86390.0, "tm": 8.143313263422872, "tr": "game.hot.tg", "ts": 0.96499987263418}, {"d": "2026-08-09", "s": 80418, "t": 7.931731701857793, "sm": 86239.0, "tm": 8.1530232883044, "tr": "game.hot.tg", "ts": 0.9643487776368476}, {"d": "2026-08-10", "s": 82610, "t": 8.134826292216438, "sm": 86006.0, "tm": 8.1530232883044, "tr": "game.hot.tg", "ts": 0.9618084977605617}, {"d": "2026-08-11", "s": 82799, "t": 7.972970688051788, "sm": 85813.5, "tm": 8.143313263422872, "tr": "game.hot.tg", "ts": 0.959395644874938}, {"d": "2026-08-12", "s": 82166, "t": 8.341722853735122, "sm": 85634.5, "tm": 8.140592989454335, "tr": "game.hot.tg", "ts": 0.9625149088430738}, {"d": "2026-08-13", "s": 82572, "t": 8.051203797897593, "sm": 85510.0, "tm": 8.143313263422872, "tr": "game.hot.tg", "ts": 0.963559075715739}, {"d": "2026-08-14", "s": 79800, "t": 8.016691729323309, "sm": 85380.0, "tm": 8.140592989454335, "tr": "game.hot.tg", "ts": 0.9608646616541352}, {"d": "2026-08-15", "s": 79812, "t": 7.326379491805744, "sm": 85243.0, "tm": 8.140592989454335, "tr": "game.hot.tg", "ts": 0.9656693229088358}, {"d": "2026-08-16", "s": 80163, "t": 7.673752229831718, "sm": 84689.5, "tm": 8.140592989454335, "tr": "game.hot.tg", "ts": 0.9662437783017104}, {"d": "2026-08-17", "s": 80576, "t": 8.305823073868149, "sm": 84122.5, "tm": 8.140592989454335, "tr": "game.hot.tg", "ts": 0.9673351866560762}, {"d": "2026-08-18", "s": 80055, "t": 8.417138217475486, "sm": 83430.0, "tm": 8.140592989454335, "tr": "game.hot.tg", "ts": 0.967035163325214}, {"d": "2026-08-19", "s": 80931, "t": 9.062040503638904, "sm": 82704.5, "tm": 8.140592989454335, "tr": "game.hot.tg", "ts": 0.9572722442574538}, {"d": "2026-08-20", "s": 82216, "t": 9.229310596477571, "sm": 82591.0, "tm": 8.152420221138732, "tr": "game.hot.tg", "ts": 0.9573197431156952}, {"d": "2026-08-21", "s": 81667, "t": 9.625393365741363, "sm": 82420.5, "tm": 8.152420221138732, "tr": "game.hot.tg", "ts": 0.9514246880624976}, {"d": "2026-08-22", "s": 79636, "t": 10.104739062735446, "sm": 82242.5, "tm": 8.152420221138732, "tr": "game.hot.tg", "ts": 0.9537018433874128}, {"d": "2026-08-23", "s": 79394, "t": 9.1471017961055, "sm": 82204.0, "tm": 8.152420221138732, "tr": "game.hot.tg", "ts": 0.9582336196689926}, {"d": "2026-08-24", "s": 81373, "t": 9.901527533702826, "sm": 82179.0, "tm": 8.152420221138732, "tr": "game.hot.tg", "ts": 0.9492091971538472}, {"d": "2026-08-25", "s": 79464, "t": 9.055270311084264, "sm": 82119.0, "tm": 8.186878237082247, "tr": "game.hot.tg", "ts": 0.9596043491392328}, {"d": "2026-08-26", "s": 81506, "t": 8.040451009741615, "sm": 81900.5, "tm": 8.253376137237389, "tr": "game.hot.tg", "ts": 0.9493043456923416}, {"d": "2026-08-27", "s": 81525, "t": 8.356504139834406, "sm": 81698.0, "tm": 8.253376137237389, "tr": "game.hot.tg", "ts": 0.9431217417969948}, {"d": "2026-08-28", "s": 78375, "t": 8.355840510366827, "sm": 81596.0, "tm": 8.253376137237389, "tr": "game.hot.tg", "ts": 0.9592344497607656}, {"d": "2026-08-29", "s": 76934, "t": 7.722736371435256, "sm": 81515.5, "tm": 8.253376137237389, "tr": "game.hot.tg", "ts": 0.9658148542906908}, {"d": "2026-08-30", "s": 76955, "t": 8.107231498927945, "sm": 81439.5, "tm": 8.17716821220072, "tr": "game.hot.tg", "ts": 0.95862517055422}, {"d": "2026-08-31", "s": 77790, "t": 8.804255045635685, "sm": 81152.0, "tm": 8.138768244236822, "tr": "game.hot.tg", "ts": 0.9587607661653168}, {"d": "2026-09-01", "s": 77130, "t": 8.6934915078439, "sm": 80753.5, "tm": 8.224266635062676, "tr": "game.hot.tg", "ts": 0.9546091015169196}, {"d": "2026-09-02", "s": 77127, "t": 8.55241355167451, "sm": 80497.0, "tm": 8.323772963801636, "tr": "game.hot.tg", "ts": 0.9592360651911782}, {"d": "2026-09-03", "s": 77607, "t": 9.067455255324909, "sm": 80290.5, "tm": 8.348781682050975, "tr": "game.hot.tg", "ts": 0.9578259693068925}, {"d": "2026-09-04", "s": 76042, "t": 9.671799794850214, "sm": 80109.0, "tm": 8.356172325100616, "tr": "game.hot.tg", "ts": 0.9573262144604298}, {"d": "2026-09-05", "s": 74288, "t": 9.074978462201162, "sm": 79933.5, "tm": 8.357347517862792, "tr": "game.hot.tg", "ts": 0.9412152702993754}, {"d": "2026-09-06", "s": 74652, "t": 10.22306167282859, "sm": 79933.5, "tm": 8.386821178654946, "tr": "game.hot.tg", "ts": 0.933370840700852}, {"d": "2026-09-07", "s": 75711, "t": 9.853838940180422, "sm": 79806.0, "tm": 8.484775884574997, "tr": "game.hot.tg", "ts": 0.9287157744581368}, {"d": "2026-09-08", "s": 71768, "t": 9.8129249804927, "sm": 79718.0, "tm": 8.622952529759205, "tr": "game.hot.tg", "ts": 0.9476786311448}, {"d": "2026-09-09", "s": 71964, "t": 10.73927241398477, "sm": 79550.0, "tm": 8.748873276739793, "tr": "game.hot.tg", "ts": 0.9387610471902618}, {"d": "2026-09-10", "s": 71159, "t": 10.24095335797299, "sm": 79429.0, "tm": 8.929762678359975, "tr": "game.hot.tg", "ts": 0.940569710085864}, {"d": "2026-09-11", "s": 70014, "t": 12.091610249378697, "sm": 78884.5, "tm": 9.058655407361584, "tr": "game.hot.tg", "ts": 0.9387408232639186}, {"d": "2026-09-12", "s": 67170, "t": 9.706267679023371, "sm": 78082.5, "tm": 9.064747879481905, "tr": "game.hot.tg", "ts": 0.9434866755992258}, {"d": "2026-09-13", "s": 61501, "t": 10.185964455862509, "sm": 77698.5, "tm": 9.071216858763034, "tr": "game.hot.tg", "ts": 0.943139135949009}, {"d": "2026-09-14", "s": 49972, "t": 14.139918354278397, "sm": 77368.5, "tm": 9.11104012915333, "tr": "game.hot.tg", "ts": 0.9114504122308492}, {"d": "2026-09-15", "s": 45247, "t": 15.616438658916612, "sm": 77128.5, "tm": 9.188206196291535, "tr": "game.hot.tg", "ts": 0.8820916303843349}, {"d": "2026-09-16", "s": 42517, "t": 18.277136204341794, "sm": 77041.0, "tm": 9.427351981109467, "tr": "game.hot.tg", "ts": 0.8907731025236965}, {"d": "2026-09-17", "s": 44749, "t": 18.7783861091868, "sm": 76944.5, "tm": 9.64859658029579, "tr": "game.hot.tg", "ts": 0.8353706228072135}, {"d": "2026-09-18", "s": 62965, "t": 15.459191614388946, "sm": 76488.0, "tm": 9.689033736936793, "tr": "game.hot.tg", "ts": 0.7268958945445883}, {"d": "2026-09-19", "s": 52391, "t": 16.021454066538144, "sm": 75876.5, "tm": 9.759596329758036, "tr": "game.hot.tg", "ts": 0.8116470386135023}, {"d": "2026-09-20", "s": 57466, "t": 14.721974732885531, "sm": 75181.5, "tm": 9.759596329758036, "tr": "game.hot.tg", "ts": 0.793965127205652}, {"d": "2026-09-21", "s": 60298, "t": 14.45691399383064, "sm": 74470.0, "tm": 9.83338196033656, "tr": "game.hot.tg", "ts": 0.784304620385419}, {"d": "2026-09-22", "s": 57797, "t": 16.816772496842397, "sm": 73126.0, "tm": 9.83338196033656, "tr": "game.hot.tg", "ts": 0.8043497067321833}, {"d": "2026-09-23", "s": 56105, "t": 15.504714374832902, "sm": 71866.0, "tm": 10.019901698021464, "tr": "game.hot.tg", "ts": 0.8020497281882185}, {"d": "2026-09-24", "s": 54027, "t": 13.72075073574324, "sm": 71463.5, "tm": 10.204513064345548, "tr": "game.hot.tg", "ts": 0.8121864993429211}, {"d": "2026-09-25", "s": 57300, "t": 12.486369982547991, "sm": 70586.5, "tm": 10.23200751540079, "tr": "game.hot.tg", "ts": 0.7749738219895288}, {"d": "2026-09-26", "s": 54118, "t": 11.14496101112384, "sm": 68592.0, "tm": 10.49011288597888, "tr": "game.hot.tg", "ts": 0.8158098968919768}, {"d": "2026-09-27", "s": 63589, "t": 19.141816980924375, "sm": 65067.5, "tm": 10.942116712554306, "tr": "game.hot.tg", "ts": 0.6722231832549654}, {"d": "2026-09-28", "s": 61771, "t": 18.290022826245327, "sm": 63277.0, "tm": 11.618285630251268, "tr": "game.hot.tg", "ts": 0.6776966537695682}, {"d": "2026-09-29", "s": 62990, "t": 15.679107794888075, "sm": 62368.0, "tm": 12.288990115963344, "tr": "game.hot.tg", "ts": 0.7142403556120019}, {"d": "2026-09-30", "s": 58749, "t": 15.719859061430832, "sm": 62368.0, "tm": 13.103560359145616, "tr": "game.hot.tg", "ts": 0.7622938262778941}, {"d": "2026-10-01", "s": 62105, "t": 18.54105144513324, "sm": 61636.0, "tm": 13.93033454501082, "tr": "game.hot.tg", "ts": 0.712680138475163}, {"d": "2026-10-02", "s": 118077, "t": 7.3513554714296605, "sm": 61636.0, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.3710121361484455}, {"d": "2026-10-03", "s": 176719, "t": 3.906982271289448, "sm": 61636.0, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.252513877964452}, {"d": "2026-10-04", "s": 177196, "t": 4.73740942233459, "sm": 61636.0, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.2639393665771236}, {"d": "2026-10-05", "s": 95992, "t": 9.018261938494875, "sm": 61636.0, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.4953121093424452}, {"d": "2026-10-06", "s": 124809, "t": 7.289257986202918, "sm": 61636.0, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.3772083743960772}, {"d": "2026-10-07", "s": 175774, "t": 5.524525811553472, "sm": 61636.0, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.2609373399934006}, {"d": "2026-10-08", "s": 82447, "t": 12.309119798173372, "sm": 61636.0, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.5715914466263176}, {"d": "2026-10-09", "s": 53950, "t": 12.61041705282669, "sm": 61636.0, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.833327154772938}, {"d": "2026-10-10", "s": 56881, "t": 14.949526203829048, "sm": 60899.5, "tm": 14.29841617405452, "tr": "game.hot.tg", "ts": 0.7846029429862345}, {"d": "2026-10-11", "s": 54865, "t": 20.22389501503691, "sm": 59523.5, "tm": 14.589444363358089, "tr": "game.hot.tg", "ts": 0.8386767520277044}, {"d": "2026-10-12", "s": 59164, "t": 12.04484145764316, "sm": 58273.0, "tm": 14.83575046835729, "tr": "game.hot.tg", "ts": 0.8047461294030154}, {"d": "2026-10-13", "s": 55685, "t": 13.128382867917752, "sm": 58956.5, "tm": 14.83575046835729, "tr": "game.hot.tg", "ts": 0.8345874113315974}, {"d": "2026-10-14", "s": 58615, "t": 13.099240808666725, "sm": 58956.5, "tm": 14.589444363358089, "tr": "game.hot.tg", "ts": 0.8042992408086668}, {"d": "2026-10-15", "s": 55503, "t": 16.431183899969373, "sm": 58956.5, "tm": 14.08883236478694, "tr": "game.hot.tg", "ts": 0.8234690016755851}, {"d": "2026-10-16", "s": 54936, "t": 11.985346585117227, "sm": 58956.5, "tm": 14.08883236478694, "tr": "game.hot.tg", "ts": 0.8330602883355177}, {"d": "2026-10-17", "s": 54322, "t": 10.27029564449026, "sm": 58682.0, "tm": 13.424566801830496, "tr": "game.hot.tg", "ts": 0.8225028533559148}, {"d": "2026-10-18", "s": 51810, "t": 10.996622273692337, "sm": 58682.0, "tm": 13.113811838292238, "tr": "game.hot.tg", "ts": 0.8622852731132986}, {"d": "2026-10-19", "s": 53107, "t": 11.430112791157477, "sm": 58682.0, "tm": 12.854828930746706, "tr": "game.hot.tg", "ts": 0.8586438699229857}, {"d": "2026-10-20", "s": 52116, "t": 11.857970680789007, "sm": 58206.0, "tm": 12.54839351768734, "tr": "game.hot.tg", "ts": 0.8586422595747947}, {"d": "2026-10-21", "s": 53919, "t": 12.218030749828449, "sm": 57957.5, "tm": 12.397744890360682, "tr": "game.hot.tg", "ts": 0.8364212986145886}, {"d": "2026-10-22", "s": 51423, "t": 10.642455710479746, "sm": 57957.5, "tm": 12.26357527400091, "tr": "game.hot.tg", "ts": 0.8614238764755071}, {"d": "2026-10-23", "s": 51214, "t": 11.895887843167884, "sm": 57957.5, "tm": 12.131436103735805, "tr": "game.hot.tg", "ts": 0.8741164525325107}, {"d": "2026-10-24", "s": 50178, "t": 12.66367730878074, "sm": 57748.0, "tm": 12.015094021380191, "tr": "game.hot.tg", "ts": 0.8798278129857706}, {"d": "2026-10-25", "s": 49245, "t": 11.173723220631535, "sm": 57748.0, "tm": 12.131436103735805, "tr": "game.hot.tg", "ts": 0.8928419128845568}, {"d": "2026-10-26", "s": 49601, "t": 11.568335315820246, "sm": 56283.0, "tm": 12.015094021380191, "tr": "game.hot.tg", "ts": 0.886756315396867}, {"d": "2026-10-27", "s": 61855, "t": 9.769945841079943, "sm": 55594.0, "tm": 11.940617214142556, "tr": "game.hot.tg", "ts": 0.7160132568102822}, {"d": "2026-10-28", "s": 49273, "t": 10.555395449840685, "sm": 55594.0, "tm": 11.876929261978448, "tr": "game.hot.tg", "ts": 0.8876260832504617}, {"d": "2026-10-29", "s": 49292, "t": 13.168526332873489, "sm": 55219.5, "tm": 11.713152998304627, "tr": "game.hot.tg", "ts": 0.8724539479022965}, {"d": "2026-10-30", "s": 47349, "t": 14.602631523369023, "sm": 54900.5, "tm": 11.713152998304627, "tr": "game.hot.tg", "ts": 0.8819827240279626}, {"d": "2026-10-31", "s": 46019, "t": 10.922640648427825, "sm": 54593.5, "tm": 11.876929261978448, "tr": "game.hot.tg", "ts": 0.9009322236467546}, {"d": "2026-11-01", "s": 46478, "t": 10.958840741856362, "sm": 54136.0, "tm": 11.876929261978448, "tr": "game.hot.tg", "ts": 0.9030939369163904}, {"d": "2026-11-02", "s": 48060, "t": 10.868872243029546, "sm": 53934.5, "tm": 11.876929261978448, "tr": "game.hot.tg", "ts": 0.8819184352892218}, {"d": "2026-11-03", "s": 72343, "t": 8.254965926212625, "sm": 53513.0, "tm": 11.876929261978448, "tr": "game.hot.tg", "ts": 0.8650042160264296}, {"d": "2026-11-04", "s": 79164, "t": 8.92691122227275, "sm": 53513.0, "tm": 11.876929261978448, "tr": "game.hot.tg", "ts": 0.9448234045778384}, {"d": "2026-11-05", "s": 78560, "t": 10.804404276985744, "sm": 53513.0, "tm": 11.876929261978448, "tr": "game.hot.tg", "ts": 0.9450992871690428}, {"d": "2026-11-06", "s": 78574, "t": 9.131315702395195, "sm": 53513.0, "tm": 11.713152998304627, "tr": "game.hot.tg", "ts": 0.9406419426273324}, {"d": "2026-11-07", "s": 77076, "t": 8.854014219731175, "sm": 53513.0, "tm": 11.49922405348886, "tr": "game.hot.tg", "ts": 0.9502828377186154}, {"d": "2026-11-08", "s": 79184, "t": 7.697312588401697, "sm": 53513.0, "tm": 11.301918005894509, "tr": "game.hot.tg", "ts": 0.9371716508385532}, {"d": "2026-11-09", "s": 77752, "t": 11.514842061940527, "sm": 53513.0, "tm": 11.085172747161938, "tr": "game.hot.tg", "ts": 0.945789175841136}, {"d": "2026-11-10", "s": 177510, "t": 5.467325784462847, "sm": 53513.0, "tm": 11.085172747161938, "tr": "3d9ccff55cef5a3efd1fe14b14509b726123910845243ef1671b45e46f214324", "ts": 0.5504816630049011}, {"d": "2026-11-11", "s": 77831, "t": 11.451696624738217, "sm": 53513.0, "tm": 10.97773150777435, "tr": "game.hot.tg", "ts": 0.946409528337038}], "monthly": [{"mo": "2025-11", "partial": false, "all_signers": 556744, "net_demand": 197191, "net_demand_share": 0.3541861250413116, "top_receiver_share_median_day": 0.9446926254292208}, {"mo": "2025-12", "partial": false, "all_signers": 915686, "net_demand": 584720, "net_demand_share": 0.638559506206276, "top_receiver_share_median_day": 0.9474889875818856}, {"mo": "2026-01", "partial": false, "all_signers": 526590, "net_demand": 220182, "net_demand_share": 0.4181279553352703, "top_receiver_share_median_day": 0.950650721069293}, {"mo": "2026-02", "partial": false, "all_signers": 3791961, "net_demand": 3521593, "net_demand_share": 0.928699688630764, "top_receiver_share_median_day": 0.5912564912781408}, {"mo": "2026-03", "partial": false, "all_signers": 381465, "net_demand": 133640, "net_demand_share": 0.350333582373219, "top_receiver_share_median_day": 0.958545708377784}, {"mo": "2026-04", "partial": false, "all_signers": 335794, "net_demand": 111340, "net_demand_share": 0.331572333037517, "top_receiver_share_median_day": 0.9634441107699664}, {"mo": "2026-05", "partial": false, "all_signers": 359151, "net_demand": 143206, "net_demand_share": 0.3987347940002951, "top_receiver_share_median_day": 0.9597218122145624}, {"mo": "2026-06", "partial": false, "all_signers": 302563, "net_demand": 105474, "net_demand_share": 0.3486017788030922, "top_receiver_share_median_day": 0.9597077000697072}, {"mo": "2026-07", "partial": false, "all_signers": 252587, "net_demand": 70617, "net_demand_share": 0.2795749583311888, "top_receiver_share_median_day": 0.9633665479627488}, {"mo": "2026-08", "partial": false, "all_signers": 215609, "net_demand": 63134, "net_demand_share": 0.2928170901956783, "top_receiver_share_median_day": 0.9608646616541352}, {"mo": "2026-09", "partial": false, "all_signers": 302272, "net_demand": 160431, "net_demand_share": 0.5307504499258946, "top_receiver_share_median_day": 0.8864323664540157}, {"mo": "2026-10", "partial": false, "all_signers": 826700, "net_demand": 722549, "net_demand_share": 0.8740159670981009, "top_receiver_share_median_day": 0.833327154772938}, {"mo": "2026-11", "partial": true, "all_signers": 259859, "net_demand": 138154, "net_demand_share": 0.531649856268207, "top_receiver_share_median_day": 0.9406419426273324}], "defaultMult": 2.5, "defaultRatio": 0.6, "burstDaysToFlagMonth": 1, "filmDuration": 64.0, "colors": {"grey": "#79838F", "charcoal": "#16202A", "cream": "#EDEAE1", "rule": "#D3D0C6"}};
+</script>
+<script>
+(function () {
+  const CFG = window.__subsidyFilter;
+  if (!CFG) return;
+
+  const multEl = document.getElementById("cut-signer-mult");
+  const ratioEl = document.getElementById("cut-tx-ratio");
+  const multVal = document.getElementById("cut-signer-mult-val");
+  const ratioVal = document.getElementById("cut-tx-ratio-val");
+  const fig2 = document.getElementById("fig2-chart");
+  const fig2Main = document.getElementById("fig2-chart-main");
+  const fig3 = document.getElementById("fig3-chart");
+  const monthlyBody = document.getElementById("monthly-tbody");
+  const burstBody = document.getElementById("burst-tbody");
+  const burstCountEl = document.getElementById("burst-day-count");
+  const feb16Note = document.getElementById("feb16-note");
+  const params = new URLSearchParams(window.location.search);
+  const filmMode = params.get("film") === "1";
+  if (filmMode) document.body.classList.add("film-mode");
+
+  function fmtInt(n) {
+    return Math.round(n).toLocaleString("en-US");
+  }
+
+  function fmtPct(x) {
+    return (x * 100).toFixed(1) + "%";
+  }
+
+  function isBurst(row, mult, ratio) {
+    if (row.sm == null || row.tm == null || row.tm === 0) return false;
+    return row.s > mult * row.sm && row.t < ratio * row.tm;
+  }
+
+  function compute(mult, ratio) {
+    const flagged = CFG.daily.filter((row) => isBurst(row, mult, ratio));
+    const byMo = {};
+    for (const row of flagged) {
+      const mo = row.d.slice(0, 7);
+      byMo[mo] = (byMo[mo] || 0) + 1;
+    }
+    return { flagged, byMo };
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function svgLineChart(rows, yKey, yMax, burstDates, opts) {
+    const W = 1000;
+    const H = opts.height || 440;
+    const pad = { l: 56, r: 24, t: 20, b: 44 };
+    const innerW = W - pad.l - pad.r;
+    const innerH = H - pad.t - pad.b;
+    const n = rows.length;
+    if (n < 2) return "";
+    const burstSet = new Set(burstDates);
+    const xAt = (i) => pad.l + (i / (n - 1)) * innerW;
+    const yAt = (v) => pad.t + innerH - (v / yMax) * innerH;
+    let path = "";
+    rows.forEach((row, i) => {
+      const y = yAt(row[yKey]);
+      path += (i === 0 ? "M" : "L") + xAt(i).toFixed(2) + " " + y.toFixed(2);
+    });
+    const grey = CFG.colors.grey;
+    const charcoal = CFG.colors.charcoal;
+    const cream = CFG.colors.cream;
+    let circles = "";
+    rows.forEach((row, i) => {
+      if (!burstSet.has(row.d)) return;
+      const cx = xAt(i).toFixed(2);
+      const cy = yAt(row[yKey]).toFixed(2);
+      circles +=
+        '<circle cx="' +
+        cx +
+        '" cy="' +
+        cy +
+        '" r="7" fill="' +
+        cream +
+        '" stroke="' +
+        charcoal +
+        '" stroke-width="1.1"/>';
+    });
+    const yTicks = opts.yTicks || [];
+    let grid = "";
+  yTicks.forEach((tv) => {
+      const y = yAt(tv).toFixed(2);
+      grid +=
+        '<line x1="' +
+        pad.l +
+        '" y1="' +
+        y +
+        '" x2="' +
+        (W - pad.r) +
+        '" y2="' +
+        y +
+        '" stroke="' +
+        CFG.colors.rule +
+        '" stroke-width="0.6"/>';
+    });
+    return (
+      '<svg viewBox="0 0 ' +
+      W +
+      " " +
+      H +
+      '" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" role="img">' +
+      grid +
+      '<path d="' +
+      path +
+      '" fill="none" stroke="' +
+      grey +
+      '" stroke-width="1" stroke-linecap="round"/>' +
+      circles +
+      "</svg>"
+    );
+  }
+
+  function renderCharts(mult, ratio) {
+    const { flagged } = compute(mult, ratio);
+    const burstDates = flagged.map((r) => r.d);
+    const signersMax = Math.max(...CFG.daily.map((r) => r.s)) * 1.08;
+    const txMax = Math.max(...CFG.daily.map((r) => r.t)) * 1.08;
+    const step = 100000;
+    const yTicks = [];
+    for (let v = 0; v <= signersMax; v += step) yTicks.push(v);
+    const svg2 = svgLineChart(CFG.daily, "s", signersMax, burstDates, {
+      height: 440,
+      yTicks,
+    });
+    if (fig2) fig2.innerHTML = svg2;
+    if (fig2Main) fig2Main.innerHTML = svg2;
+    if (fig3) {
+      fig3.innerHTML = svgLineChart(CFG.daily, "t", txMax, burstDates, {
+        height: 420,
+        yTicks: [0, 5, 10, 15, 20],
+      });
+    }
+  }
+
+  function renderMonthly(mult, ratio) {
+    const { byMo } = compute(mult, ratio);
+    const minFlag = CFG.burstDaysToFlagMonth;
+    let html = "";
+    for (const row of CFG.monthly) {
+      const bd = byMo[row.mo] || 0;
+      const flag = bd >= minFlag ? "yes" : "no";
+      const moLabel = row.partial ? row.mo + "†" : row.mo;
+      html +=
+        "<tr>" +
+        "<td>" +
+        esc(moLabel) +
+        "</td>" +
+        '<td class="num">' +
+        fmtInt(row.all_signers) +
+        "</td>" +
+        '<td class="num accent">' +
+        fmtInt(row.net_demand) +
+        "</td>" +
+        '<td class="num">' +
+        fmtPct(row.net_demand_share) +
+        "</td>" +
+        '<td class="num">' +
+        flag +
+        "</td>" +
+        '<td class="num">' +
+        bd +
+        "</td>" +
+        '<td class="num">' +
+        fmtPct(row.top_receiver_share_median_day) +
+        "</td>" +
+        "</tr>";
+    }
+    if (monthlyBody) monthlyBody.innerHTML = html;
+  }
+
+  function renderBurstTable(mult, ratio) {
+    const { flagged } = compute(mult, ratio);
+    flagged.sort((a, b) => (a.d < b.d ? -1 : 1));
+    if (burstCountEl) burstCountEl.textContent = String(flagged.length);
+    if (!burstBody) return;
+    if (!flagged.length) {
+      burstBody.innerHTML =
+        '<tr><td colspan="6">No day in the report window meets both cuts at this threshold.</td></tr>';
+      return;
+    }
+    let html = "";
+    for (const row of flagged) {
+      const sm = row.sm;
+      const tm = row.tm;
+      const signerMult = sm ? row.s / sm : 0;
+      const txRatio = tm ? row.t / tm : 0;
+      html +=
+        "<tr>" +
+        "<td>" +
+        esc(row.d) +
+        "</td>" +
+        '<td class="num">' +
+        fmtInt(row.s) +
+        "</td>" +
+        '<td class="num">' +
+        signerMult.toFixed(2) +
+        "×</td>" +
+        '<td class="num">' +
+        txRatio.toFixed(2) +
+        "</td>" +
+        "<td>" +
+        esc(row.tr) +
+        "</td>" +
+        '<td class="num">' +
+        (row.ts != null ? fmtPct(row.ts) : "—") +
+        "</td>" +
+        "</tr>";
+    }
+    burstBody.innerHTML = html;
+  }
+
+  function updateFeb16Note(mult) {
+    if (!feb16Note) return;
+    const row = CFG.daily.find((r) => r.d === "2026-02-16");
+    if (!row || row.sm == null) {
+      feb16Note.hidden = true;
+      return;
+    }
+    const on = isBurst(row, mult, parseFloat(ratioEl.value));
+    feb16Note.hidden = !on;
+    if (on) {
+      feb16Note.textContent =
+        "2026-02-16 now flags: " +
+        fmtInt(row.s) +
+        " signers (" +
+        (row.s / row.sm).toFixed(2) +
+        "× the trailing median, tx/signer at " +
+        (row.t / row.tm).toFixed(2) +
+        " of its median). At 2.5× it sits just below the cut.";
+    }
+  }
+
+  function apply() {
+    const mult = parseFloat(multEl.value);
+    const ratio = parseFloat(ratioEl.value);
+    multVal.textContent = mult.toFixed(2) + "×";
+    ratioVal.textContent = Math.round(ratio * 100) + "%";
+    renderCharts(mult, ratio);
+    renderMonthly(mult, ratio);
+    renderBurstTable(mult, ratio);
+    updateFeb16Note(mult);
+    window.__subsidyFilterState = { mult, ratio };
+  }
+
+  multEl.addEventListener("input", apply);
+  ratioEl.addEventListener("input", apply);
+  apply();
+
+  const filmApi = {
+    prepare() {
+      apply();
+    },
+    seek(t) {
+      const tt = Math.max(0, Math.min(t, CFG.filmDuration || 64));
+      if (tt < 22) {
+        multEl.value = String(CFG.defaultMult);
+        ratioEl.value = String(CFG.defaultRatio);
+      } else if (tt < 36) {
+        const p = (tt - 22) / 14;
+        const target = 2.4;
+        const v = CFG.defaultMult + (target - CFG.defaultMult) * Math.min(1, p);
+        multEl.value = String(v);
+        ratioEl.value = String(CFG.defaultRatio);
+      } else {
+        multEl.value = "2.4";
+        ratioEl.value = String(CFG.defaultRatio);
+      }
+      apply();
+    },
+  };
+  window.__film = filmApi;
+})();
+
+</script>
 </body>
 </html>

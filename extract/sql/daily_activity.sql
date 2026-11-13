@@ -1,6 +1,6 @@
 -- Daily transaction count and distinct signers.
--- tx / signers is the intensity ratio used by classify/ to detect quota
--- bursts (headcount spikes while tx-per-signer falls).
+-- tx / signers is the intensity ratio used by classify/ to detect burst
+-- days (headcount spikes while tx-per-signer falls).
 -- Columns read: block_date, signer_account_id.
 -- Partition filter: block_date BETWEEN DATE '2025-10-04' AND
 --   DATE_SUB(CURRENT_DATE('UTC'), INTERVAL 1 DAY).

@@ -15,6 +15,13 @@ venv/
 # OS
 .DS_Store
 
+# Film render scratch (the MP4 deliverable is committed)
+film/node_modules/
+film/out/
+film/*.webm
+film/audio/*.wav
+film/audio/*.aiff
+
 # IMPORTANT: data/raw/*.csv IS COMMITTED ON PURPOSE.
 # The judges' machine screeners have no BigQuery credentials, so `make all`
 # must rebuild every chart from these committed extracts, fully offline.

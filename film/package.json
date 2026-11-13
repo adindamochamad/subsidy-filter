@@ -1,0 +1,13 @@
+{
+  "name": "subsidy-filter-film",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "audio": "node audio/build.mjs",
+    "render": "node render.mjs",
+    "film": "node audio/build.mjs && node render.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.52.0"
+  }
+}
