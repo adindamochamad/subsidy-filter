@@ -51,7 +51,7 @@ From `data/raw/monthly_net_demand.csv` and `data/processed/*.csv`. Full argument
 
 ## Out of scope
 
-Interactive filters. Live refresh. Wallet connect. Smart contracts. ML or forecasting. Multi-chain comparison. User accounts. Dark mode. `receipt_actions`. USD or token volumes. Inner receipts. Function names. Human identity.
+Live refresh. Wallet connect. Smart contracts. ML or forecasting. Multi-chain comparison. User accounts. Dark mode. `receipt_actions`. USD or token volumes. Inner receipts. Function names. Human identity.
 
 ## License
 

@@ -9,10 +9,14 @@
   const fig2 = document.getElementById("fig2-chart");
   const fig2Main = document.getElementById("fig2-chart-main");
   const fig3 = document.getElementById("fig3-chart");
+  const fig2Take = document.getElementById("fig2-take");
+  const fig3Take = document.getElementById("fig3-take");
   const monthlyBody = document.getElementById("monthly-tbody");
   const burstBody = document.getElementById("burst-tbody");
   const burstCountEl = document.getElementById("burst-day-count");
+  const cutLive = document.getElementById("cut-live-summary");
   const feb16Note = document.getElementById("feb16-note");
+  const FEB16 = "2026-02-16";
   const params = new URLSearchParams(window.location.search);
   const filmMode = params.get("film") === "1";
   if (filmMode) document.body.classList.add("film-mode");
@@ -56,6 +60,8 @@
     const n = rows.length;
     if (n < 2) return "";
     const burstSet = new Set(burstDates);
+    const accent = CFG.colors.accent || "#0F6E63";
+    const highlight = opts.highlightDate;
     const xAt = (i) => pad.l + (i / (n - 1)) * innerW;
     const yAt = (v) => pad.t + innerH - (v / yMax) * innerH;
     let path = "";
@@ -71,20 +77,28 @@
       if (!burstSet.has(row.d)) return;
       const cx = xAt(i).toFixed(2);
       const cy = yAt(row[yKey]).toFixed(2);
+      const hi = highlight && row.d === highlight;
+      const r = hi ? 11 : 7;
+      const fill = hi ? accent : cream;
+      const sw = hi ? 2.2 : 1.1;
       circles +=
         '<circle cx="' +
         cx +
         '" cy="' +
         cy +
-        '" r="7" fill="' +
-        cream +
+        '" r="' +
+        r +
+        '" fill="' +
+        fill +
         '" stroke="' +
         charcoal +
-        '" stroke-width="1.1"/>';
+        '" stroke-width="' +
+        sw +
+        '"/>';
     });
     const yTicks = opts.yTicks || [];
     let grid = "";
-  yTicks.forEach((tv) => {
+    yTicks.forEach((tv) => {
       const y = yAt(tv).toFixed(2);
       grid +=
         '<line x1="' +
@@ -119,23 +133,80 @@
   function renderCharts(mult, ratio) {
     const { flagged } = compute(mult, ratio);
     const burstDates = flagged.map((r) => r.d);
+    const feb16On = burstDates.includes(FEB16);
     const signersMax = Math.max(...CFG.daily.map((r) => r.s)) * 1.08;
     const txMax = Math.max(...CFG.daily.map((r) => r.t)) * 1.08;
     const step = 100000;
     const yTicks = [];
     for (let v = 0; v <= signersMax; v += step) yTicks.push(v);
-    const svg2 = svgLineChart(CFG.daily, "s", signersMax, burstDates, {
+    const chartOpts = {
       height: 440,
       yTicks,
-    });
+      highlightDate: feb16On ? FEB16 : null,
+    };
+    const svg2 = svgLineChart(CFG.daily, "s", signersMax, burstDates, chartOpts);
     if (fig2) fig2.innerHTML = svg2;
     if (fig2Main) fig2Main.innerHTML = svg2;
     if (fig3) {
       fig3.innerHTML = svgLineChart(CFG.daily, "t", txMax, burstDates, {
         height: 420,
         yTicks: [0, 5, 10, 15, 20],
+        highlightDate: feb16On ? FEB16 : null,
       });
     }
+  }
+
+  function updateTakeaways(mult, ratio) {
+    const { flagged } = compute(mult, ratio);
+    const n = flagged.length;
+    if (fig2Take && n > 0) {
+      let peak = flagged[0];
+      for (const row of flagged) {
+        if (row.s > peak.s) peak = row;
+      }
+      fig2Take.textContent =
+        n +
+        " day" +
+        (n === 1 ? "" : "s") +
+        " meet both cuts at " +
+        mult.toFixed(2) +
+        "× signers and " +
+        Math.round(ratio * 100) +
+        "% tx/signer intensity. Peak " +
+        fmtInt(peak.s) +
+        " signers on " +
+        peak.d +
+        ".";
+    }
+    if (fig3Take && n > 0) {
+      let lo = Infinity;
+      let hi = 0;
+      for (const row of flagged) {
+        const r = row.tm ? row.t / row.tm : 0;
+        if (r < lo) lo = r;
+        if (r > hi) hi = r;
+      }
+      fig3Take.textContent =
+        "On those burst days, tx/signer is " +
+        lo.toFixed(2) +
+        "–" +
+        hi.toFixed(2) +
+        " of each day’s trailing median (intensity half of the detector).";
+    }
+  }
+
+  function updateCutLive(mult, ratio, flagged) {
+    if (!cutLive) return;
+    const n = flagged.length;
+  cutLive.textContent =
+      n +
+      " burst day" +
+      (n === 1 ? "" : "s") +
+      " at " +
+      mult.toFixed(2) +
+      "× signers and " +
+      Math.round(ratio * 100) +
+      "% intensity — Figures 2–3, monthly burst column, and table below update live.";
   }
 
   function renderMonthly(mult, ratio) {
@@ -190,8 +261,11 @@
       const tm = row.tm;
       const signerMult = sm ? row.s / sm : 0;
       const txRatio = tm ? row.t / tm : 0;
+      const rowClass = row.d === FEB16 ? ' class="feb16-row"' : "";
       html +=
-        "<tr>" +
+        "<tr" +
+        rowClass +
+        ">" +
         "<td>" +
         esc(row.d) +
         "</td>" +
@@ -215,36 +289,55 @@
     burstBody.innerHTML = html;
   }
 
-  function updateFeb16Note(mult) {
+  function updateFeb16Note(mult, ratio) {
     if (!feb16Note) return;
-    const row = CFG.daily.find((r) => r.d === "2026-02-16");
+    feb16Note.classList.remove("feb16-near");
+    const row = CFG.daily.find((r) => r.d === FEB16);
     if (!row || row.sm == null) {
       feb16Note.hidden = true;
       return;
     }
-    const on = isBurst(row, mult, parseFloat(ratioEl.value));
-    feb16Note.hidden = !on;
+    const signerMult = row.s / row.sm;
+    const intensity = row.t / row.tm;
+    const on = isBurst(row, mult, ratio);
     if (on) {
+      feb16Note.hidden = false;
       feb16Note.textContent =
         "2026-02-16 now flags: " +
         fmtInt(row.s) +
         " signers (" +
-        (row.s / row.sm).toFixed(2) +
-        "× the trailing median, tx/signer at " +
-        (row.t / row.tm).toFixed(2) +
-        " of its median). At 2.5× it sits just below the cut.";
+        signerMult.toFixed(2) +
+        "× the trailing median). At " +
+        CFG.defaultMult.toFixed(1) +
+        "× it sat just below the cut.";
+      return;
     }
+    if (signerMult < mult && intensity < ratio) {
+      feb16Note.hidden = false;
+      feb16Note.classList.add("feb16-near");
+      feb16Note.textContent =
+        "2026-02-16 is " +
+        signerMult.toFixed(2) +
+        "× the median (intensity passes). Nudge signer cut to " +
+        Math.max(2.0, signerMult - 0.02).toFixed(2) +
+        "× or below to flag it.";
+      return;
+    }
+    feb16Note.hidden = true;
   }
 
   function apply() {
     const mult = parseFloat(multEl.value);
     const ratio = parseFloat(ratioEl.value);
+    const { flagged } = compute(mult, ratio);
     multVal.textContent = mult.toFixed(2) + "×";
     ratioVal.textContent = Math.round(ratio * 100) + "%";
     renderCharts(mult, ratio);
+    updateTakeaways(mult, ratio);
+    updateCutLive(mult, ratio, flagged);
     renderMonthly(mult, ratio);
     renderBurstTable(mult, ratio);
-    updateFeb16Note(mult);
+    updateFeb16Note(mult, ratio);
     window.__subsidyFilterState = { mult, ratio };
   }
 

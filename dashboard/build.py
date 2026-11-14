@@ -30,7 +30,18 @@ from classify.config import (
     TRAILING_WINDOW_DAYS,
     TX_PER_SIGNER_DROP_RATIO,
 )
-from dashboard.style import ACCENT, ACCENT_HI, CHARCOAL, CREAM, FONT_MONO, GREY, INK, MUTED, RULE
+from dashboard.style import (
+    ACCENT,
+    ACCENT_HI,
+    CHARCOAL,
+    CREAM,
+    FONT_MONO,
+    GREY,
+    INK,
+    MUTED,
+    RULE,
+    SURFACE,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
@@ -80,9 +91,9 @@ def _setup_mpl() -> None:
             "font.monospace": [FONT_MONO, "DejaVu Sans Mono"],
             "svg.fonttype": "none",
             "axes.unicode_minus": False,
-            "figure.facecolor": CREAM,
-            "savefig.facecolor": CREAM,
-            "axes.facecolor": CREAM,
+            "figure.facecolor": SURFACE,
+            "savefig.facecolor": SURFACE,
+            "axes.facecolor": SURFACE,
             "text.color": CHARCOAL,
             "axes.labelcolor": CHARCOAL,
             "xtick.color": MUTED,
@@ -94,7 +105,7 @@ def _setup_mpl() -> None:
 
 
 def _style_ax(ax) -> None:
-    ax.set_facecolor(CREAM)
+    ax.set_facecolor(SURFACE)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_color(CHARCOAL)
@@ -223,7 +234,7 @@ def chart_daily_signers(daily: pd.DataFrame) -> str:
         color=CHARCOAL,
         s=22,
         zorder=3,
-        facecolors=CREAM,
+        facecolors=SURFACE,
         edgecolors=CHARCOAL,
         linewidths=1.1,
     )
@@ -260,7 +271,7 @@ def chart_tx_per_signer(daily: pd.DataFrame) -> str:
         color=CHARCOAL,
         s=22,
         zorder=3,
-        facecolors=CREAM,
+        facecolors=SURFACE,
         edgecolors=CHARCOAL,
         linewidths=1.1,
     )
@@ -284,7 +295,7 @@ def chart_top_share(daily: pd.DataFrame) -> str:
         color=CHARCOAL,
         s=22,
         zorder=3,
-        facecolors=CREAM,
+        facecolors=SURFACE,
         edgecolors=CHARCOAL,
         linewidths=1.1,
     )
@@ -434,8 +445,9 @@ def _interactive_script(daily: pd.DataFrame, monthly: pd.DataFrame, end: pd.Time
         "colors": {
             "grey": GREY,
             "charcoal": CHARCOAL,
-            "cream": CREAM,
+            "cream": SURFACE,
             "rule": RULE,
+            "accent": ACCENT,
         },
     }
     js_body = INTERACTIVE_JS.read_text(encoding="utf-8")
@@ -549,10 +561,11 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Subsidy Filter — NEAR active accounts, Nov 2025–Nov 2026</title>
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=instrument-serif@400,400i,600,700&amp;display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap">
 <style>
   :root {{
     --cream: {CREAM};
+    --surface: {SURFACE};
     --charcoal: {CHARCOAL};
     --accent: {ACCENT};
     --accent-hi: {ACCENT_HI};
@@ -568,62 +581,137 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
     margin: 0;
   }}
   body {{
-    font-family: "Instrument Serif", "Times New Roman", Times, serif;
-    font-size: 1.25rem;
-    line-height: 1.45;
+    font-family: Inter, "Helvetica Neue", system-ui, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
     font-weight: 400;
   }}
+  .shell {{
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    min-height: 100vh;
+  }}
+  .rail {{
+    background: var(--surface);
+    border-right: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.1rem 0;
+    gap: 1.4rem;
+  }}
+  .mark {{
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 0.7rem;
+    background: var(--accent);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 1.15rem;
+  }}
+  .rail a {{
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.65rem;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }}
+  .rail a:hover, .rail a.active {{
+    background: var(--cream);
+    color: var(--charcoal);
+  }}
+  .main {{
+    min-width: 0;
+  }}
+  .topbar {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 1.8rem 0.4rem;
+    flex-wrap: wrap;
+  }}
+  .greet h2 {{
+    font-family: "Instrument Serif", Georgia, serif;
+    font-weight: 400;
+    font-size: 1.55rem;
+    margin: 0;
+  }}
+  .greet p {{
+    margin: 0.15rem 0 0;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }}
+  .tabs {{
+    display: flex;
+    gap: 1.1rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }}
+  .tabs a {{
+    color: var(--muted);
+    text-decoration: none;
+    padding-bottom: 0.35rem;
+    border-bottom: 2px solid transparent;
+  }}
+  .tabs a:hover, .tabs a.active {{
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }}
   .page {{
-    max-width: 40rem;
+    max-width: 72rem;
     margin: 0 auto;
-    padding: 2.4rem 1.4rem 6rem;
+    padding: 0.6rem 1.8rem 4.5rem;
   }}
   .hero-band {{
-    background: var(--ink);
-    color: var(--cream);
-    padding: 4.5rem 1.4rem 3.4rem;
+    background: transparent;
+    color: var(--charcoal);
+    padding: 0.4rem 1.8rem 0.2rem;
   }}
   .hero-inner {{
-    max-width: 40rem;
+    max-width: 72rem;
     margin: 0 auto;
   }}
   .kicker {{
     font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--cream);
+    color: var(--muted);
     margin: 0;
   }}
   .hero-band h1 {{
+    font-family: "Instrument Serif", Georgia, serif;
     font-weight: 400;
-    font-size: 3.05rem;
-    line-height: 1.05;
+    font-size: clamp(2.1rem, 4vw, 3.1rem);
+    line-height: 1.08;
     letter-spacing: -0.02em;
-    margin: 0.7rem 0 0.85rem;
-    color: var(--cream);
+    margin: 0.55rem 0 0.7rem;
+    color: var(--charcoal);
+    max-width: 18ch;
   }}
   .standfirst {{
-    font-style: italic;
-    font-size: 1.28rem;
-    color: var(--cream);
-    margin: 0;
-    max-width: 36rem;
-  }}
-  h1 {{
-    font-weight: 400;
-    font-size: 3.35rem;
-    line-height: 1.02;
-    letter-spacing: -0.02em;
-    margin: 0.55rem 0 0.6rem;
+    font-style: normal;
+    font-size: 1.05rem;
+    color: var(--muted);
+    margin: 0 0 1.3rem;
+    max-width: 40rem;
   }}
   h2 {{
+    font-family: "Instrument Serif", Georgia, serif;
     font-weight: 400;
-    font-size: 1.55rem;
-    margin: 3.2rem 0 0.7rem;
+    font-size: 1.45rem;
+    margin: 0 0 0.55rem;
   }}
-  p {{ margin: 0 0 1.05rem; }}
-  a {{ color: var(--charcoal); }}
+  p {{ margin: 0 0 0.9rem; }}
+  a {{ color: var(--accent); }}
   .mono {{
     font-family: "IBM Plex Mono", ui-monospace, monospace;
     font-size: 0.86em;
@@ -631,19 +719,42 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
     letter-spacing: 0;
     white-space: nowrap;
   }}
+  .card {{
+    background: var(--surface);
+    border-radius: 1.1rem;
+    padding: 1.15rem 1.2rem 1.2rem;
+    margin: 0 0 1rem;
+  }}
+  .card-head {{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.55rem;
+  }}
+  .grid-2 {{
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 1rem;
+  }}
+  @media (max-width: 860px) {{
+    .shell {{ grid-template-columns: 1fr; }}
+    .rail {{ display: none; }}
+    .grid-2 {{ grid-template-columns: 1fr; }}
+  }}
   figure {{
-    margin: 3.1rem 0;
+    margin: 0;
   }}
   figcaption {{
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0 0 0.65rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--charcoal);
+    margin: 0 0 0.5rem;
   }}
   figure .chart {{
-    margin: 0 -0.2rem 0.85rem;
+    margin: 0 0 0.7rem;
   }}
   figure .chart svg {{
     width: 100%;
@@ -651,15 +762,16 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
     display: block;
   }}
   .take {{
-    font-size: 1.05rem;
-    margin: 0 0 0.55rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin: 0 0 0.4rem;
   }}
   details {{
     margin: 0.35rem 0 0;
   }}
   details summary {{
     font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--muted);
@@ -672,8 +784,8 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
     font-size: 0.68rem;
     line-height: 1.45;
     background: var(--cream);
-    border-top: 1px solid var(--rule);
-    padding: 0.85rem 0 0;
+    border-radius: 0.7rem;
+    padding: 0.85rem;
     overflow-x: auto;
     color: var(--charcoal);
     margin: 0.55rem 0 0;
@@ -684,11 +796,11 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
     font-family: "IBM Plex Mono", ui-monospace, monospace;
     font-size: 0.78rem;
     font-variant-numeric: tabular-nums;
-    margin: 0.6rem 0 1.4rem;
+    margin: 0.4rem 0 0;
   }}
   th, td {{
     border-bottom: 1px solid var(--rule);
-    padding: 0.45rem 0.35rem;
+    padding: 0.5rem 0.4rem;
     vertical-align: bottom;
   }}
   th {{
@@ -707,55 +819,73 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
   }}
   td.accent {{ color: var(--accent); }}
   .note {{
-    font-size: 1.05rem;
-    color: var(--charcoal);
+    font-size: 0.95rem;
+    color: var(--muted);
   }}
   footer {{
-    margin-top: 3.5rem;
-    padding-top: 1.1rem;
-    border-top: 1px solid var(--rule);
+    margin-top: 1.2rem;
+    padding: 1rem 0.2rem 0;
     font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--muted);
-    letter-spacing: 0.02em;
   }}
   .hero-stats {{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.8rem 2.4rem;
-    margin: 1.4rem 0 0.2rem;
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 0.78rem;
-    letter-spacing: 0.02em;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin: 0;
+  }}
+  @media (max-width: 720px) {{
+    .hero-stats {{ grid-template-columns: 1fr; }}
+  }}
+  .hero-stat {{
+    background: var(--surface);
+    border-radius: 1.05rem;
+    padding: 1rem 1.05rem 1.05rem;
+  }}
+  .hero-stat:first-child {{
+    background: var(--accent);
+    color: #fff;
   }}
   .hero-stat strong {{
     display: block;
-    font-size: 1.55rem;
-    font-weight: 500;
-    color: var(--accent-hi);
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 1.85rem;
+    font-weight: 400;
+    color: inherit;
     letter-spacing: -0.02em;
-    margin-top: 0.2rem;
+    margin-top: 0.35rem;
   }}
   .hero-stat span {{
-    text-transform: uppercase;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    color: var(--grey);
+    text-transform: none;
+    font-size: 0.8rem;
+    letter-spacing: 0;
+    color: var(--muted);
+    font-weight: 500;
+  }}
+  .hero-stat:first-child span {{
+    color: rgba(255,255,255,0.78);
   }}
   .controls {{
-    margin: 2.2rem 0 0.4rem;
-    padding: 1.1rem 0;
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
+    margin: 0 0 1rem;
+    padding: 1.1rem 1.2rem;
+  }}
+  .controls-row {{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+  }}
+  @media (max-width: 720px) {{
+    .controls-row {{ grid-template-columns: 1fr; }}
   }}
   .controls label {{
     display: block;
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 0.72rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    margin: 0.85rem 0 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--charcoal);
+    margin: 0 0 0.4rem;
   }}
   .controls input[type="range"] {{
     width: 100%;
@@ -764,19 +894,51 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
   .controls .readout {{
     font-family: "IBM Plex Mono", ui-monospace, monospace;
     font-size: 0.85rem;
-    margin-top: 0.25rem;
+    margin: 0.2rem 0 0;
+    color: var(--accent);
+  }}
+  .cut-live {{
+    margin: 1rem 0 0;
+    padding: 0.7rem 1rem;
+    background: rgba(15, 110, 99, 0.08);
+    border-left: 3px solid var(--accent);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    border-radius: 0 8px 8px 0;
   }}
   #feb16-note {{
-    font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: 0.78rem;
-    color: var(--accent);
-    margin: 0.6rem 0 0;
+    font-family: Inter, sans-serif;
+    font-size: 0.88rem;
+    color: var(--charcoal);
+    margin: 0.75rem 0 0;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: rgba(15, 110, 99, 0.1);
   }}
-  body.film-mode .page > *:not(#film-stage),
+  #feb16-note.feb16-near {{
+    border-color: #c9a227;
+    background: rgba(201, 162, 39, 0.12);
+    color: var(--charcoal);
+  }}
+  #burst-tbody tr.feb16-row td {{
+    background: rgba(15, 110, 99, 0.12);
+    font-weight: 600;
+  }}
+  .intro {{
+    color: var(--muted);
+    font-size: 0.98rem;
+    max-width: 46rem;
+  }}
+  body.film-mode .rail,
+  body.film-mode .topbar,
+  body.film-mode .card,
+  body.film-mode .intro,
   body.film-mode footer,
-  body.film-mode .controls,
   body.film-mode .hero-band h1,
-  body.film-mode .standfirst {{
+  body.film-mode .standfirst,
+  body.film-mode .kicker {{
     display: none !important;
   }}
   body.film-mode {{
@@ -786,22 +948,40 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
     min-height: 1080px;
     margin: 0 auto;
   }}
+  body.film-mode .shell {{
+    display: block;
+    background: var(--ink);
+  }}
   body.film-mode .hero-band {{
-    padding: 3rem 2rem 1.5rem;
-    min-height: 100vh;
+    padding: 3rem 2.4rem 1.2rem;
+    min-height: auto;
   }}
   body.film-mode .hero-inner {{
     max-width: 56rem;
   }}
+  body.film-mode .hero-stat {{
+    background: transparent;
+  }}
+  body.film-mode .hero-stat:first-child {{
+    background: transparent;
+  }}
+  body.film-mode .hero-stat span {{
+    color: var(--grey);
+  }}
+  body.film-mode .hero-stat strong {{
+    color: var(--accent-hi);
+    font-size: 2.4rem;
+  }}
   body.film-mode #film-stage {{
     display: block !important;
-    margin-top: 2rem;
+    margin: 0 2.4rem;
+    background: var(--surface);
+    border-radius: 1.1rem;
+    padding: 1.2rem;
   }}
   body.film-mode .hero-stats {{
     gap: 2.5rem 4rem;
-  }}
-  body.film-mode .hero-stat strong {{
-    font-size: 2.4rem;
+    display: flex;
   }}
   #film-stage {{
     display: none;
@@ -809,126 +989,170 @@ def render(monthly: pd.DataFrame, daily: pd.DataFrame, bursts: pd.DataFrame) -> 
 </style>
 </head>
 <body>
-<header class="hero-band">
-  <div class="hero-inner">
-    <p class="kicker">Subsidy Filter · NEAR public transactions · {DATE_START} to {end_s}</p>
-    <h1>Most of NEAR’s active accounts are one Telegram game.</h1>
-    <p class="standfirst">After removing HOT and flagging burst days, quiet-month Net Demand is a fraction of the headline.{(" " + html.escape(partial) + ".") if partial else ""}</p>
-    <div class="hero-stats" data-august="2026-08">
-      <div class="hero-stat"><span>Aug 2026 reported</span><strong>{aug['reported']}</strong></div>
-      <div class="hero-stat"><span>Net Demand</span><strong>{aug['net']}</strong></div>
-      <div class="hero-stat"><span>Net / reported</span><strong>{aug['share']}</strong></div>
+<div class="shell">
+  <nav class="rail" aria-label="Sections">
+    <div class="mark" title="Subsidy Filter">S</div>
+    <a class="active" href="#top">Home</a>
+    <a href="#figures">Figs</a>
+    <a href="#tables">Data</a>
+    <a href="#method">Note</a>
+  </nav>
+  <div class="main">
+    <div class="topbar" id="top">
+      <div class="greet">
+        <h2>Subsidy Filter</h2>
+        <p>NEAR public transactions · {DATE_START} to {end_s}</p>
+      </div>
+      <nav class="tabs">
+        <a class="active" href="#figures">Overview</a>
+        <a href="#tables">Tables</a>
+        <a href="{html.escape(THESIS_URL)}">Thesis</a>
+      </nav>
     </div>
+    <header class="hero-band">
+      <div class="hero-inner">
+        <p class="kicker">Investment thesis · burst detector</p>
+        <h1>Most of NEAR’s active accounts are one Telegram game.</h1>
+        <p class="standfirst">After removing HOT and flagging burst days, quiet-month Net Demand is a fraction of the headline.{(" " + html.escape(partial) + ".") if partial else ""}</p>
+        <div class="hero-stats" data-august="2026-08">
+          <div class="hero-stat"><span>Aug 2026 reported</span><strong>{aug['reported']}</strong></div>
+          <div class="hero-stat"><span>Net Demand</span><strong>{aug['net']}</strong></div>
+          <div class="hero-stat"><span>Net / reported</span><strong>{aug['share']}</strong></div>
+        </div>
+      </div>
+    </header>
+    <article class="page">
+      <div id="film-stage">
+        <figure>
+          <figcaption>Figure 2 · Daily distinct signers. Open circles follow the cuts below.</figcaption>
+          <div class="chart" id="fig2-chart"></div>
+        </figure>
+      </div>
+
+      <div class="card controls no-film-hide" id="figures">
+        <p class="note">Move the burst cuts. Figures 2–3, the monthly burst column, and the burst-day table recompute from <span class="mono">data/processed/daily.csv</span> in the browser. Defaults match <span class="mono">classify/config.py</span>.</p>
+        <div class="controls-row">
+          <div>
+            <label for="cut-signer-mult">Signer burst multiple (vs trailing {TRAILING_WINDOW_DAYS}d median)</label>
+            <input type="range" id="cut-signer-mult" min="2.0" max="3.0" step="0.05" value="{SIGNER_BURST_MULTIPLE}">
+            <p class="readout" id="cut-signer-mult-val">{SIGNER_BURST_MULTIPLE}×</p>
+          </div>
+          <div>
+            <label for="cut-tx-ratio">Tx-per-signer intensity cut (fraction of trailing median)</label>
+            <input type="range" id="cut-tx-ratio" min="0.45" max="0.75" step="0.01" value="{TX_PER_SIGNER_DROP_RATIO}">
+            <p class="readout" id="cut-tx-ratio-val">{fmt_pct(TX_PER_SIGNER_DROP_RATIO, 0)}</p>
+          </div>
+        </div>
+        <p id="cut-live-summary" class="cut-live" aria-live="polite"></p>
+        <p id="feb16-note" hidden></p>
+      </div>
+
+      <div class="card">
+        <figure>
+          <figcaption>Figure 1 · Reported active accounts and Net Demand</figcaption>
+          <div class="chart">{hero}</div>
+          <p class="take">{html.escape(takes['hero'])}</p>
+          <details>
+            <summary>SQL</summary>
+            <pre>{sql_monthly}</pre>
+          </details>
+        </figure>
+      </div>
+
+      <p class="intro">NEAR’s reported active accounts are a count of distinct <span class="mono">signer_account_id</span> values. This note splits that count into signers who did something other than transact with a <span class="mono">hot.tg</span> receiver, and flags days where headcount spikes while transactions-per-signer collapse. Thresholds live in <span class="mono">classify/config.py</span>. The argument, including what cuts against it, is in <a href="{html.escape(THESIS_URL)}">THESIS.md</a>.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <figure>
+            <figcaption>Figure 2 · Daily distinct signers. Open circles are burst days.</figcaption>
+            <div class="chart" id="fig2-chart-main"></div>
+            <p class="take" id="fig2-take">{html.escape(takes['daily'])}</p>
+            <details>
+              <summary>SQL</summary>
+              <pre>{sql_daily}</pre>
+            </details>
+          </figure>
+        </div>
+        <div class="card">
+          <figure>
+            <figcaption>Figure 3 · Transactions per signer</figcaption>
+            <div class="chart" id="fig3-chart"></div>
+            <p class="take" id="fig3-take">{html.escape(takes['txps'])}</p>
+            <details>
+              <summary>SQL</summary>
+              <pre>{sql_daily}</pre>
+            </details>
+          </figure>
+        </div>
+      </div>
+
+      <div class="card">
+        <figure>
+          <figcaption>Figure 4 · Share of daily signers taken by the #1 contract</figcaption>
+          <div class="chart">{share_svg}</div>
+          <p class="take">{html.escape(takes['share'])}</p>
+          <details>
+            <summary>SQL</summary>
+            <pre>{sql_top}</pre>
+          </details>
+        </figure>
+      </div>
+
+      <div class="card" id="tables">
+        <h2>Monthly figures</h2>
+        <p class="note">{html.escape(takes['quiet_range'])} The monthly table reports <span class="mono">top_receiver_share_median_day</span> (median of daily #1-contract shares). <span class="mono">top_receiver_share_peak_day</span> is in <span class="mono">data/processed/monthly.csv</span> and is the share on the loudest day; it is not shown here because it understates typical-day HOT dominance in burst months. Burst months are flagged when at least one day meets both detector cuts (signers &gt; {SIGNER_BURST_MULTIPLE}× the trailing {TRAILING_WINDOW_DAYS}-day median, and tx/signer &lt; {fmt_pct(TX_PER_SIGNER_DROP_RATIO, 0)} of that median).</p>
+        <table>
+          <thead>
+            <tr>
+              <th>month</th>
+              <th class="num">reported</th>
+              <th class="num">net demand</th>
+              <th class="num">net / reported</th>
+              <th class="num">burst</th>
+              <th class="num">burst days</th>
+              <th class="num">median #1 share</th>
+            </tr>
+          </thead>
+          <tbody id="monthly-tbody">
+            {_monthly_table(monthly, end)}
+          </tbody>
+        </table>
+        {dagger}
+      </div>
+
+      <div class="card">
+        <h2>Burst days</h2>
+        <p class="note">A day is flagged only when both conditions hold (<span id="burst-day-count">{len(bursts)}</span> days at these cuts). On 2026-11-10 the #1 receiver is a single implicit account (55.0% of that day’s signers). On the February and October burst days the #1 receiver is still game.hot.tg at 23.6%–26.4%; those two episodes remain unattributed.</p>
+        {coverage_block}
+        <table>
+          <thead>
+            <tr>
+              <th>day</th>
+              <th class="num">signers</th>
+              <th class="num">vs 28d median</th>
+              <th class="num">tx/signer vs median</th>
+              <th>top receiver</th>
+              <th class="num">#1 share</th>
+            </tr>
+          </thead>
+          <tbody id="burst-tbody">
+            {_burst_table(bursts)}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" id="method">
+        <h2>How to read this</h2>
+        <p>Net Demand does not subtract burst windows. It only subtracts signers whose monthly activity is exclusively with receivers matching <span class="mono">%{html.escape(HOT_RECEIVER_SUBSTRING)}</span>. February and October therefore remain large on the Net Demand line. That is a finding, not a bug: those bursts are not HOT-only, and they are not attributed.{nov_note} See <a href="{html.escape(THESIS_URL)}">THESIS.md</a>.</p>
+        <p>Rebuild this page from the committed CSVs with <span class="mono">make all</span>. No BigQuery credentials are required.</p>
+      </div>
+
+      <footer>
+        Source: bigquery-public-data.crypto_near_mainnet_us.transactions. Charts rebuilt from data/raw/*.csv. MIT license. Layout after <a href="https://dribbble.com/shots/20530408-Infomaz-News-dashboard">Infomaz — News dashboard</a> (Norch Studio).
+      </footer>
+    </article>
   </div>
-</header>
-<article class="page">
-  <div id="film-stage">
-    <figure>
-      <figcaption>Figure 2 · Daily distinct signers. Open circles follow the cuts below.</figcaption>
-      <div class="chart" id="fig2-chart"></div>
-    </figure>
-  </div>
-
-  <div class="controls no-film-hide">
-    <p class="note">Move the burst cuts. Figures 2–3, the monthly burst column, and the burst-day table recompute from <span class="mono">data/processed/daily.csv</span> in the browser. Defaults match <span class="mono">classify/config.py</span>.</p>
-    <label for="cut-signer-mult">Signer burst multiple (vs trailing {TRAILING_WINDOW_DAYS}d median)</label>
-    <input type="range" id="cut-signer-mult" min="2.0" max="3.0" step="0.05" value="{SIGNER_BURST_MULTIPLE}">
-    <p class="readout" id="cut-signer-mult-val">{SIGNER_BURST_MULTIPLE}×</p>
-    <label for="cut-tx-ratio">Tx-per-signer intensity cut (fraction of trailing median)</label>
-    <input type="range" id="cut-tx-ratio" min="0.45" max="0.75" step="0.01" value="{TX_PER_SIGNER_DROP_RATIO}">
-    <p class="readout" id="cut-tx-ratio-val">{fmt_pct(TX_PER_SIGNER_DROP_RATIO, 0)}</p>
-    <p id="feb16-note" hidden></p>
-  </div>
-
-  <figure>
-    <figcaption>Figure 1 · Reported active accounts and Net Demand</figcaption>
-    <div class="chart">{hero}</div>
-    <p class="take">{html.escape(takes['hero'])}</p>
-    <details>
-      <summary>SQL</summary>
-      <pre>{sql_monthly}</pre>
-    </details>
-  </figure>
-
-  <p>NEAR’s reported active accounts are a count of distinct <span class="mono">signer_account_id</span> values. This note splits that count into signers who did something other than transact with a <span class="mono">hot.tg</span> receiver, and flags days where headcount spikes while transactions-per-signer collapse. Thresholds live in <span class="mono">classify/config.py</span>. The argument, including what cuts against it, is in <a href="{html.escape(THESIS_URL)}">THESIS.md</a>.</p>
-
-  <figure>
-    <figcaption>Figure 2 · Daily distinct signers. Open circles are burst days.</figcaption>
-    <div class="chart" id="fig2-chart-main"></div>
-    <p class="take">{html.escape(takes['daily'])}</p>
-    <details>
-      <summary>SQL</summary>
-      <pre>{sql_daily}</pre>
-    </details>
-  </figure>
-
-  <figure>
-    <figcaption>Figure 3 · Transactions per signer. Open circles are burst days.</figcaption>
-    <div class="chart" id="fig3-chart"></div>
-    <p class="take">{html.escape(takes['txps'])}</p>
-    <details>
-      <summary>SQL</summary>
-      <pre>{sql_daily}</pre>
-    </details>
-  </figure>
-
-  <figure>
-    <figcaption>Figure 4 · Share of daily signers taken by the #1 contract</figcaption>
-    <div class="chart">{share_svg}</div>
-    <p class="take">{html.escape(takes['share'])}</p>
-    <details>
-      <summary>SQL</summary>
-      <pre>{sql_top}</pre>
-    </details>
-  </figure>
-
-  <h2>Monthly figures</h2>
-  <p class="note">{html.escape(takes['quiet_range'])} The monthly table reports <span class="mono">top_receiver_share_median_day</span> (median of daily #1-contract shares). <span class="mono">top_receiver_share_peak_day</span> is in <span class="mono">data/processed/monthly.csv</span> and is the share on the loudest day; it is not shown here because it understates typical-day HOT dominance in burst months. Burst months are flagged when at least one day meets both detector cuts (signers &gt; {SIGNER_BURST_MULTIPLE}× the trailing {TRAILING_WINDOW_DAYS}-day median, and tx/signer &lt; {fmt_pct(TX_PER_SIGNER_DROP_RATIO, 0)} of that median).</p>
-  <table>
-    <thead>
-      <tr>
-        <th>month</th>
-        <th class="num">reported</th>
-        <th class="num">net demand</th>
-        <th class="num">net / reported</th>
-        <th class="num">burst</th>
-        <th class="num">burst days</th>
-        <th class="num">median #1 share</th>
-      </tr>
-    </thead>
-    <tbody id="monthly-tbody">
-      {_monthly_table(monthly, end)}
-    </tbody>
-  </table>
-  {dagger}
-
-  <h2>Burst days</h2>
-  <p class="note">A day is flagged only when both conditions hold (<span id="burst-day-count">{len(bursts)}</span> days at these cuts). On 2026-11-10 the #1 receiver is a single implicit account (55.0% of that day’s signers). On the February and October burst days the #1 receiver is still game.hot.tg at 23.6%–26.4%; those two episodes remain unattributed.</p>
-  {coverage_block}
-  <table>
-    <thead>
-      <tr>
-        <th>day</th>
-        <th class="num">signers</th>
-        <th class="num">vs 28d median</th>
-        <th class="num">tx/signer vs median</th>
-        <th>top receiver</th>
-        <th class="num">#1 share</th>
-      </tr>
-    </thead>
-    <tbody id="burst-tbody">
-      {_burst_table(bursts)}
-    </tbody>
-  </table>
-
-  <h2>How to read this</h2>
-  <p>Net Demand does not subtract burst windows. It only subtracts signers whose monthly activity is exclusively with receivers matching <span class="mono">%{html.escape(HOT_RECEIVER_SUBSTRING)}</span>. February and October therefore remain large on the Net Demand line. That is a finding, not a bug: those bursts are not HOT-only, and they are not attributed.{nov_note} See <a href="{html.escape(THESIS_URL)}">THESIS.md</a>.</p>
-  <p>Rebuild this page from the committed CSVs with <span class="mono">make all</span>. No BigQuery credentials are required.</p>
-
-  <footer>
-    Source: bigquery-public-data.crypto_near_mainnet_us.transactions. Charts rebuilt from data/raw/*.csv. MIT license.
-  </footer>
-</article>
+</div>
 {interactive}
 </body>
 </html>
